@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:cardview="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        cardview:cardCornerRadius="2dp"
+        cardview:cardElevation="2dp"
+        cardview:cardBackgroundColor="@color/lightest">
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/lightest">
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+            <com.gitlab.jeeto.oboco.view.GroupImageView
+                    android:id="@+id/card_group_imageview"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"/>
+            <TextView
+                android:id="@+id/comic_group_folder_bookCollectionNumberOfBooksTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/card_padding"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:padding="@dimen/card_padding"
+                android:singleLine="true"
+                android:textSize="@dimen/card_text"
+                android:background="@color/lightest"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true">
+                <ImageView
+                    android:id="@+id/comic_group_folder_bookDownloadImageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/card_padding"
+                    android:clickable="true"
+                    android:padding="@dimen/card_padding"
+                    android:src="@drawable/ic_file_download_black_24dp"
+                    android:background="@color/lightest"
+                    android:foreground="?android:attr/selectableItemBackground" />
+                <ImageView
+                    android:id="@+id/comic_group_folder_bookMarkUpdateImageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/card_padding"
+                    android:layout_marginRight="@dimen/card_padding"
+                    android:layout_marginBottom="@dimen/card_padding"
+                    android:clickable="true"
+                    android:padding="@dimen/card_padding"
+                    android:src="@drawable/ic_bookmark_border_black_24dp"
+                    android:background="@color/lightest"
+                    android:foreground="?android:attr/selectableItemBackground"/>
+            </LinearLayout>
+        </RelativeLayout>
+        <TextView
+            android:id="@+id/comic_group_folder_bookCollectionTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/card_padding"
+            android:layout_weight="1"
+            android:paddingTop="@dimen/card_padding"
+            android:paddingBottom="@dimen/card_padding"
+            android:lines="2"
+            android:textSize="@dimen/card_text"/>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
