@@ -10,6 +10,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.List;
+
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 
@@ -88,16 +90,9 @@ public class ApiTest {
             System.out.println("rootBookCollection.updateDate=" + rootBookCollection.getUpdateDate());
             System.out.println("rootBookCollection.name=" + rootBookCollection.getName());
 
-            PageableListDto<BookCollectionDto> bookCollections = rootBookCollection.getBookCollections();
+            List<BookCollectionDto> bookCollections = rootBookCollection.getBookCollections();
 
-            System.out.println("bookCollections.page=" + bookCollections.getPage());
-            System.out.println("bookCollections.pageSize=" + bookCollections.getPageSize());
-            System.out.println("bookCollections.firstPage=" + bookCollections.getFirstPage());
-            System.out.println("bookCollections.lastPage=" + bookCollections.getLastPage());
-            System.out.println("bookCollections.previousPage=" + bookCollections.getPreviousPage());
-            System.out.println("bookCollections.nextPage=" + bookCollections.getNextPage());
-
-            for(BookCollectionDto bookCollection: bookCollections.getElements()) {
+            for(BookCollectionDto bookCollection: bookCollections) {
                 System.out.println("bookCollection.id=" + bookCollection.getId());
                 System.out.println("bookCollection.updateDate=" + bookCollection.getUpdateDate());
                 System.out.println("bookCollection.name=" + bookCollection.getName());
