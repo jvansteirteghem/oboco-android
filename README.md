@@ -22,10 +22,10 @@ oboco for android started as a fork of [bubble](https://github.com/nkanaev/bubbl
 - allow installation source
 	- configure android
 		- select "settings"
-			- select "biometrics and security"
-				- select "install unknown apps"
-					- select "chrome"
-						- select "allow from this source"
+		- select "biometrics and security"
+		- select "install unknown apps"
+		- select "chrome"
+		- select "allow from this source"
 - install [the latest build](https://gitlab.com/jeeto/oboco-android/-/jobs/artifacts/master/raw/app/build/outputs/apk/debug/app-debug.apk?job=assembleDebug).
 
 ## configuration
@@ -36,9 +36,9 @@ oboco for android started as a fork of [bubble](https://github.com/nkanaev/bubbl
 	- configure android
 		- copy server-ca.pem to the device storage
 		- select "settings"
-			- select "biometrics and security"
-				- select "other security settings"
-					- select "install from device storage"
+		- select "biometrics and security"
+		- select "other security settings"
+		- select "install from device storage"
 
 ## usage
 
