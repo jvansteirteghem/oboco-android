@@ -1,5 +1,7 @@
 # oboco for android
 
+![oboco-android](oboco-android.png "oboco-android")
+
 oboco for android is a client for [oboco](https://gitlab.com/jeeto/oboco).
 [oboco](https://gitlab.com/jeeto/oboco) is a server to help you read the books in your book collection (zip, cbz, cbr, rar, rar5).
 [oboco](https://gitlab.com/jeeto/oboco) is short for "open book collection".
