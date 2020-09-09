@@ -1,4 +1,5 @@
 # https://about.gitlab.com/blog/2018/10/24/setting-up-gitlab-ci-for-android-projects/
+# https://android.jlelse.eu/android-gitlab-ci-cd-sign-deploy-3ad66a8f24bf
 
 image: openjdk:8-jdk
 
@@ -29,6 +30,7 @@ before_script:
 stages:
   - build
   - test
+  - release
 
 lintDebug:
   stage: build
@@ -39,11 +41,63 @@ assembleDebug:
   stage: build
   script:
     - ./gradlew assembleDebug
-  artifacts:
-    paths:
-    - app/build/outputs/
 
 debugTests:
   stage: test
   script:
     - ./gradlew -Pci --console=plain :app:testDebug
+
+assembleRelease:
+  stage: release
+  script:
+    # install ssh agent if ssh agent is not installed
+    - '(which ssh-agent) || ( apt-get update -y && apt-get install openssh-client -y )'
+    # run ssh agent
+    - eval $(ssh-agent -s)
+    # add the ssh key stored in the SSH_PRIVATE_KEY variable to the ssh agent store
+    - ssh-add <(echo "$SSH_PRIVATE_KEY")
+    # disable host key check
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - git config user.name "jeeto jeeto"
+    - git config user.email "jeeto.jeeto@gmail.com"
+    # detached HEAD is checked out
+    # check out branch in the CI_BUILD_REF_NAME variable
+    - git checkout -B "$CI_BUILD_REF_NAME"
+    # set repository url
+    - repositoryUrl=`awk '/repositoryUrl/ {print $4}' app/build.gradle | tr -d \"`
+    - git remote set-url origin "$repositoryUrl"
+    # release
+    # get and set releaseVersionName
+    - releaseVersionName=`awk '/releaseVersionName/ {print $4}' app/build.gradle | tr -d \"`
+    - sed -i 's/versionName "[^"]*"/versionName "'"$releaseVersionName"'"/' app/build.gradle
+    # get and set releaseVersionCode
+    - releaseVersionCode=`awk '/releaseVersionCode/ {print $4}' app/build.gradle`
+    - sed -i 's/versionCode [0-9]*/versionCode '"$releaseVersionCode"'/' app/build.gradle
+    # push
+    - git add app/build.gradle
+    - git commit -m "[skip ci] release $releaseVersionName ($releaseVersionCode)"
+    - git push origin master
+    # build
+    - echo $KEYSTORE_FILE | base64 -d > keystore.jks
+    - ./gradlew assembleRelease -Pandroid.injected.signing.store.file=$(pwd)/keystore.jks -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD -Pandroid.injected.signing.key.alias=$KEY_ALIAS -Pandroid.injected.signing.key.password=$KEY_PASSWORD
+    # push tag
+    - git tag -a "$releaseVersionName" -m "[skip ci] tag release $releaseVersionName ($releaseVersionCode)"
+    - git push --tags
+    # development
+    # get and set developmentVersionName
+    - developmentVersionName=`awk '/developmentVersionName/ {print $4}' app/build.gradle | tr -d \"`
+    - sed -i 's/versionName "[^"]*"/versionName "'"$developmentVersionName"'"/' app/build.gradle
+    # get and set developmentVersionCode
+    - developmentVersionCode=`awk '/developmentVersionCode/ {print $4}' app/build.gradle`
+    - sed -i 's/versionCode [0-9]*/versionCode '"$developmentVersionCode"'/' app/build.gradle
+    # push
+    - git add app/build.gradle
+    - git commit -m "[skip ci] $developmentVersionName ($developmentVersionCode)"
+    - git push origin master
+  artifacts:
+    paths:
+    - app/build/outputs/
+  when: manual
+  only:
+     - master
