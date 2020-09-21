@@ -24,7 +24,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 28
 
-        versionName "1.0.2-SNAPSHOT"
+        versionName "1.0.2"
         versionCode 10002
     }
 
