@@ -25,7 +25,7 @@
                         android:layout_width="@dimen/aboutImage_openSource"
                         android:layout_height="@dimen/aboutImage_openSource"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_launcher"/>
+                        android:src="@mipmap/ic_launcher"/>
 
                 <TextView
                         android:id="@+id/aboutName"

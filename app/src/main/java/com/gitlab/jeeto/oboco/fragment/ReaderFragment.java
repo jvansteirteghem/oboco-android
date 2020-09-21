@@ -146,7 +146,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         mCurrentPage = 1;
 
         SharedPreferences sp = getContext().getSharedPreferences("application", Context.MODE_PRIVATE);
-        mBaseUrl = sp.getString("baseUrl", null);
+        mBaseUrl = sp.getString("baseUrl", "");
 
         mAuthenticationManager = new AuthenticationManager(getContext());
         Observable<Throwable> observable = mAuthenticationManager.getErrors();

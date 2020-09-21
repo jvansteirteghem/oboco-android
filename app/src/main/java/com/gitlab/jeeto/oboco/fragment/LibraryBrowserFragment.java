@@ -127,7 +127,7 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
         mBookList = new ArrayList<BookDto>();
 
         SharedPreferences sp = getContext().getSharedPreferences("application", Context.MODE_PRIVATE);
-        mBaseUrl = sp.getString("baseUrl", null);
+        mBaseUrl = sp.getString("baseUrl", "");
 
         mAuthenticationManager = new AuthenticationManager(getContext());
         Observable<Throwable> observable = mAuthenticationManager.getErrors();

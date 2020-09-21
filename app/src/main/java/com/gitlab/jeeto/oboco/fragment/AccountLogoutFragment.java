@@ -51,7 +51,7 @@ public class AccountLogoutFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         SharedPreferences sp = getContext().getSharedPreferences("application", Context.MODE_PRIVATE);
-        mBaseUrl = sp.getString("baseUrl", null);
+        mBaseUrl = sp.getString("baseUrl", "");
 
         mAuthenticationManager = new AuthenticationManager(getContext());
         Observable<Throwable> observable = mAuthenticationManager.getErrors();

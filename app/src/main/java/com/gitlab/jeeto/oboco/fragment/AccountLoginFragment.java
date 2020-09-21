@@ -87,6 +87,8 @@ public class AccountLoginFragment extends Fragment {
                 EditText etPassword = (EditText) getActivity().findViewById(R.id.et_password);
 
                 String baseUrl = etBaseUrl.getText().toString();
+                baseUrl = baseUrl.replaceAll("\\/+$", "");
+
                 String name = etName.getText().toString();
                 String password = etPassword.getText().toString();
 

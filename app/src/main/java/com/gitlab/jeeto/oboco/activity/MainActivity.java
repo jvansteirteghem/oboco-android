@@ -79,9 +79,9 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
             setTitle(R.string.menu_account);
 
             SharedPreferences sp = getSharedPreferences("application", Context.MODE_PRIVATE);
-            String idToken = sp.getString("idToken", null);
+            String idToken = sp.getString("idToken", "");
 
-            if(idToken == null) {
+            if(idToken.equals("")) {
                 setFragment(new AccountLoginFragment());
             } else {
                 setFragment(new AccountLogoutFragment());
@@ -151,8 +151,17 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         return false;
     }
 
-    private void setupNavigationView(NavigationView view) {
-        view.setNavigationItemSelectedListener(new OnNavigationItemSelectedListener() {
+    private void setupNavigationView(NavigationView navigationView) {
+        SharedPreferences sp = getSharedPreferences("application", Context.MODE_PRIVATE);
+        String idToken = sp.getString("idToken", "");
+
+        if(idToken.equals("")) {
+            navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(false);
+        } else {
+            navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(true);
+        }
+
+        navigationView.setNavigationItemSelectedListener(new OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
                 if (mCurrentNavItem == menuItem.getItemId()) {
@@ -165,9 +174,9 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                         setTitle(R.string.menu_account);
 
                         SharedPreferences sp = getSharedPreferences("application", Context.MODE_PRIVATE);
-                        String idToken = sp.getString("idToken", null);
+                        String idToken = sp.getString("idToken", "");
 
-                        if(idToken == null) {
+                        if(idToken.equals("")) {
                             setFragment(new AccountLoginFragment());
                         } else {
                             setFragment(new AccountLogoutFragment());
@@ -205,10 +214,11 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
     @Override
     public boolean onSupportNavigateUp() {
         if (!popFragment()) {
-            if (mDrawerLayout.isDrawerOpen(GravityCompat.START))
+            if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
                 mDrawerLayout.closeDrawers();
-            else
+            } else {
                 mDrawerLayout.openDrawer(GravityCompat.START);
+            }
         }
         return super.onSupportNavigateUp();
     }
@@ -216,11 +226,17 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
     @Override
     public void onLogin() {
         setFragment(new AccountLogoutFragment());
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(true);
     }
 
     @Override
     public void onLogout() {
         setFragment(new AccountLoginFragment());
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(false);
     }
 
     @Override

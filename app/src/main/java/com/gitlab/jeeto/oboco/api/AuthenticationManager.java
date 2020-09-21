@@ -20,7 +20,7 @@ public class AuthenticationManager {
         super();
 
         sp = context.getSharedPreferences("application", Context.MODE_PRIVATE);
-        String baseUrl = sp.getString("baseUrl", null);
+        String baseUrl = sp.getString("baseUrl", "");
 
         authenticationService = new AuthenticationService(baseUrl);
     }
@@ -30,11 +30,11 @@ public class AuthenticationManager {
     }
 
     public String getIdToken() {
-        return sp.getString("idToken", null);
+        return sp.getString("idToken", "");
     }
 
     public String getRefreshToken() {
-        return sp.getString("refreshToken", null);
+        return sp.getString("refreshToken", "");
     }
 
     public Completable login(String name, String password) {
