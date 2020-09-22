@@ -115,8 +115,8 @@ public class AuthenticationManager {
             @Override
             protected void subscribeActual(CompletableObserver observer) {
                 SharedPreferences.Editor editor = sp.edit();
-                editor.putString("idToken", null);
-                editor.putString("refreshToken", null);
+                editor.putString("idToken", "");
+                editor.putString("refreshToken", "");
                 editor.commit();
 
                 observer.onComplete();

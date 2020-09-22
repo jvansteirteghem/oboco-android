@@ -285,6 +285,9 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        FragmentActivity fragmentActivity = getActivity();
+        fragmentActivity.setTitle("");
+
         setHasOptionsMenu(true);
 
         final View view = inflater.inflate(R.layout.fragment_librarybrowser, container, false);

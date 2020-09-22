@@ -28,7 +28,7 @@ public class AuthenticationInterceptor implements Interceptor {
                 String idToken2 = authenticationManager.getIdToken();
 
                 // refresh?
-                if (idToken != null && idToken.equals(idToken2) == false) {
+                if (idToken.equals("") == false && idToken.equals(idToken2) == false) {
                     response.close();
 
                     return chain.proceed(newRequestWithIdToken(request, idToken2));
@@ -55,12 +55,12 @@ public class AuthenticationInterceptor implements Interceptor {
     }
 
     private Request newRequestWithIdToken(@NonNull Request request, String idToken) {
-        if(idToken == null) {
-            return request;
-        } else {
+        if(idToken.equals("") == false) {
             return request.newBuilder()
                     .header("Authorization", "Bearer " + idToken)
                     .build();
+        } else {
+            return request;
         }
     }
 }

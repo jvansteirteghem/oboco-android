@@ -308,6 +308,9 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        FragmentActivity fragmentActivity = getActivity();
+        fragmentActivity.setTitle("");
+
         setHasOptionsMenu(true);
 
         final View view = inflater.inflate(R.layout.fragment_library, container, false);

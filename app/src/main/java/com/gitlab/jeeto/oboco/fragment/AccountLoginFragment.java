@@ -96,8 +96,8 @@ public class AccountLoginFragment extends Fragment {
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putString("baseUrl", baseUrl);
                 editor.putString("name", name);
-                editor.putString("idToken", null);
-                editor.putString("refreshToken", null);
+                editor.putString("idToken", "");
+                editor.putString("refreshToken", "");
                 editor.commit();
 
                 Completable completable = new Completable() {

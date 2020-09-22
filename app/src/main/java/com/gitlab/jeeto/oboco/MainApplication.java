@@ -31,8 +31,8 @@ public class MainApplication extends Application {
             if(pe.getProblem().getStatusCode() == 401) {
                 SharedPreferences preferences = context.getSharedPreferences("application", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferences.edit();
-                editor.putString("idToken", null);
-                editor.putString("refreshToken", null);
+                editor.putString("idToken", "");
+                editor.putString("refreshToken", "");
                 editor.commit();
             }
 
