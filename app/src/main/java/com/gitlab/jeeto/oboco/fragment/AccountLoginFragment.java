@@ -82,10 +82,6 @@ public class AccountLoginFragment extends Fragment {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText etBaseUrl = (EditText) getActivity().findViewById(R.id.et_baseUrl);
-                EditText etName = (EditText) getActivity().findViewById(R.id.et_name);
-                EditText etPassword = (EditText) getActivity().findViewById(R.id.et_password);
-
                 String baseUrl = etBaseUrl.getText().toString();
                 baseUrl = baseUrl.replaceAll("\\/+$", "");
 
@@ -118,16 +114,20 @@ public class AccountLoginFragment extends Fragment {
                 completable.subscribe(new CompletableObserver() {
                     @Override
                     public void onSubscribe(Disposable d) {
-
+                        btnLogin.setEnabled(false);
                     }
 
                     @Override
                     public void onComplete() {
+                        btnLogin.setEnabled(true);
+
                         mOnLoginListener.onLogin();
                     }
 
                     @Override
                     public void onError(Throwable e) {
+                        btnLogin.setEnabled(true);
+
                         mOnErrorListener.onError(e);
                     }
                 });

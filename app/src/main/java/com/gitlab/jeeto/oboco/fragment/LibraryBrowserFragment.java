@@ -68,7 +68,8 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
 
     private RecyclerView mComicListView;
     private View mEmptyView;
-    private SwipeRefreshLayout mNotEmptyView;
+    private View mNotEmptyView;
+    private SwipeRefreshLayout mRefreshView;
 
     private Picasso mPicasso;
 
@@ -165,7 +166,7 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
     }
 
     private void setCurrentBookCollection(Long bookCollectionId) {
-        mNotEmptyView.setRefreshing(true);
+        mRefreshView.setRefreshing(true);
 
         Single<BookCollectionDto> single = new Single<BookCollectionDto>() {
             @Override
@@ -237,13 +238,13 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
 
                                 setCurrentBookCollection(bookCollection, bookPageableList.getElements());
                             }
-                            mNotEmptyView.setRefreshing(false);
+                            mRefreshView.setRefreshing(false);
                         }
 
                         @Override
                         public void onError(Throwable e) {
                             mOnErrorListener.onError(e);
-                            mNotEmptyView.setRefreshing(false);
+                            mRefreshView.setRefreshing(false);
                         }
                     });
                 }
@@ -252,7 +253,7 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
             @Override
             public void onError(Throwable e) {
                 mOnErrorListener.onError(e);
-                mNotEmptyView.setRefreshing(false);
+                mRefreshView.setRefreshing(false);
             }
         });
     }
@@ -319,7 +320,7 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
                 int totalItemCount = layoutManager.getItemCount();
                 int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
 
-                if (!mNotEmptyView.isRefreshing() && (mPage < mNextPage)) {
+                if (!mRefreshView.isRefreshing() && (mPage < mNextPage)) {
                     if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
                             && firstVisibleItemPosition >= 0
                             && totalItemCount >= mPageSize) {
@@ -329,10 +330,12 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
             }
         });
 
+        mRefreshView = view.findViewById(R.id.librarybrowser_refresh);
+        mRefreshView.setOnRefreshListener(this);
+        mRefreshView.setEnabled(true);
+
         mNotEmptyView = view.findViewById(R.id.librarybrowser_not_empty);
         mNotEmptyView.setVisibility(View.GONE);
-        mNotEmptyView.setOnRefreshListener(this);
-        mNotEmptyView.setEnabled(true);
 
         mEmptyView = view.findViewById(R.id.librarybrowser_empty);
         mEmptyView.setVisibility(View.GONE);
@@ -341,7 +344,7 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
     }
 
     private void loadNextPage() {
-        mNotEmptyView.setRefreshing(true);
+        mRefreshView.setRefreshing(true);
 
         Single<PageableListDto<BookDto>> single = new Single<PageableListDto<BookDto>>() {
             @Override
@@ -386,13 +389,13 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
 
                     mComicListView.getAdapter().notifyDataSetChanged();
                 }
-                mNotEmptyView.setRefreshing(false);
+                mRefreshView.setRefreshing(false);
             }
 
             @Override
             public void onError(Throwable e) {
                 mOnErrorListener.onError(e);
-                mNotEmptyView.setRefreshing(false);
+                mRefreshView.setRefreshing(false);
             }
         });
     }

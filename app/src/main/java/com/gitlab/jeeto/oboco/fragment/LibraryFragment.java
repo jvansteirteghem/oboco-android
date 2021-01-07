@@ -64,7 +64,8 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private Picasso mPicasso;
     private RecyclerView mGroupListView;
     private View mEmptyView;
-    private SwipeRefreshLayout mNotEmptyView;
+    private View mNotEmptyView;
+    private SwipeRefreshLayout mRefreshView;
 
     private String mFilterSearch = "";
 
@@ -176,7 +177,7 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
     }
 
     private void setCurrentBookCollection(Long bookCollectionId) {
-        mNotEmptyView.setRefreshing(true);
+        mRefreshView.setRefreshing(true);
 
         Single<BookCollectionDto> single = new Single<BookCollectionDto>() {
             @Override
@@ -240,13 +241,13 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                                 setCurrentBookCollection(bookCollection, bookCollectionPageableList.getElements());
                             }
-                            mNotEmptyView.setRefreshing(false);
+                            mRefreshView.setRefreshing(false);
                         }
 
                         @Override
                         public void onError(Throwable e) {
                             mOnErrorListener.onError(e);
-                            mNotEmptyView.setRefreshing(false);
+                            mRefreshView.setRefreshing(false);
                         }
                     });
                 }
@@ -255,7 +256,7 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
             @Override
             public void onError(Throwable e) {
                 mOnErrorListener.onError(e);
-                mNotEmptyView.setRefreshing(false);
+                mRefreshView.setRefreshing(false);
             }
         });
     }
@@ -342,7 +343,7 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 int totalItemCount = layoutManager.getItemCount();
                 int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
 
-                if (!mNotEmptyView.isRefreshing() && (mPage < mNextPage)) {
+                if (!mRefreshView.isRefreshing() && (mPage < mNextPage)) {
                     if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
                             && firstVisibleItemPosition >= 0
                             && totalItemCount >= mPageSize) {
@@ -352,10 +353,12 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
             }
         });
 
+        mRefreshView = view.findViewById(R.id.library_refresh);
+        mRefreshView.setOnRefreshListener(this);
+        mRefreshView.setEnabled(true);
+
         mNotEmptyView = view.findViewById(R.id.library_not_empty);
         mNotEmptyView.setVisibility(View.GONE);
-        mNotEmptyView.setOnRefreshListener(this);
-        mNotEmptyView.setEnabled(true);
 
         mEmptyView = view.findViewById(R.id.library_empty);
         mEmptyView.setVisibility(View.GONE);
@@ -392,7 +395,7 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
     }
 
     private void loadNextPage() {
-        mNotEmptyView.setRefreshing(true);
+        mRefreshView.setRefreshing(true);
 
         Single<PageableListDto<BookCollectionDto>> single = new Single<PageableListDto<BookCollectionDto>>() {
             @Override
@@ -429,13 +432,13 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                     mGroupListView.getAdapter().notifyDataSetChanged();
                 }
-                mNotEmptyView.setRefreshing(false);
+                mRefreshView.setRefreshing(false);
             }
 
             @Override
             public void onError(Throwable e) {
                 mOnErrorListener.onError(e);
-                mNotEmptyView.setRefreshing(false);
+                mRefreshView.setRefreshing(false);
             }
         });
     }

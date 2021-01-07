@@ -100,17 +100,21 @@ public class AccountLogoutFragment extends Fragment {
                 completable.subscribe(new CompletableObserver() {
                     @Override
                     public void onSubscribe(Disposable d) {
-
+                        btnLogout.setEnabled(false);
                     }
 
                     @Override
                     public void onComplete() {
+                        btnLogout.setEnabled(true);
+
                         mOnLogoutListener.onLogout();
                     }
 
                     @Override
                     public void onError(Throwable e) {
+                        btnLogout.setEnabled(true);
 
+                        mOnErrorListener.onError(e);
                     }
                 });
             }
@@ -160,11 +164,13 @@ public class AccountLogoutFragment extends Fragment {
                 completable.subscribe(new CompletableObserver() {
                     @Override
                     public void onSubscribe(Disposable d) {
-
+                        btnUpdatePassword.setEnabled(false);
                     }
 
                     @Override
                     public void onComplete() {
+                        btnUpdatePassword.setEnabled(true);
+
                         Completable completable = new Completable() {
                             @Override
                             protected void subscribeActual(CompletableObserver observer) {
@@ -192,13 +198,15 @@ public class AccountLogoutFragment extends Fragment {
 
                             @Override
                             public void onError(Throwable e) {
-
+                                mOnErrorListener.onError(e);
                             }
                         });
                     }
 
                     @Override
                     public void onError(Throwable e) {
+                        btnUpdatePassword.setEnabled(true);
+
                         mOnErrorListener.onError(e);
                     }
                 });
