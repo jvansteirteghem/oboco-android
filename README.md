@@ -50,6 +50,10 @@ oboco for android started as a fork of [bubble](https://github.com/nkanaev/bubbl
 	- password: the user password
 - browse
 
+## test
+
+you can test oboco for android with [the oboco test server](obocos://test:test@oboco-backend-test.herokuapp.com) (takes 20-30 seconds to start).
+
 ## license
 
 mit license
