@@ -12,3 +12,7 @@ debug app on hardware device
 		install samsung drivers
 	open android studio
 		select run, debug app, connected device
+
+deeplink
+    cd C:\Users\<user>\AppData\Local\Android\Sdk\platform-tools
+    adb shell am start -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d "obocos://test:test@oboco-backend-test.herokuapp.com"

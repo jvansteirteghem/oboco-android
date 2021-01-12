@@ -55,6 +55,7 @@ public class AccountLoginFragment extends Fragment {
 
         String baseUrl = preferences.getString("baseUrl", "");
         String name = preferences.getString("name", "");
+        String password = preferences.getString("password", "");
 
         EditText etBaseUrl = (EditText) getActivity().findViewById(R.id.et_baseUrl);
         etBaseUrl.setText(baseUrl);
@@ -63,6 +64,7 @@ public class AccountLoginFragment extends Fragment {
         etName.setText(name);
 
         EditText etPassword = (EditText) getActivity().findViewById(R.id.et_password);
+        etPassword.setText(password);
 
         CheckBox cbShowPassword = (CheckBox) getActivity().findViewById(R.id.cb_show_password);
         cbShowPassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -92,6 +94,7 @@ public class AccountLoginFragment extends Fragment {
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putString("baseUrl", baseUrl);
                 editor.putString("name", name);
+                editor.putString("password", "");
                 editor.putString("idToken", "");
                 editor.putString("refreshToken", "");
                 editor.commit();

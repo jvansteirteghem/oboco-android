@@ -2,9 +2,11 @@ package com.gitlab.jeeto.oboco.activity;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -20,15 +22,15 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.gitlab.jeeto.oboco.MainApplication;
-import com.gitlab.jeeto.oboco.api.OnErrorListener;
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 import com.gitlab.jeeto.oboco.R;
+import com.gitlab.jeeto.oboco.api.OnErrorListener;
 import com.gitlab.jeeto.oboco.fragment.AboutFragment;
 import com.gitlab.jeeto.oboco.fragment.AccountLoginFragment;
 import com.gitlab.jeeto.oboco.fragment.AccountLogoutFragment;
 import com.gitlab.jeeto.oboco.fragment.LibraryFragment;
 import com.gitlab.jeeto.oboco.managers.Utils;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 
 
 public class MainActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener, AccountLoginFragment.OnLoginListener, AccountLogoutFragment.OnLogoutListener, OnErrorListener {
@@ -75,22 +77,81 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                 R.string.drawer_open, R.string.drawer_close);
         mDrawerLayout.addDrawerListener(mDrawerToggle);
 
+        SharedPreferences preferences = getSharedPreferences("application", Context.MODE_PRIVATE);
+
         if (savedInstanceState == null) {
             setTitle(R.string.menu_account);
 
-            SharedPreferences sp = getSharedPreferences("application", Context.MODE_PRIVATE);
-            String idToken = sp.getString("idToken", "");
+            Intent intent = getIntent();
+            Uri data = intent.getData();
+            if (data != null) {
+                String baseUrl = "";
+                if(data.getScheme() != null) {
+                    if(data.getScheme().equals("oboco")) {
+                        baseUrl = "http://";
+                    } else if(data.getScheme().equals("obocos")) {
+                        baseUrl = "https://";
+                    }
+                }
+                if(data.getHost() != null) {
+                    baseUrl = baseUrl + data.getHost();
+                }
+                if(data.getPort() != -1) {
+                    baseUrl = baseUrl + ":" + data.getPort();
+                }
+                if(data.getPathSegments() != null) {
+                    for(String pathSegment : data.getPathSegments()) {
+                        baseUrl = baseUrl + "/" + pathSegment;
+                    }
+                }
+                String name = "";
+                String password = "";
+                String userInfo = data.getUserInfo();
+                if(userInfo != null) {
+                    String[] userNamePassword = userInfo.split(":");
+                    if(userNamePassword.length == 2) {
+                        name = userNamePassword[0];
+                        password = userNamePassword[1];
+                    }
+                }
 
-            if(idToken.equals("")) {
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putString("baseUrl", baseUrl);
+                editor.putString("name", name);
+                editor.putString("password", password);
+                editor.putString("idToken", "");
+                editor.putString("refreshToken", "");
+                editor.commit();
+
                 setFragment(new AccountLoginFragment());
+
+                navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(false);
             } else {
-                setFragment(new AccountLogoutFragment());
+                String idToken = preferences.getString("idToken", "");
+
+                if(idToken.equals("")) {
+                    setFragment(new AccountLoginFragment());
+
+                    navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(false);
+                } else {
+                    setFragment(new AccountLogoutFragment());
+
+                    navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(true);
+                }
             }
 
             mCurrentNavItem = R.id.drawer_menu_account;
             navigationView.getMenu().findItem(mCurrentNavItem).setChecked(true);
         }
         else {
+            String idToken = preferences.getString("idToken", "");
+
+            if(idToken.equals("")) {
+                navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(false);
+            } else {
+                navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(true);
+            }
+
             onBackStackChanged();  // force-call method to ensure indicator is shown properly
             mCurrentNavItem = savedInstanceState.getInt(STATE_CURRENT_MENU_ITEM);
             navigationView.getMenu().findItem(mCurrentNavItem).setChecked(true);
@@ -152,15 +213,6 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
     }
 
     private void setupNavigationView(NavigationView navigationView) {
-        SharedPreferences sp = getSharedPreferences("application", Context.MODE_PRIVATE);
-        String idToken = sp.getString("idToken", "");
-
-        if(idToken.equals("")) {
-            navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(false);
-        } else {
-            navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(true);
-        }
-
         navigationView.setNavigationItemSelectedListener(new OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
