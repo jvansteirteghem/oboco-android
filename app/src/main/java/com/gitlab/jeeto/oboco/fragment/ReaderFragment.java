@@ -75,6 +75,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
     public static final String PARAM_BOOK_ID = "PARAM_BOOK_ID";
 
     public static final String STATE_FULLSCREEN = "STATE_FULLSCREEN";
+    public static final String STATE_BOOK_PAGE = "STATE_BOOK_PAGE";
 
     private ComicViewPager mViewPager;
     private LinearLayout mPageNavLayout;
@@ -379,6 +380,8 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         if (savedInstanceState != null) {
             boolean fullscreen = savedInstanceState.getBoolean(STATE_FULLSCREEN);
             setFullscreen(fullscreen);
+
+            mCurrentPage = savedInstanceState.getInt(STATE_BOOK_PAGE);
         }
         else {
             setFullscreen(true);
@@ -414,6 +417,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putBoolean(STATE_FULLSCREEN, isFullscreen());
+        outState.putInt(STATE_BOOK_PAGE, mCurrentPage);
         super.onSaveInstanceState(outState);
     }
 
