@@ -123,35 +123,32 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                 editor.putString("refreshToken", "");
                 editor.commit();
 
+                navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(false);
+
                 setFragment(new AccountLoginFragment());
 
-                navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(false);
+                mCurrentNavItem = R.id.drawer_menu_account;
             } else {
                 String idToken = preferences.getString("idToken", "");
 
                 if(idToken.equals("")) {
+                    navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(false);
+
                     setFragment(new AccountLoginFragment());
 
-                    navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(false);
+                    mCurrentNavItem = R.id.drawer_menu_account;
                 } else {
-                    setFragment(new AccountLogoutFragment());
-
                     navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(true);
+
+                    setFragment(new LibraryFragment());
+
+                    mCurrentNavItem = R.id.drawer_menu_library;
                 }
             }
 
-            mCurrentNavItem = R.id.drawer_menu_account;
             navigationView.getMenu().findItem(mCurrentNavItem).setChecked(true);
         }
         else {
-            String idToken = preferences.getString("idToken", "");
-
-            if(idToken.equals("")) {
-                navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(false);
-            } else {
-                navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(true);
-            }
-
             onBackStackChanged();  // force-call method to ensure indicator is shown properly
             mCurrentNavItem = savedInstanceState.getInt(STATE_CURRENT_MENU_ITEM);
             navigationView.getMenu().findItem(mCurrentNavItem).setChecked(true);
@@ -277,18 +274,22 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
 
     @Override
     public void onLogin() {
-        setFragment(new AccountLogoutFragment());
-
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(true);
+
+        setFragment(new LibraryFragment());
+
+        navigationView.getMenu().findItem(R.id.drawer_menu_library).setChecked(true);
     }
 
     @Override
     public void onLogout() {
-        setFragment(new AccountLoginFragment());
-
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(false);
+
+        setFragment(new AccountLoginFragment());
+
+        navigationView.getMenu().findItem(R.id.drawer_menu_account).setChecked(true);
     }
 
     @Override
