@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                 editor.putString("baseUrl", baseUrl);
                 editor.putString("name", name);
                 editor.putString("password", password);
-                editor.putString("idToken", "");
+                editor.putString("accessToken", "");
                 editor.putString("refreshToken", "");
                 editor.commit();
 
@@ -129,9 +129,9 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
 
                 mCurrentNavItem = R.id.drawer_menu_account;
             } else {
-                String idToken = preferences.getString("idToken", "");
+                String accessToken = preferences.getString("accessToken", "");
 
-                if(idToken.equals("")) {
+                if(accessToken.equals("")) {
                     navigationView.getMenu().findItem(R.id.drawer_menu_library).setVisible(false);
 
                     setFragment(new AccountLoginFragment());
@@ -223,9 +223,9 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                         setTitle(R.string.menu_account);
 
                         SharedPreferences sp = getSharedPreferences("application", Context.MODE_PRIVATE);
-                        String idToken = sp.getString("idToken", "");
+                        String accessToken = sp.getString("accessToken", "");
 
-                        if(idToken.equals("")) {
+                        if(accessToken.equals("")) {
                             setFragment(new AccountLoginFragment());
                         } else {
                             setFragment(new AccountLogoutFragment());

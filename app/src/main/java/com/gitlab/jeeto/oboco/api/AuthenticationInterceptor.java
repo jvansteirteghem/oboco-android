@@ -17,21 +17,21 @@ public class AuthenticationInterceptor implements Interceptor {
 
     @Override
     public Response intercept(Chain chain) throws IOException {
-        String idToken = authenticationManager.getIdToken();
+        String accessToken = authenticationManager.getAccessToken();
 
-        Request request = newRequestWithIdToken(chain.request(), idToken);
+        Request request = newRequestWithAccessToken(chain.request(), accessToken);
 
         Response response = chain.proceed(request);
 
         if(response.code() == 401) {
             synchronized(this) {
-                String idToken2 = authenticationManager.getIdToken();
+                String accessToken2 = authenticationManager.getAccessToken();
 
                 // refresh?
-                if (idToken.equals("") == false && idToken.equals(idToken2) == false) {
+                if (accessToken.equals("") == false && accessToken.equals(accessToken2) == false) {
                     response.close();
 
-                    return chain.proceed(newRequestWithIdToken(request, idToken2));
+                    return chain.proceed(newRequestWithAccessToken(request, accessToken2));
                 } else {
                     // refresh
                     try {
@@ -42,11 +42,11 @@ public class AuthenticationInterceptor implements Interceptor {
                         return response;
                     }
 
-                    String idToken3 = authenticationManager.getIdToken();
+                    String accessToken3 = authenticationManager.getAccessToken();
 
                     response.close();
 
-                    return chain.proceed(newRequestWithIdToken(request, idToken3));
+                    return chain.proceed(newRequestWithAccessToken(request, accessToken3));
                 }
             }
         }
@@ -54,10 +54,10 @@ public class AuthenticationInterceptor implements Interceptor {
         return response;
     }
 
-    private Request newRequestWithIdToken(@NonNull Request request, String idToken) {
-        if(idToken.equals("") == false) {
+    private Request newRequestWithAccessToken(@NonNull Request request, String accessToken) {
+        if(accessToken.equals("") == false) {
             return request.newBuilder()
-                    .header("Authorization", "Bearer " + idToken)
+                    .header("Authorization", "Bearer " + accessToken)
                     .build();
         } else {
             return request;

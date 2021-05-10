@@ -29,8 +29,8 @@ public class AuthenticationManager {
         return subject;
     }
 
-    public String getIdToken() {
-        return sp.getString("idToken", "");
+    public String getAccessToken() {
+        return sp.getString("accessToken", "");
     }
 
     public String getRefreshToken() {
@@ -55,7 +55,7 @@ public class AuthenticationManager {
                     @Override
                     public void onSuccess(UserIdDto userId) {
                         SharedPreferences.Editor editor = sp.edit();
-                        editor.putString("idToken", userId.getIdToken());
+                        editor.putString("accessToken", userId.getAccessToken());
                         editor.putString("refreshToken", userId.getRefreshToken());
                         editor.commit();
 
@@ -91,7 +91,7 @@ public class AuthenticationManager {
                     @Override
                     public void onSuccess(UserIdDto userId) {
                         SharedPreferences.Editor editor = sp.edit();
-                        editor.putString("idToken", userId.getIdToken());
+                        editor.putString("accessToken", userId.getAccessToken());
                         editor.putString("refreshToken", userId.getRefreshToken());
                         editor.commit();
 
@@ -115,7 +115,7 @@ public class AuthenticationManager {
             @Override
             protected void subscribeActual(CompletableObserver observer) {
                 SharedPreferences.Editor editor = sp.edit();
-                editor.putString("idToken", "");
+                editor.putString("accessToken", "");
                 editor.putString("refreshToken", "");
                 editor.commit();
 

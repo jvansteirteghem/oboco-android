@@ -696,7 +696,7 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                                                     String url = mBaseUrl + "/api/v1/books/" + selectedBook.getId() + ".cbz";
 
                                                                     DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url))
-                                                                            .addRequestHeader("Authorization", "Bearer " + mAuthenticationManager.getIdToken())
+                                                                            .addRequestHeader("Authorization", "Bearer " + mAuthenticationManager.getAccessToken())
                                                                             .setTitle(selectedBook.getName() + ".cbz")
                                                                             .setDescription(selectedBook.getName() + ".cbz")
                                                                             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)

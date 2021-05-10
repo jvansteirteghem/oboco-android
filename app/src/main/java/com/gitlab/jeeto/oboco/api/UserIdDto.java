@@ -8,7 +8,7 @@ import java.util.List;
 public class UserIdDto implements Serializable {
     private String name;
     private List<String> roles;
-    private String idToken;
+    private String accessToken;
     private String refreshToken;
     public UserIdDto() {
         super();
@@ -27,12 +27,12 @@ public class UserIdDto implements Serializable {
     public void setRoles(List<String> roles) {
         this.roles = roles;
     }
-    @SerializedName("idToken")
-    public String getIdToken() {
-        return idToken;
+    @SerializedName("accessToken")
+    public String getAccessToken() {
+        return accessToken;
     }
-    public void setIdToken(String idToken) {
-        this.idToken = idToken;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
     @SerializedName("refreshToken")
     public String getRefreshToken() {

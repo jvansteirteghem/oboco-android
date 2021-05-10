@@ -95,7 +95,7 @@ public class AccountLoginFragment extends Fragment {
                 editor.putString("baseUrl", baseUrl);
                 editor.putString("name", name);
                 editor.putString("password", "");
-                editor.putString("idToken", "");
+                editor.putString("accessToken", "");
                 editor.putString("refreshToken", "");
                 editor.commit();
 

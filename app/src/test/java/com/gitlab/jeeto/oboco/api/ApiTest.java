@@ -34,7 +34,7 @@ public class ApiTest {
         mockSharedPreferencesEditor.putString("baseUrl", baseUrl);
         mockSharedPreferencesEditor.putString("name", name);
         mockSharedPreferencesEditor.putString("password", "");
-        mockSharedPreferencesEditor.putString("idToken", "");
+        mockSharedPreferencesEditor.putString("accessToken", "");
         mockSharedPreferencesEditor.putString("refreshToken", "");
 
         Mockito.when(mockContext.getSharedPreferences(anyString(), anyInt())).thenReturn(mockSharedPreferences);
