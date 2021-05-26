@@ -2,6 +2,7 @@ package com.gitlab.jeeto.oboco.api;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import okhttp3.ResponseBody;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
@@ -11,6 +12,7 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.Streaming;
 
 public interface ApplicationApi {
     @Headers("Content-Type: application/json")
@@ -72,4 +74,14 @@ public interface ApplicationApi {
     @Headers("Content-Type: application/json")
     @DELETE("/api/v1/bookCollections/{bookCollectionId}/bookMarks")
     public Completable deleteBookMarks(@Path("bookCollectionId") Long bookCollectionId);
+
+    @Streaming
+    @Headers("Content-Type: image/jpeg")
+    @GET("/api/v1/books/{bookId}/pages/{page}.jpg")
+    Single<ResponseBody> downloadBookPage(@Path("bookId") Long bookId, @Path("page") Integer page);
+
+    @Streaming
+    @Headers("Content-Type: application/zip")
+    @GET("/api/v1/books/{bookId}.cbz")
+    Single<ResponseBody> downloadBook(@Path("bookId") Long bookId);
 }

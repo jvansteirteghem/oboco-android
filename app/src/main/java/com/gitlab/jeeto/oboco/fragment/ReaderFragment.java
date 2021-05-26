@@ -36,44 +36,31 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import com.gitlab.jeeto.oboco.BuildConfig;
 import com.gitlab.jeeto.oboco.Constants;
 import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.ReaderActivity;
-import com.gitlab.jeeto.oboco.api.ApplicationService;
-import com.gitlab.jeeto.oboco.api.AuthenticationInterceptor;
-import com.gitlab.jeeto.oboco.api.AuthenticationManager;
 import com.gitlab.jeeto.oboco.api.BookDto;
-import com.gitlab.jeeto.oboco.api.BookMarkDto;
 import com.gitlab.jeeto.oboco.api.OnErrorListener;
-import com.gitlab.jeeto.oboco.api.PageableListDto;
-import com.gitlab.jeeto.oboco.managers.Utils;
+import com.gitlab.jeeto.oboco.manager.LocalBookReaderManager;
+import com.gitlab.jeeto.oboco.manager.BookReaderManager;
+import com.gitlab.jeeto.oboco.manager.RemoteBookReaderManager;
+import com.gitlab.jeeto.oboco.common.Utils;
 import com.gitlab.jeeto.oboco.view.ComicViewPager;
 import com.gitlab.jeeto.oboco.view.PageImageView;
 import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import io.reactivex.Observable;
-import io.reactivex.Single;
-import io.reactivex.SingleObserver;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
-
 
 public class ReaderFragment extends Fragment implements View.OnTouchListener {
+    public static final String PARAM_MODE = "PARAM_MODE";
     public static final String PARAM_BOOK_ID = "PARAM_BOOK_ID";
-
+    public static final String PARAM_BOOK_FILE = "PARAM_BOOK_FILE";
     public static final String STATE_FULLSCREEN = "STATE_FULLSCREEN";
     public static final String STATE_BOOK_PAGE = "STATE_BOOK_PAGE";
 
@@ -91,17 +78,19 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
     private boolean mIsLeftToRight;
 
     private Picasso mPicasso;
-    private SparseArray<Target> mTargets = new SparseArray<>();
+    private SparseArray<ReaderTarget> mTargets = new SparseArray<>();
 
-    private Long mBookId;
+    private BookReaderManager mBookReaderManager;
+    private OnErrorListener mOnErrorListener;
+
+    private Mode mMode;
     private BookDto mBook;
     private List<BookDto> mBookList;
 
-    private String mBaseUrl;
-
-    private AuthenticationManager mAuthenticationManager;
-    private Disposable mAuthenticationManagerDisposable;
-    private ApplicationService mApplicationService;
+    public enum Mode {
+        MODE_REMOTE,
+        MODE_LOCAL;
+    }
 
     static {
         RESOURCE_VIEW_MODE = new HashMap<Integer, Constants.PageViewMode>();
@@ -113,12 +102,40 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
     public static ReaderFragment create(Long bookId) {
         ReaderFragment fragment = new ReaderFragment();
         Bundle args = new Bundle();
+        args.putSerializable(PARAM_MODE, Mode.MODE_REMOTE);
         args.putLong(PARAM_BOOK_ID, bookId);
         fragment.setArguments(args);
         return fragment;
     }
 
-    private OnErrorListener mOnErrorListener;
+    public static ReaderFragment create(File bookFile) {
+        ReaderFragment fragment = new ReaderFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(PARAM_MODE, Mode.MODE_LOCAL);
+        args.putSerializable(PARAM_BOOK_FILE, bookFile);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public ReaderFragment() {
+        super();
+    }
+
+    public BookDto getBook() {
+        return mBook;
+    }
+
+    public void setBook(BookDto book) {
+        this.mBook = book;
+    }
+
+    public List<BookDto> getBookList() {
+        return mBookList;
+    }
+
+    public void setBookList(List<BookDto> bookList) {
+        this.mBookList = bookList;
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -134,49 +151,36 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         mOnErrorListener = null;
     }
 
+    public void onError(Throwable e) {
+        mOnErrorListener.onError(e);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Bundle bundle = getArguments();
+        mMode = (Mode) bundle.getSerializable(PARAM_MODE);
 
-        mBookId = bundle.getLong(PARAM_BOOK_ID);
-        mBook = null;
-        mBookList = new ArrayList<BookDto>();
+        if(mMode == Mode.MODE_REMOTE) {
+            Long bookId = bundle.getLong(ReaderFragment.PARAM_BOOK_ID);
+
+            mBookReaderManager = new RemoteBookReaderManager(bookId);
+        } else if(mMode == Mode.MODE_LOCAL) {
+            File bookFile = (File) bundle.getSerializable(ReaderFragment.PARAM_BOOK_FILE);
+
+            mBookReaderManager = new LocalBookReaderManager(bookFile);
+        }
+        mBookReaderManager.create(this);
 
         mCurrentPage = 1;
 
-        SharedPreferences sp = getContext().getSharedPreferences("application", Context.MODE_PRIVATE);
-        mBaseUrl = sp.getString("baseUrl", "");
-
-        mAuthenticationManager = new AuthenticationManager(getContext());
-        Observable<Throwable> observable = mAuthenticationManager.getErrors();
-        observable = observable.observeOn(AndroidSchedulers.mainThread());
-        observable = observable.subscribeOn(Schedulers.io());
-        mAuthenticationManagerDisposable = observable.subscribe(new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable e) throws Exception {
-                mOnErrorListener.onError(e);
-            }
-        });
-
-        mApplicationService = new ApplicationService(getContext(), mBaseUrl, mAuthenticationManager);
-
-        OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                .addInterceptor(new AuthenticationInterceptor(mAuthenticationManager));
-
-        if(BuildConfig.DEBUG) {
-            builder.addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC));
-        }
-
-        OkHttpClient client = builder.build();
-
         mPicasso = new Picasso.Builder(getActivity())
-                .downloader(new OkHttp3Downloader(client))
+                .addRequestHandler(mBookReaderManager.getBookHandler())
                 .listener(new Picasso.Listener() {
                     @Override
                     public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
-                        mOnErrorListener.onError(exception);
+                        onError(exception);
                     }
                 })
                 //.loggingEnabled(true)
@@ -184,83 +188,9 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
                 .build();
     }
 
-    private void setCurrentBook(Long bookId) {
-        Single<BookDto> single = new Single<BookDto>() {
-            @Override
-            protected void subscribeActual(SingleObserver<? super BookDto> observer) {
-                try {
-                    BookDto book = mApplicationService.getBook(bookId, "(bookCollection,bookMark)").blockingGet();
-
-                    observer.onSuccess(book);
-                } catch(Exception e) {
-                    observer.onError(e);
-                }
-            }
-        };
-        single = single.observeOn(AndroidSchedulers.mainThread());
-        single = single.subscribeOn(Schedulers.io());
-        single.subscribe(new SingleObserver<BookDto>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-
-            }
-
-            @Override
-            public void onSuccess(BookDto book) {
-                if(book != null) {
-                    Single<List<BookDto>> single = new Single<List<BookDto>>() {
-                        @Override
-                        protected void subscribeActual(SingleObserver<? super List<BookDto>> observer) {
-                            try {
-                                PageableListDto<BookDto> bookPageableList = mApplicationService.getBooks(book.getBookCollection().getId(), book.getId(), "()").blockingGet();
-
-                                observer.onSuccess(bookPageableList.getElements());
-                            } catch(Exception e) {
-                                observer.onError(e);
-                            }
-                        }
-                    };
-                    single = single.observeOn(AndroidSchedulers.mainThread());
-                    single = single.subscribeOn(Schedulers.io());
-                    single.subscribe(new SingleObserver<List<BookDto>>() {
-                        @Override
-                        public void onSubscribe(Disposable d) {
-
-                        }
-
-                        @Override
-                        public void onSuccess(List<BookDto> bookList) {
-                            if(bookList != null) {
-                                setCurrentBook(book, bookList);
-                            }
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            mOnErrorListener.onError(e);
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                mOnErrorListener.onError(e);
-            }
-        });
-    }
-
-    public void setCurrentBook(BookDto book, List<BookDto> bookList) {
-        mBookId = book.getId();
-        mBook = book;
-        mBookList = bookList;
-
+    public void loadBook() {
         mViewPager.getAdapter().notifyDataSetChanged();
 
-        setCurrentBook();
-    }
-
-    public void setCurrentBook() {
         FragmentActivity fragmentActivity = getActivity();
 
         if(fragmentActivity != null) {
@@ -296,7 +226,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mGestureDetector = new GestureDetector(getActivity(), new MyTouchListener());
+        mGestureDetector = new GestureDetector(getActivity(), new ReaderTouchListener());
 
         mPreferences = getActivity().getSharedPreferences(Constants.SETTINGS_NAME, 0);
         int viewModeInt = mPreferences.getInt(
@@ -331,12 +261,12 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                mPicasso.pauseTag(ReaderFragment.this.getActivity());
+                mPicasso.pauseTag(getActivity());
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                mPicasso.resumeTag(ReaderFragment.this.getActivity());
+                mPicasso.resumeTag(getActivity());
             }
         });
         mPageNavTextView = (TextView) mPageNavLayout.findViewById(R.id.pageNavTextView);
@@ -426,9 +356,9 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         super.onResume();
 
         if(mBook == null) {
-            setCurrentBook(mBookId);
+            mBookReaderManager.loadBook();
         } else {
-            setCurrentBook();
+            loadBook();
         }
     }
 
@@ -442,7 +372,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         // https://github.com/square/picasso/issues/445
         //mPicasso.shutdown();
 
-        mAuthenticationManagerDisposable.dispose();
+        mBookReaderManager.destroy();
 
         super.onDestroy();
     }
@@ -510,39 +440,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         mPageNavTextView.setText(navPage);
 
         if(page > 1) {
-            Single<BookMarkDto> single = new Single<BookMarkDto>() {
-                @Override
-                protected void subscribeActual(SingleObserver<? super BookMarkDto> observer) {
-                    try {
-                        BookMarkDto bookMark = new BookMarkDto();
-                        bookMark.setPage(getCurrentPage());
-
-                        bookMark = mApplicationService.createOrUpdateBookMark(mBook.getId(), bookMark).blockingGet();
-
-                        observer.onSuccess(bookMark);
-                    } catch(Exception e) {
-                        observer.onError(e);
-                    }
-                }
-            };
-            single = single.observeOn(AndroidSchedulers.mainThread());
-            single = single.subscribeOn(Schedulers.io());
-            single.subscribe(new SingleObserver<BookMarkDto>() {
-                @Override
-                public void onSubscribe(Disposable d) {
-
-                }
-
-                @Override
-                public void onSuccess(BookMarkDto bookMark) {
-                    mBook.setBookMark(bookMark);
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    mOnErrorListener.onError(e);
-                }
-            });
+            mBookReaderManager.saveBookMark(getCurrentPage());
         }
     }
 
@@ -581,7 +479,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
 
             container.addView(layout);
 
-            MyTarget t = new MyTarget(layout, position);
+            ReaderTarget t = new ReaderTarget(layout, position);
             loadImage(t);
             mTargets.put(position, t);
 
@@ -591,7 +489,9 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
             View layout = (View) object;
+
             mPicasso.cancelRequest(mTargets.get(position));
+
             mTargets.delete(position);
             container.removeView(layout);
 
@@ -607,17 +507,17 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         }
     }
 
-    private void loadImage(MyTarget t) {
-        int pos;
+    private void loadImage(ReaderTarget t) {
+        int page;
         if (mIsLeftToRight) {
-            pos = t.position + 1;
+            page = t.position + 1;
         }
         else {
-            pos = mViewPager.getAdapter().getCount() - t.position;
+            page = mViewPager.getAdapter().getCount() - t.position;
         }
 
-        String url = mBaseUrl + "/api/v1/books/" + mBook.getId() + "/pages/" + pos + ".jpg";
-        mPicasso.load(url)
+        Uri uri = mBookReaderManager.getBookHandler().getPageUri(page);
+        mPicasso.load(uri)
                 .memoryPolicy(MemoryPolicy.NO_STORE)
                 .tag(getActivity())
                 .resize(Constants.MAX_PAGE_WIDTH, Constants.MAX_PAGE_HEIGHT)
@@ -626,11 +526,11 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
                 .into(t);
     }
 
-    private class MyTarget implements Target, View.OnClickListener {
+    public class ReaderTarget implements Target, View.OnClickListener {
         private WeakReference<View> mLayout;
         public final int position;
 
-        public MyTarget(View layout, int position) {
+        public ReaderTarget(View layout, int position) {
             mLayout = new WeakReference<>(layout);
             this.position = position;
         }
@@ -681,7 +581,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         }
     }
 
-    private class MyTouchListener extends GestureDetector.SimpleOnGestureListener {
+    private class ReaderTouchListener extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             if (!isFullscreen()) {

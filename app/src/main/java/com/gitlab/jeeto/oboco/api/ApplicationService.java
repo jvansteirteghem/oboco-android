@@ -14,6 +14,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 import okhttp3.OkHttpClient;
+import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
@@ -466,5 +467,59 @@ public class ApplicationService extends Service {
         };
 
         return completable;
+    }
+
+    public Single<ResponseBody> downloadBookPage(Long bookId, Integer page) {
+        Single<ResponseBody> single = new Single<ResponseBody>() {
+            @Override
+            protected void subscribeActual(SingleObserver<? super ResponseBody> observer) {
+                Single<ResponseBody> retrofitSingle = retrofitApplicationApi.downloadBookPage(bookId, page);
+                retrofitSingle.subscribe(new SingleObserver<ResponseBody>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(ResponseBody responseBody) {
+                        observer.onSuccess(responseBody);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        observer.onError(getThrowable(e));
+                    }
+                });
+            }
+        };
+
+        return single;
+    }
+
+    public Single<ResponseBody> downloadBook(Long bookId) {
+        Single<ResponseBody> single = new Single<ResponseBody>() {
+            @Override
+            protected void subscribeActual(SingleObserver<? super ResponseBody> observer) {
+                Single<ResponseBody> retrofitSingle = retrofitApplicationApi.downloadBook(bookId);
+                retrofitSingle.subscribe(new SingleObserver<ResponseBody>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(ResponseBody responseBody) {
+                        observer.onSuccess(responseBody);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        observer.onError(getThrowable(e));
+                    }
+                });
+            }
+        };
+
+        return single;
     }
 }

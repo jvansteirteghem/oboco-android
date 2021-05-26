@@ -1,5 +1,7 @@
 package com.gitlab.jeeto.oboco.activity;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -12,6 +14,8 @@ import com.gitlab.jeeto.oboco.MainApplication;
 import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.api.OnErrorListener;
 import com.gitlab.jeeto.oboco.fragment.ReaderFragment;
+
+import java.io.File;
 
 
 public class ReaderActivity extends AppCompatActivity implements OnErrorListener {
@@ -27,10 +31,18 @@ public class ReaderActivity extends AppCompatActivity implements OnErrorListener
 
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
+            ReaderFragment.Mode mode = (ReaderFragment.Mode) extras.getSerializable(ReaderFragment.PARAM_MODE);
 
-            Long bookId = extras.getLong(ReaderFragment.PARAM_BOOK_ID);
+            ReaderFragment fragment = null;
+            if (mode == ReaderFragment.Mode.MODE_REMOTE) {
+                Long bookId = extras.getLong(ReaderFragment.PARAM_BOOK_ID);
 
-            ReaderFragment fragment = ReaderFragment.create(bookId);
+                fragment = ReaderFragment.create(bookId);
+            } else if (mode == ReaderFragment.Mode.MODE_LOCAL) {
+                File bookFile = (File) extras.getSerializable(ReaderFragment.PARAM_BOOK_FILE);
+
+                fragment = ReaderFragment.create(bookFile);
+            }
             setFragment(fragment);
         }
 

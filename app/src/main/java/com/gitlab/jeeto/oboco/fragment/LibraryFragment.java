@@ -1,13 +1,11 @@
 package com.gitlab.jeeto.oboco.fragment;
 
-import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,6 +22,12 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.work.Constraints;
+import androidx.work.Data;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
 import com.gitlab.jeeto.oboco.BuildConfig;
 import com.gitlab.jeeto.oboco.Constants;
@@ -33,14 +37,13 @@ import com.gitlab.jeeto.oboco.api.ApplicationService;
 import com.gitlab.jeeto.oboco.api.AuthenticationInterceptor;
 import com.gitlab.jeeto.oboco.api.AuthenticationManager;
 import com.gitlab.jeeto.oboco.api.BookCollectionDto;
-import com.gitlab.jeeto.oboco.api.BookDto;
 import com.gitlab.jeeto.oboco.api.OnErrorListener;
 import com.gitlab.jeeto.oboco.api.PageableListDto;
-import com.gitlab.jeeto.oboco.managers.Utils;
+import com.gitlab.jeeto.oboco.manager.DownloadBookCollectionWorker;
+import com.gitlab.jeeto.oboco.common.Utils;
 import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,8 +58,6 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
-
-import static android.content.Context.DOWNLOAD_SERVICE;
 
 
 public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, SearchView.OnQueryTextListener {
@@ -657,88 +658,25 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                 .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        Completable completable = new Completable() {
-                                            @Override
-                                            protected void subscribeActual(CompletableObserver observer) {
-                                                try {
-                                                    mAuthenticationManager.refresh().blockingAwait();
+                                        Constraints constraints = new Constraints.Builder()
+                                                .setRequiredNetworkType(NetworkType.CONNECTED)
+                                                .setRequiresStorageNotLow(true)
+                                                .build();
 
-                                                    observer.onComplete();
-                                                } catch(Exception e) {
-                                                    observer.onError(e);
-                                                }
-                                            }
-                                        };
-                                        completable = completable.observeOn(AndroidSchedulers.mainThread());
-                                        completable = completable.subscribeOn(Schedulers.io());
-                                        completable.subscribe(new CompletableObserver() {
-                                            @Override
-                                            public void onSubscribe(Disposable d) {
+                                        WorkRequest downloadWorkRequest =
+                                                new OneTimeWorkRequest.Builder(DownloadBookCollectionWorker.class)
+                                                        .setConstraints(constraints)
+                                                        .addTag("download")
+                                                        .setInputData(
+                                                                new Data.Builder()
+                                                                        .putLong("bookCollectionId",  selectedBookCollection.getId())
+                                                                        .build()
+                                                        )
+                                                        .build();
 
-                                            }
-
-                                            @Override
-                                            public void onComplete() {
-                                                Completable completable = new Completable() {
-                                                    @Override
-                                                    protected void subscribeActual(CompletableObserver observer) {
-                                                        try {
-                                                            DownloadManager downloadManager = (DownloadManager) getContext().getSystemService(DOWNLOAD_SERVICE);
-
-                                                            Integer page = 1;
-                                                            Integer pageSize = 100;
-
-                                                            do {
-                                                                PageableListDto<BookDto> selectedBookPageableList = mApplicationService.getBooks(selectedBookCollection.getId(), page, pageSize, "(bookMark)").blockingGet();
-                                                                for(BookDto selectedBook: selectedBookPageableList.getElements()) {
-                                                                    String path = "Oboco" + File.separator + selectedBookCollection.getName() + File.separator  + selectedBook.getName() +  ".cbz";
-
-                                                                    String url = mBaseUrl + "/api/v1/books/" + selectedBook.getId() + ".cbz";
-
-                                                                    DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url))
-                                                                            .addRequestHeader("Authorization", "Bearer " + mAuthenticationManager.getAccessToken())
-                                                                            .setTitle(selectedBook.getName() + ".cbz")
-                                                                            .setDescription(selectedBook.getName() + ".cbz")
-                                                                            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
-                                                                            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, path);
-
-                                                                    downloadManager.enqueue(request);
-                                                                }
-
-                                                                page = selectedBookPageableList.getNextPage();
-                                                            } while(page != null);
-
-                                                            observer.onComplete();
-                                                        } catch(Exception e) {
-                                                            observer.onError(e);
-                                                        }
-                                                    }
-                                                };
-                                                completable = completable.observeOn(AndroidSchedulers.mainThread());
-                                                completable = completable.subscribeOn(Schedulers.io());
-                                                completable.subscribe(new CompletableObserver() {
-                                                    @Override
-                                                    public void onSubscribe(Disposable d) {
-
-                                                    }
-
-                                                    @Override
-                                                    public void onComplete() {
-
-                                                    }
-
-                                                    @Override
-                                                    public void onError(Throwable e) {
-                                                        mOnErrorListener.onError(e);
-                                                    }
-                                                });
-                                            }
-
-                                            @Override
-                                            public void onError(Throwable e) {
-
-                                            }
-                                        });
+                                        WorkManager
+                                                .getInstance(getContext())
+                                                .enqueue(downloadWorkRequest);
                                     }
                                 })
                                 .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {

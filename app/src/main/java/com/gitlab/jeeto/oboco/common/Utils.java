@@ -1,4 +1,4 @@
-package com.gitlab.jeeto.oboco.managers;
+package com.gitlab.jeeto.oboco.common;
 
 import android.content.Context;
 import android.os.Build;
@@ -43,4 +43,29 @@ public final class Utils {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         return Math.round(displayMetrics.heightPixels / displayMetrics.density);
     }
+
+    public static boolean isImage(String filename) {
+        return filename.toLowerCase().matches(".*\\.(jpg|jpeg|bmp|gif|png|webp)$");
+    }
+
+    public static boolean isZip(String filename) {
+        return filename.toLowerCase().matches(".*\\.(zip|cbz)$");
+    }
+
+    public static boolean isRar(String filename) {
+        return filename.toLowerCase().matches(".*\\.(rar|cbr)$");
+    }
+
+    public static boolean isTarball(String filename) {
+        return filename.toLowerCase().matches(".*\\.(cbt)$");
+    }
+
+    public static boolean isSevenZ(String filename) {
+        return filename.toLowerCase().matches(".*\\.(cb7|7z)$");
+    }
+
+    public static boolean isArchive(String filename) {
+        return isZip(filename) || isRar(filename) || isTarball(filename) || isSevenZ(filename);
+    }
+
 }
