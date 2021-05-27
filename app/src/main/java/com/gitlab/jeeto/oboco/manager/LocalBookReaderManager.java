@@ -15,7 +15,7 @@ public class LocalBookReaderManager extends BookReaderManager {
     private BookReader mBookReader;
     private File mBookFile;
 
-    private BookHandler mBookHandler;
+    private BookPageRequestHandler mBookPageRequestHandler;
 
     public LocalBookReaderManager(File bookFile) {
         super();
@@ -33,7 +33,7 @@ public class LocalBookReaderManager extends BookReaderManager {
             mReaderFragment.onError(e);
         }
 
-        mBookHandler = new LocalBookHandler(mBookReader, mBookFile);
+        mBookPageRequestHandler = new LocalBookPageRequestHandler(mBookReader, mBookFile);
     }
 
     @Override
@@ -45,8 +45,8 @@ public class LocalBookReaderManager extends BookReaderManager {
         }
     }
 
-    public BookHandler getBookHandler() {
-        return mBookHandler;
+    public BookPageRequestHandler getBookPageRequestHandler() {
+        return mBookPageRequestHandler;
     }
 
     @Override

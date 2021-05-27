@@ -35,6 +35,10 @@ import okhttp3.ResponseBody;
 import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class DownloadBookCollectionWorker extends Worker {
+    private final static String CHANNEL_ID = "download-book-collection";
+    private final static String CHANNEL_NAME = "download-book-collection";
+    private final static String CHANNEL_DESCRIPTION = "download-book-collection";
+    private final static int NOTIFICATION_ID = (int) System.currentTimeMillis();
     private NotificationManager notificationManager;
 
     public DownloadBookCollectionWorker(
@@ -168,7 +172,7 @@ public class DownloadBookCollectionWorker extends Worker {
         PendingIntent intent = WorkManager.getInstance(context)
                 .createCancelPendingIntent(getId());
 
-        NotificationCompat.Builder notification = new NotificationCompat.Builder(context, "workDownload")
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setTicker("Downloading book collection")
                 .setContentTitle("Downloading book collection")
                 .setContentText(info)
@@ -179,10 +183,10 @@ public class DownloadBookCollectionWorker extends Worker {
                 .addAction(android.R.drawable.ic_delete, "Cancel", intent);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createChannel(notification, "workDownload");
+            createChannel(notification, CHANNEL_ID);
         }
 
-        return new ForegroundInfo(1, notification.build());
+        return new ForegroundInfo(NOTIFICATION_ID, notification.build());
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -193,8 +197,8 @@ public class DownloadBookCollectionWorker extends Worker {
 
         notificationBuilder.setDefaults(Notification.DEFAULT_VIBRATE);
 
-        NotificationChannel channel = new NotificationChannel(id, "WorkManagerApp", NotificationManager.IMPORTANCE_HIGH);
-        channel.setDescription("WorkManagerApp Notifications");
+        NotificationChannel channel = new NotificationChannel(id, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
+        channel.setDescription(CHANNEL_DESCRIPTION);
 
         notificationManager.createNotificationChannel(channel);
     }

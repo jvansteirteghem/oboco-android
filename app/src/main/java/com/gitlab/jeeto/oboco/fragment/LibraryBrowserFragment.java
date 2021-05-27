@@ -167,7 +167,7 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
                 .build();
     }
 
-    private void setCurrentBookCollection(Long bookCollectionId) {
+    private void loadBookCollection(Long bookCollectionId) {
         mRefreshView.setRefreshing(true);
 
         Single<BookCollectionDto> single = new Single<BookCollectionDto>() {
@@ -238,7 +238,7 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
                                 mPage = bookPageableList.getPage() == null? 0: bookPageableList.getPage();
                                 mNextPage = bookPageableList.getNextPage() == null? 0: bookPageableList.getNextPage();
 
-                                setCurrentBookCollection(bookCollection, bookPageableList.getElements());
+                                loadBookCollection(bookCollection, bookPageableList.getElements());
                             }
                             mRefreshView.setRefreshing(false);
                         }
@@ -260,17 +260,17 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
         });
     }
 
-    public void setCurrentBookCollection(BookCollectionDto bookCollection, List<BookDto> bookList) {
+    public void loadBookCollection(BookCollectionDto bookCollection, List<BookDto> bookList) {
         mBookCollectionId = bookCollection.getId();
         mBookCollection = bookCollection;
         mBookList = bookList;
 
         mComicListView.getAdapter().notifyDataSetChanged();
 
-        setCurrentBookCollection();
+        loadBookCollection();
     }
 
-    public void setCurrentBookCollection() {
+    public void loadBookCollection() {
         FragmentActivity fragmentActivity = getActivity();
 
         if(fragmentActivity != null) {
@@ -407,15 +407,15 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
         super.onResume();
 
         if(mBookCollection == null) {
-            setCurrentBookCollection(mBookCollectionId);
+            loadBookCollection(mBookCollectionId);
         } else {
-            setCurrentBookCollection();
+            loadBookCollection();
         }
     }
 
     @Override
     public void onRefresh() {
-        setCurrentBookCollection(mBookCollectionId);
+        loadBookCollection(mBookCollectionId);
     }
 
     @Override
@@ -435,7 +435,7 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
             case R.id.menu_browser_filter_reading:
                 item.setChecked(true);
                 mFilterRead = item.getItemId();
-                setCurrentBookCollection(mBookCollectionId);
+                loadBookCollection(mBookCollectionId);
                 return true;
         }
 

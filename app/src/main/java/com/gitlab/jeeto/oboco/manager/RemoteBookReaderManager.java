@@ -30,7 +30,7 @@ public class RemoteBookReaderManager extends BookReaderManager {
     private Disposable mAuthenticationManagerDisposable;
     private ApplicationService mApplicationService;
 
-    private BookHandler mBookHandler;
+    private BookPageRequestHandler mBookPageRequestHandler;
 
     public RemoteBookReaderManager(Long bookId) {
         super();
@@ -57,7 +57,7 @@ public class RemoteBookReaderManager extends BookReaderManager {
 
         mApplicationService = new ApplicationService(mReaderFragment.getContext(), mBaseUrl, mAuthenticationManager);
 
-        mBookHandler = new RemoteBookHandler(mApplicationService, mBookId);
+        mBookPageRequestHandler = new RemoteBookPageRequestHandler(mApplicationService, mBookId);
     }
 
     @Override
@@ -65,8 +65,8 @@ public class RemoteBookReaderManager extends BookReaderManager {
         mAuthenticationManagerDisposable.dispose();
     }
 
-    public BookHandler getBookHandler() {
-        return mBookHandler;
+    public BookPageRequestHandler getBookPageRequestHandler() {
+        return mBookPageRequestHandler;
     }
 
     @Override

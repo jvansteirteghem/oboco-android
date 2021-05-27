@@ -177,7 +177,7 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 .build();
     }
 
-    private void setCurrentBookCollection(Long bookCollectionId) {
+    private void loadBookCollection(Long bookCollectionId) {
         mRefreshView.setRefreshing(true);
 
         Single<BookCollectionDto> single = new Single<BookCollectionDto>() {
@@ -240,7 +240,7 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                 mPage = bookCollectionPageableList.getPage() == null? 0: bookCollectionPageableList.getPage();
                                 mNextPage = bookCollectionPageableList.getNextPage() == null? 0: bookCollectionPageableList.getNextPage();
 
-                                setCurrentBookCollection(bookCollection, bookCollectionPageableList.getElements());
+                                loadBookCollection(bookCollection, bookCollectionPageableList.getElements());
                             }
                             mRefreshView.setRefreshing(false);
                         }
@@ -262,17 +262,17 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
         });
     }
 
-    public void setCurrentBookCollection(BookCollectionDto bookCollection, List<BookCollectionDto> bookCollectionList) {
+    public void loadBookCollection(BookCollectionDto bookCollection, List<BookCollectionDto> bookCollectionList) {
         mBookCollectionId = bookCollection.getId();
         mBookCollection = bookCollection;
         mBookCollectionList = bookCollectionList;
 
         mGroupListView.getAdapter().notifyDataSetChanged();
 
-        setCurrentBookCollection();
+        loadBookCollection();
     }
 
-    public void setCurrentBookCollection() {
+    public void loadBookCollection() {
         FragmentActivity fragmentActivity = getActivity();
 
         if(fragmentActivity != null) {
@@ -297,15 +297,15 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
         super.onResume();
 
         if(mBookCollection == null) {
-            setCurrentBookCollection(mBookCollectionId);
+            loadBookCollection(mBookCollectionId);
         } else {
-            setCurrentBookCollection();
+            loadBookCollection();
         }
     }
 
     @Override
     public void onRefresh() {
-        setCurrentBookCollection(mBookCollectionId);
+        loadBookCollection(mBookCollectionId);
     }
 
     @Override
@@ -385,7 +385,7 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
     public boolean onQueryTextChange(String s) {
         if(mFilterSearch.equals(s) == false) {
             mFilterSearch = s;
-            setCurrentBookCollection(mBookCollectionId);
+            loadBookCollection(mBookCollectionId);
         }
         return true;
     }

@@ -78,7 +78,7 @@ public interface ApplicationApi {
     @Streaming
     @Headers("Content-Type: image/jpeg")
     @GET("/api/v1/books/{bookId}/pages/{page}.jpg")
-    Single<ResponseBody> downloadBookPage(@Path("bookId") Long bookId, @Path("page") Integer page);
+    Single<ResponseBody> downloadBookPage(@Path("bookId") Long bookId, @Path("page") Integer page, @Query("scaleType") String scaleType, @Query("scaleWidth") Integer scaleWidth, @Query("scaleHeight") Integer scaleHeight);
 
     @Streaming
     @Headers("Content-Type: application/zip")

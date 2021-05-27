@@ -1,7 +1,5 @@
 package com.gitlab.jeeto.oboco.manager;
 
-import android.net.Uri;
-
 import com.gitlab.jeeto.oboco.api.ApplicationService;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Request;
@@ -12,12 +10,11 @@ import java.io.InputStream;
 import okhttp3.ResponseBody;
 import okio.Okio;
 
-public class RemoteBookHandler extends BookHandler {
-    private final static String HANDLER_URI = "remote-book";
+public class RemoteBookPageRequestHandler extends BookPageRequestHandler {
     private ApplicationService mApplicationService;
     private Long mBookId;
 
-    public RemoteBookHandler(ApplicationService applicationService, Long bookId) {
+    public RemoteBookPageRequestHandler(ApplicationService applicationService, Long bookId) {
         mApplicationService = applicationService;
         mBookId = bookId;
     }
@@ -29,20 +26,12 @@ public class RemoteBookHandler extends BookHandler {
 
     @Override
     public Result load(Request request, int networkPolicy) throws IOException {
-        Integer page = Integer.parseInt(request.uri.getFragment());
+        Integer page = Integer.parseInt(request.uri.getQueryParameter("page"));
 
-        ResponseBody responseBody = mApplicationService.downloadBookPage(mBookId, page).blockingGet();
+        ResponseBody responseBody = mApplicationService.downloadBookPage(mBookId, page, null, null, null).blockingGet();
 
         InputStream inputStream = responseBody.byteStream();
 
         return new Result(Okio.source(inputStream), Picasso.LoadedFrom.NETWORK);
-    }
-
-    public Uri getPageUri(int page) {
-        return new Uri.Builder()
-                .scheme(HANDLER_URI)
-                .authority("")
-                .fragment(Integer.toString(page))
-                .build();
     }
 }

@@ -56,7 +56,6 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
 
-
 public class ReaderFragment extends Fragment implements View.OnTouchListener {
     public static final String PARAM_MODE = "PARAM_MODE";
     public static final String PARAM_BOOK_ID = "PARAM_BOOK_ID";
@@ -176,7 +175,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         mCurrentPage = 1;
 
         mPicasso = new Picasso.Builder(getActivity())
-                .addRequestHandler(mBookReaderManager.getBookHandler())
+                .addRequestHandler(mBookReaderManager.getBookPageRequestHandler())
                 .listener(new Picasso.Listener() {
                     @Override
                     public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
@@ -516,7 +515,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
             page = mViewPager.getAdapter().getCount() - t.position;
         }
 
-        Uri uri = mBookReaderManager.getBookHandler().getPageUri(page);
+        Uri uri = mBookReaderManager.getBookPageRequestHandler().getPageUri(page);
         mPicasso.load(uri)
                 .memoryPolicy(MemoryPolicy.NO_STORE)
                 .tag(getActivity())
