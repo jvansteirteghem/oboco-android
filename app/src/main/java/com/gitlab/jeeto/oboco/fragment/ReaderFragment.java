@@ -41,6 +41,7 @@ import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.ReaderActivity;
 import com.gitlab.jeeto.oboco.api.BookDto;
 import com.gitlab.jeeto.oboco.api.OnErrorListener;
+import com.gitlab.jeeto.oboco.manager.BookReaderRequestHandler;
 import com.gitlab.jeeto.oboco.manager.LocalBookReaderManager;
 import com.gitlab.jeeto.oboco.manager.BookReaderManager;
 import com.gitlab.jeeto.oboco.manager.RemoteBookReaderManager;
@@ -175,7 +176,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         mCurrentPage = 1;
 
         mPicasso = new Picasso.Builder(getActivity())
-                .addRequestHandler(mBookReaderManager.getBookPageRequestHandler())
+                .addRequestHandler(new BookReaderRequestHandler(mBookReaderManager))
                 .listener(new Picasso.Listener() {
                     @Override
                     public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
@@ -515,7 +516,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
             page = mViewPager.getAdapter().getCount() - t.position;
         }
 
-        Uri uri = mBookReaderManager.getBookPageRequestHandler().getPageUri(page);
+        Uri uri = BookReaderRequestHandler.getBookPage(page);
         mPicasso.load(uri)
                 .memoryPolicy(MemoryPolicy.NO_STORE)
                 .tag(getActivity())

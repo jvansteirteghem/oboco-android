@@ -7,6 +7,8 @@ import com.gitlab.jeeto.oboco.reader.BookReader;
 import com.gitlab.jeeto.oboco.reader.ZipBookReader;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,8 +16,6 @@ public class LocalBookReaderManager extends BookReaderManager {
     private ReaderFragment mReaderFragment;
     private BookReader mBookReader;
     private File mBookFile;
-
-    private BookPageRequestHandler mBookPageRequestHandler;
 
     public LocalBookReaderManager(File bookFile) {
         super();
@@ -32,8 +32,6 @@ public class LocalBookReaderManager extends BookReaderManager {
         } catch(Exception e) {
             mReaderFragment.onError(e);
         }
-
-        mBookPageRequestHandler = new LocalBookPageRequestHandler(mBookReader, mBookFile);
     }
 
     @Override
@@ -43,10 +41,6 @@ public class LocalBookReaderManager extends BookReaderManager {
         } catch(Exception e) {
             mReaderFragment.onError(e);
         }
-    }
-
-    public BookPageRequestHandler getBookPageRequestHandler() {
-        return mBookPageRequestHandler;
     }
 
     @Override
@@ -71,5 +65,11 @@ public class LocalBookReaderManager extends BookReaderManager {
 
         BookDto book = mReaderFragment.getBook();
         book.setBookMark(bookMark);
+    }
+
+    public InputStream getBookPage(int bookPage) throws IOException {
+        InputStream inputStream = mBookReader.getPage(bookPage);
+
+        return inputStream;
     }
 }

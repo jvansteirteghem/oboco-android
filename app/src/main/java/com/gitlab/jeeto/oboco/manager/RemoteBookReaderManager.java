@@ -10,6 +10,8 @@ import com.gitlab.jeeto.oboco.api.BookMarkDto;
 import com.gitlab.jeeto.oboco.api.PageableListDto;
 import com.gitlab.jeeto.oboco.fragment.ReaderFragment;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -19,6 +21,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.ResponseBody;
 
 public class RemoteBookReaderManager extends BookReaderManager {
     private ReaderFragment mReaderFragment;
@@ -29,8 +32,6 @@ public class RemoteBookReaderManager extends BookReaderManager {
     private AuthenticationManager mAuthenticationManager;
     private Disposable mAuthenticationManagerDisposable;
     private ApplicationService mApplicationService;
-
-    private BookPageRequestHandler mBookPageRequestHandler;
 
     public RemoteBookReaderManager(Long bookId) {
         super();
@@ -56,17 +57,11 @@ public class RemoteBookReaderManager extends BookReaderManager {
         });
 
         mApplicationService = new ApplicationService(mReaderFragment.getContext(), mBaseUrl, mAuthenticationManager);
-
-        mBookPageRequestHandler = new RemoteBookPageRequestHandler(mApplicationService, mBookId);
     }
 
     @Override
     public void destroy() {
         mAuthenticationManagerDisposable.dispose();
-    }
-
-    public BookPageRequestHandler getBookPageRequestHandler() {
-        return mBookPageRequestHandler;
     }
 
     @Override
@@ -174,5 +169,13 @@ public class RemoteBookReaderManager extends BookReaderManager {
                 mReaderFragment.onError(e);
             }
         });
+    }
+
+    public InputStream getBookPage(int bookPage) throws IOException {
+        ResponseBody responseBody = mApplicationService.downloadBookPage(mBookId, bookPage, null, null, null).blockingGet();
+
+        InputStream inputStream = responseBody.byteStream();
+
+        return inputStream;
     }
 }
