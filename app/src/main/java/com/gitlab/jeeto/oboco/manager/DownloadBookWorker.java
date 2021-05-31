@@ -33,9 +33,9 @@ import okhttp3.ResponseBody;
 import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class DownloadBookWorker extends Worker {
-    private final static String CHANNEL_ID = "download-book";
-    private final static String CHANNEL_NAME = "download-book";
-    private final static String CHANNEL_DESCRIPTION = "download-book";
+    private final static String CHANNEL_ID = "download";
+    private final static String CHANNEL_NAME = "download";
+    private final static String CHANNEL_DESCRIPTION = "download";
     private final static int NOTIFICATION_ID = (int) System.currentTimeMillis();
     private NotificationManager notificationManager;
 

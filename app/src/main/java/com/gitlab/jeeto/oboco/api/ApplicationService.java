@@ -469,6 +469,33 @@ public class ApplicationService extends Service {
         return completable;
     }
 
+    public Single<ResponseBody> downloadBookCollectionPage(Long bookCollectionId, String scaleType, Integer scaleWidth, Integer scaleHeight) {
+        Single<ResponseBody> single = new Single<ResponseBody>() {
+            @Override
+            protected void subscribeActual(SingleObserver<? super ResponseBody> observer) {
+                Single<ResponseBody> retrofitSingle = retrofitApplicationApi.downloadBookCollectionPage(bookCollectionId, scaleType, scaleWidth, scaleHeight);
+                retrofitSingle.subscribe(new SingleObserver<ResponseBody>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(ResponseBody responseBody) {
+                        observer.onSuccess(responseBody);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        observer.onError(getThrowable(e));
+                    }
+                });
+            }
+        };
+
+        return single;
+    }
+
     public Single<ResponseBody> downloadBookPage(Long bookId, Integer page, String scaleType, Integer scaleWidth, Integer scaleHeight) {
         Single<ResponseBody> single = new Single<ResponseBody>() {
             @Override

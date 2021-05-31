@@ -8,7 +8,6 @@ import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.PATCH;
-import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -77,11 +76,16 @@ public interface ApplicationApi {
 
     @Streaming
     @Headers("Content-Type: image/jpeg")
+    @GET("/api/v1/bookCollections/{bookCollectionId}/books/FIRST/pages/1.jpg")
+    public Single<ResponseBody> downloadBookCollectionPage(@Path("bookCollectionId") Long bookCollectionId, @Query("scaleType") String scaleType, @Query("scaleWidth") Integer scaleWidth, @Query("scaleHeight") Integer scaleHeight);
+
+    @Streaming
+    @Headers("Content-Type: image/jpeg")
     @GET("/api/v1/books/{bookId}/pages/{page}.jpg")
-    Single<ResponseBody> downloadBookPage(@Path("bookId") Long bookId, @Path("page") Integer page, @Query("scaleType") String scaleType, @Query("scaleWidth") Integer scaleWidth, @Query("scaleHeight") Integer scaleHeight);
+    public Single<ResponseBody> downloadBookPage(@Path("bookId") Long bookId, @Path("page") Integer page, @Query("scaleType") String scaleType, @Query("scaleWidth") Integer scaleWidth, @Query("scaleHeight") Integer scaleHeight);
 
     @Streaming
     @Headers("Content-Type: application/zip")
     @GET("/api/v1/books/{bookId}.cbz")
-    Single<ResponseBody> downloadBook(@Path("bookId") Long bookId);
+    public Single<ResponseBody> downloadBook(@Path("bookId") Long bookId);
 }

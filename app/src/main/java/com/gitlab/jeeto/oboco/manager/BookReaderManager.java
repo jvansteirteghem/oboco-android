@@ -8,7 +8,7 @@ import java.io.InputStream;
 public abstract class BookReaderManager {
     public abstract void create(ReaderFragment fragment);
     public abstract void destroy();
-    public abstract void loadBook();
-    public abstract void saveBookMark(int bookPage);
+    public abstract void load();
+    public abstract void addBookMark(int bookPage);
     public abstract InputStream getBookPage(int bookPage) throws IOException;
 }

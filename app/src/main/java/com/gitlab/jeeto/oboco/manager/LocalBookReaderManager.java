@@ -44,7 +44,7 @@ public class LocalBookReaderManager extends BookReaderManager {
     }
 
     @Override
-    public void loadBook() {
+    public void load() {
         BookDto book = new BookDto();
         book.setId(0L);
         book.setName(mBookFile.getName());
@@ -53,18 +53,15 @@ public class LocalBookReaderManager extends BookReaderManager {
         List<BookDto> bookList = new ArrayList<BookDto>();
         bookList.add(book);
 
-        mReaderFragment.setBook(book);
-        mReaderFragment.setBookList(bookList);
-        mReaderFragment.loadBook();
+        mReaderFragment.onLoad(book, bookList);
     }
 
     @Override
-    public void saveBookMark(int bookPage) {
+    public void addBookMark(int bookPage) {
         BookMarkDto bookMark = new BookMarkDto();
         bookMark.setPage(bookPage);
 
-        BookDto book = mReaderFragment.getBook();
-        book.setBookMark(bookMark);
+        mReaderFragment.onAddBookMark(bookMark);
     }
 
     public InputStream getBookPage(int bookPage) throws IOException {

@@ -65,7 +65,7 @@ public class RemoteBookReaderManager extends BookReaderManager {
     }
 
     @Override
-    public void loadBook() {
+    public void load() {
         Single<BookDto> single = new Single<BookDto>() {
             @Override
             protected void subscribeActual(SingleObserver<? super BookDto> observer) {
@@ -112,9 +112,7 @@ public class RemoteBookReaderManager extends BookReaderManager {
                         @Override
                         public void onSuccess(List<BookDto> bookList) {
                             if(bookList != null) {
-                                mReaderFragment.setBook(book);
-                                mReaderFragment.setBookList(bookList);
-                                mReaderFragment.loadBook();
+                                mReaderFragment.onLoad(book, bookList);
                             }
                         }
 
@@ -134,7 +132,7 @@ public class RemoteBookReaderManager extends BookReaderManager {
     }
 
     @Override
-    public void saveBookMark(int bookPage) {
+    public void addBookMark(int bookPage) {
         Single<BookMarkDto> single = new Single<BookMarkDto>() {
             @Override
             protected void subscribeActual(SingleObserver<? super BookMarkDto> observer) {
@@ -160,8 +158,7 @@ public class RemoteBookReaderManager extends BookReaderManager {
 
             @Override
             public void onSuccess(BookMarkDto bookMark) {
-                BookDto book = mReaderFragment.getBook();
-                book.setBookMark(bookMark);
+                mReaderFragment.onAddBookMark(bookMark);
             }
 
             @Override

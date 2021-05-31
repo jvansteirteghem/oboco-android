@@ -40,6 +40,7 @@ import com.gitlab.jeeto.oboco.Constants;
 import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.ReaderActivity;
 import com.gitlab.jeeto.oboco.api.BookDto;
+import com.gitlab.jeeto.oboco.api.BookMarkDto;
 import com.gitlab.jeeto.oboco.api.OnErrorListener;
 import com.gitlab.jeeto.oboco.manager.BookReaderRequestHandler;
 import com.gitlab.jeeto.oboco.manager.LocalBookReaderManager;
@@ -121,22 +122,6 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         super();
     }
 
-    public BookDto getBook() {
-        return mBook;
-    }
-
-    public void setBook(BookDto book) {
-        this.mBook = book;
-    }
-
-    public List<BookDto> getBookList() {
-        return mBookList;
-    }
-
-    public void setBookList(List<BookDto> bookList) {
-        this.mBookList = bookList;
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -153,6 +138,10 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
 
     public void onError(Throwable e) {
         mOnErrorListener.onError(e);
+    }
+
+    public void onAddBookMark(BookMarkDto bookMark) {
+        mBook.setBookMark(bookMark);
     }
 
     @Override
@@ -188,9 +177,16 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
                 .build();
     }
 
-    public void loadBook() {
+    public void onLoad(BookDto book, List<BookDto> bookList) {
+        mBook = book;
+        mBookList = bookList;
+
         mViewPager.getAdapter().notifyDataSetChanged();
 
+        onLoad();
+    }
+
+    public void onLoad() {
         FragmentActivity fragmentActivity = getActivity();
 
         if(fragmentActivity != null) {
@@ -356,9 +352,9 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         super.onResume();
 
         if(mBook == null) {
-            mBookReaderManager.loadBook();
+            mBookReaderManager.load();
         } else {
-            loadBook();
+            onLoad();
         }
     }
 
@@ -440,7 +436,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         mPageNavTextView.setText(navPage);
 
         if(page > 1) {
-            mBookReaderManager.saveBookMark(getCurrentPage());
+            mBookReaderManager.addBookMark(getCurrentPage());
         }
     }
 

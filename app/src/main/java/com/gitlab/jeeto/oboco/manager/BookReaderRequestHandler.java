@@ -9,7 +9,6 @@ import com.squareup.picasso.RequestHandler;
 import java.io.IOException;
 import java.io.InputStream;
 
-import okhttp3.ResponseBody;
 import okio.Okio;
 
 public class BookReaderRequestHandler extends RequestHandler {

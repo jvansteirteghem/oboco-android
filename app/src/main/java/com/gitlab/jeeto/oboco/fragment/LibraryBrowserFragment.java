@@ -3,7 +3,6 @@ package com.gitlab.jeeto.oboco.fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
@@ -29,37 +28,23 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
-import com.gitlab.jeeto.oboco.BuildConfig;
 import com.gitlab.jeeto.oboco.Constants;
 import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.ReaderActivity;
-import com.gitlab.jeeto.oboco.api.ApplicationService;
-import com.gitlab.jeeto.oboco.api.AuthenticationInterceptor;
-import com.gitlab.jeeto.oboco.api.AuthenticationManager;
 import com.gitlab.jeeto.oboco.api.BookCollectionDto;
 import com.gitlab.jeeto.oboco.api.BookDto;
 import com.gitlab.jeeto.oboco.api.BookMarkDto;
 import com.gitlab.jeeto.oboco.api.OnErrorListener;
 import com.gitlab.jeeto.oboco.api.PageableListDto;
-import com.gitlab.jeeto.oboco.manager.DownloadBookWorker;
 import com.gitlab.jeeto.oboco.common.Utils;
-import com.squareup.picasso.OkHttp3Downloader;
+import com.gitlab.jeeto.oboco.manager.BookBrowserManager;
+import com.gitlab.jeeto.oboco.manager.BookBrowserRequestHandler;
+import com.gitlab.jeeto.oboco.manager.DownloadBookWorker;
+import com.gitlab.jeeto.oboco.manager.RemoteBookBrowserManager;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import io.reactivex.Completable;
-import io.reactivex.CompletableObserver;
-import io.reactivex.Observable;
-import io.reactivex.Single;
-import io.reactivex.SingleObserver;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 
 public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     public static final String PARAM_BOOK_COLLECTION_ID = "PARAM_BOOK_COLLECTION_ID";
@@ -75,21 +60,16 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
 
     private Picasso mPicasso;
 
-    private Long mBookCollectionId;
     private BookCollectionDto mBookCollection;
     private List<BookDto> mBookList;
-
-    private String mBaseUrl;
-
-    private AuthenticationManager mAuthenticationManager;
-    private Disposable mAuthenticationManagerDisposable;
-    private ApplicationService mApplicationService;
-
-    private OnErrorListener mOnErrorListener;
 
     private int mPage = 0;
     private int mPageSize = 100;
     private int mNextPage = 0;
+
+    private BookBrowserManager mBookBrowserManager;
+
+    private OnErrorListener mOnErrorListener;
 
     @Override
     public void onAttach(Context context) {
@@ -105,10 +85,12 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
         mOnErrorListener = null;
     }
 
-    @Override
-    public void onDestroy() {
-        mAuthenticationManagerDisposable.dispose();
-        super.onDestroy();
+    public void onError(Throwable e) {
+        mOnErrorListener.onError(e);
+    }
+
+    public void setRefreshing(boolean refreshing) {
+        mRefreshView.setRefreshing(refreshing);
     }
 
     public static LibraryBrowserFragment create(Long bookCollectionId) {
@@ -125,41 +107,20 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mBookCollectionId = getArguments().getLong(PARAM_BOOK_COLLECTION_ID);
         mBookCollection = null;
         mBookList = new ArrayList<BookDto>();
 
-        SharedPreferences sp = getContext().getSharedPreferences("application", Context.MODE_PRIVATE);
-        mBaseUrl = sp.getString("baseUrl", "");
+        Long bookCollectionId = getArguments().getLong(PARAM_BOOK_COLLECTION_ID);
 
-        mAuthenticationManager = new AuthenticationManager(getContext());
-        Observable<Throwable> observable = mAuthenticationManager.getErrors();
-        observable = observable.observeOn(AndroidSchedulers.mainThread());
-        observable = observable.subscribeOn(Schedulers.io());
-        mAuthenticationManagerDisposable = observable.subscribe(new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable e) throws Exception {
-                mOnErrorListener.onError(e);
-            }
-        });
-
-        mApplicationService = new ApplicationService(getContext(), mBaseUrl, mAuthenticationManager);
-
-        OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                .addInterceptor(new AuthenticationInterceptor(mAuthenticationManager));
-
-        if(BuildConfig.DEBUG) {
-            builder.addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC));
-        }
-
-        OkHttpClient client = builder.build();
+        mBookBrowserManager = new RemoteBookBrowserManager(bookCollectionId);
+        mBookBrowserManager.create(this);
 
         mPicasso = new Picasso.Builder(getActivity())
-                .downloader(new OkHttp3Downloader(client))
+                .addRequestHandler(new BookBrowserRequestHandler(mBookBrowserManager))
                 .listener(new Picasso.Listener() {
                     @Override
                     public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
-                        mOnErrorListener.onError(exception);
+                        onError(exception);
                     }
                 })
                 //.loggingEnabled(true)
@@ -167,110 +128,27 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
                 .build();
     }
 
-    private void loadBookCollection(Long bookCollectionId) {
-        mRefreshView.setRefreshing(true);
+    @Override
+    public void onDestroy() {
+        mBookBrowserManager.destroy();
 
-        Single<BookCollectionDto> single = new Single<BookCollectionDto>() {
-            @Override
-            protected void subscribeActual(SingleObserver<? super BookCollectionDto> observer) {
-                try {
-                    if(bookCollectionId == null) {
-                        BookCollectionDto bookCollection = mApplicationService.getRootBookCollection("(parentBookCollection)").blockingGet();
-
-                        observer.onSuccess(bookCollection);
-                    } else {
-                        BookCollectionDto bookCollection = mApplicationService.getBookCollection(bookCollectionId, "(parentBookCollection)").blockingGet();
-
-                        observer.onSuccess(bookCollection);
-                    }
-                } catch(Exception e) {
-                    observer.onError(e);
-                }
-            }
-        };
-        single = single.observeOn(AndroidSchedulers.mainThread());
-        single = single.subscribeOn(Schedulers.io());
-        single.subscribe(new SingleObserver<BookCollectionDto>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-
-            }
-
-            @Override
-            public void onSuccess(BookCollectionDto bookCollection) {
-                if(bookCollection != null) {
-                    Single<PageableListDto<BookDto>> single = new Single<PageableListDto<BookDto>>() {
-                        @Override
-                        protected void subscribeActual(SingleObserver<? super PageableListDto<BookDto>> observer) {
-                            try {
-                                String bookMarkStatus = null;
-                                if (mFilterRead != R.id.menu_browser_filter_all) {
-                                    if (mFilterRead == R.id.menu_browser_filter_read) {
-                                        bookMarkStatus = "READ";
-                                    }
-                                    if (mFilterRead == R.id.menu_browser_filter_unread) {
-                                        bookMarkStatus = "UNREAD";
-                                    }
-                                    if (mFilterRead == R.id.menu_browser_filter_reading) {
-                                        bookMarkStatus = "READING";
-                                    }
-                                }
-
-                                PageableListDto<BookDto> bookPageableList = mApplicationService.getBooks(bookCollection.getId(), bookMarkStatus, 1, mPageSize, "(bookMark)").blockingGet();
-
-                                observer.onSuccess(bookPageableList);
-                            } catch(Exception e) {
-                                observer.onError(e);
-                            }
-                        }
-                    };
-                    single = single.observeOn(AndroidSchedulers.mainThread());
-                    single = single.subscribeOn(Schedulers.io());
-                    single.subscribe(new SingleObserver<PageableListDto<BookDto>>() {
-                        @Override
-                        public void onSubscribe(Disposable d) {
-
-                        }
-
-                        @Override
-                        public void onSuccess(PageableListDto<BookDto> bookPageableList) {
-                            if(bookPageableList != null) {
-                                mPage = bookPageableList.getPage() == null? 0: bookPageableList.getPage();
-                                mNextPage = bookPageableList.getNextPage() == null? 0: bookPageableList.getNextPage();
-
-                                loadBookCollection(bookCollection, bookPageableList.getElements());
-                            }
-                            mRefreshView.setRefreshing(false);
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            mOnErrorListener.onError(e);
-                            mRefreshView.setRefreshing(false);
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                mOnErrorListener.onError(e);
-                mRefreshView.setRefreshing(false);
-            }
-        });
+        super.onDestroy();
     }
 
-    public void loadBookCollection(BookCollectionDto bookCollection, List<BookDto> bookList) {
-        mBookCollectionId = bookCollection.getId();
+    public void onLoad(BookCollectionDto bookCollection, PageableListDto<BookDto> bookPageableList) {
         mBookCollection = bookCollection;
-        mBookList = bookList;
+
+        mPage = bookPageableList.getPage() == null? 0: bookPageableList.getPage();
+        mNextPage = bookPageableList.getNextPage() == null? 0: bookPageableList.getNextPage();
+
+        mBookList = bookPageableList.getElements();
 
         mComicListView.getAdapter().notifyDataSetChanged();
 
-        loadBookCollection();
+        onLoad();
     }
 
-    public void loadBookCollection() {
+    public void onLoad() {
         FragmentActivity fragmentActivity = getActivity();
 
         if(fragmentActivity != null) {
@@ -284,6 +162,45 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
                 mEmptyView.setVisibility(View.VISIBLE);
             }
         }
+    }
+
+    public void onLoadBookPageableList(PageableListDto<BookDto> bookPageableList) {
+        if(mBookList != null) {
+            mPage = bookPageableList.getPage() == null? 0: bookPageableList.getPage();
+            mNextPage = bookPageableList.getNextPage() == null? 0: bookPageableList.getNextPage();
+
+            mBookList.addAll(bookPageableList.getElements());
+
+            mComicListView.getAdapter().notifyDataSetChanged();
+        }
+    }
+
+    public void onAddBookMark(BookDto book, BookMarkDto bookMark) {
+        book.setBookMark(bookMark);
+
+        mComicListView.getAdapter().notifyDataSetChanged();
+    }
+
+    public void onRemoveBookMark(BookDto book) {
+        book.setBookMark(null);
+
+        mComicListView.getAdapter().notifyDataSetChanged();
+    }
+
+    private String getBookMarkStatus() {
+        String bookMarkStatus = null;
+        if (mFilterRead != R.id.menu_browser_filter_all) {
+            if (mFilterRead == R.id.menu_browser_filter_read) {
+                bookMarkStatus = "READ";
+            }
+            if (mFilterRead == R.id.menu_browser_filter_unread) {
+                bookMarkStatus = "UNREAD";
+            }
+            if (mFilterRead == R.id.menu_browser_filter_reading) {
+                bookMarkStatus = "READING";
+            }
+        }
+        return bookMarkStatus;
     }
 
     @Override
@@ -326,7 +243,9 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
                     if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
                             && firstVisibleItemPosition >= 0
                             && totalItemCount >= mPageSize) {
-                        loadNextPage();
+                        String bookMarkStatus = getBookMarkStatus();
+
+                        mBookBrowserManager.loadBookPageableList(bookMarkStatus, mNextPage, mPageSize);
                     }
                 }
             }
@@ -345,77 +264,24 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
         return view;
     }
 
-    private void loadNextPage() {
-        mRefreshView.setRefreshing(true);
-
-        Single<PageableListDto<BookDto>> single = new Single<PageableListDto<BookDto>>() {
-            @Override
-            protected void subscribeActual(SingleObserver<? super PageableListDto<BookDto>> observer) {
-                try {
-                    String bookMarkStatus = null;
-                    if (mFilterRead != R.id.menu_browser_filter_all) {
-                        if (mFilterRead == R.id.menu_browser_filter_read) {
-                            bookMarkStatus = "READ";
-                        }
-                        if (mFilterRead == R.id.menu_browser_filter_unread) {
-                            bookMarkStatus = "UNREAD";
-                        }
-                        if (mFilterRead == R.id.menu_browser_filter_reading) {
-                            bookMarkStatus = "READING";
-                        }
-                    }
-
-                    PageableListDto<BookDto> bookPageableList = mApplicationService.getBooks(mBookCollection.getId(), bookMarkStatus, mNextPage, mPageSize, "(bookMark)").blockingGet();
-
-                    observer.onSuccess(bookPageableList);
-                } catch(Exception e) {
-                    observer.onError(e);
-                }
-            }
-        };
-        single = single.observeOn(AndroidSchedulers.mainThread());
-        single = single.subscribeOn(Schedulers.io());
-        single.subscribe(new SingleObserver<PageableListDto<BookDto>>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-
-            }
-
-            @Override
-            public void onSuccess(PageableListDto<BookDto> bookPageableList) {
-                if(mBookList != null) {
-                    mPage = bookPageableList.getPage() == null? 0: bookPageableList.getPage();
-                    mNextPage = bookPageableList.getNextPage() == null? 0: bookPageableList.getNextPage();
-
-                    mBookList.addAll(bookPageableList.getElements());
-
-                    mComicListView.getAdapter().notifyDataSetChanged();
-                }
-                mRefreshView.setRefreshing(false);
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                mOnErrorListener.onError(e);
-                mRefreshView.setRefreshing(false);
-            }
-        });
-    }
-
     @Override
     public void onResume() {
         super.onResume();
 
         if(mBookCollection == null) {
-            loadBookCollection(mBookCollectionId);
+            String bookMarkStatus = getBookMarkStatus();
+
+            mBookBrowserManager.load(bookMarkStatus, 1, mPageSize);
         } else {
-            loadBookCollection();
+            onLoad();
         }
     }
 
     @Override
     public void onRefresh() {
-        loadBookCollection(mBookCollectionId);
+        String bookMarkStatus = getBookMarkStatus();
+
+        mBookBrowserManager.load(bookMarkStatus, 1, mPageSize);
     }
 
     @Override
@@ -435,7 +301,10 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
             case R.id.menu_browser_filter_reading:
                 item.setChecked(true);
                 mFilterRead = item.getItemId();
-                loadBookCollection(mBookCollectionId);
+
+                String bookMarkStatus = getBookMarkStatus();
+
+                mBookBrowserManager.load(bookMarkStatus, 1, mPageSize);
                 return true;
         }
 
@@ -582,40 +451,7 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
                             .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    Completable completable = new Completable() {
-                                        @Override
-                                        protected void subscribeActual(CompletableObserver observer) {
-                                            try {
-                                                BookMarkDto bookMark = new BookMarkDto();
-                                                bookMark.setPage(selectedBook.getNumberOfPages());
-
-                                                bookMark = mApplicationService.createOrUpdateBookMark(selectedBook.getId(), bookMark).blockingGet();
-
-                                                selectedBook.setBookMark(bookMark);
-                                                observer.onComplete();
-                                            } catch(Exception e) {
-                                                observer.onError(e);
-                                            }
-                                        }
-                                    };
-                                    completable = completable.observeOn(AndroidSchedulers.mainThread());
-                                    completable = completable.subscribeOn(Schedulers.io());
-                                    completable.subscribe(new CompletableObserver() {
-                                        @Override
-                                        public void onSubscribe(Disposable d) {
-
-                                        }
-
-                                        @Override
-                                        public void onComplete() {
-                                            mComicListView.getAdapter().notifyDataSetChanged();
-                                        }
-
-                                        @Override
-                                        public void onError(Throwable e) {
-                                            mOnErrorListener.onError(e);
-                                        }
-                                    });
+                                    mBookBrowserManager.addBookMark(selectedBook);
                                 }
                             })
                             .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
@@ -627,40 +463,7 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
                             .setNeutralButton("Delete", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    Completable completable = new Completable() {
-                                        @Override
-                                        protected void subscribeActual(CompletableObserver observer) {
-                                            try {
-                                                if(selectedBook.getBookMark() != null) {
-                                                    mApplicationService.deleteBookMark(selectedBook.getId()).blockingAwait();
-
-                                                    selectedBook.setBookMark(null);
-                                                }
-
-                                                observer.onComplete();
-                                            } catch(Exception e) {
-                                                observer.onError(e);
-                                            }
-                                        }
-                                    };
-                                    completable = completable.observeOn(AndroidSchedulers.mainThread());
-                                    completable = completable.subscribeOn(Schedulers.io());
-                                    completable.subscribe(new CompletableObserver() {
-                                        @Override
-                                        public void onSubscribe(Disposable d) {
-
-                                        }
-
-                                        @Override
-                                        public void onComplete() {
-                                            mComicListView.getAdapter().notifyDataSetChanged();
-                                        }
-
-                                        @Override
-                                        public void onError(Throwable e) {
-                                            mOnErrorListener.onError(e);
-                                        }
-                                    });
+                                    mBookBrowserManager.removeBookMark(selectedBook);
                                 }
                             })
                             .create();
@@ -728,8 +531,8 @@ public class LibraryBrowserFragment extends Fragment implements SwipeRefreshLayo
 
             mBookImageView.setImageResource(android.R.color.transparent);
 
-            String url = mBaseUrl + "/api/v1/books/" + book.getId() + "/pages/1.jpg?scaleType=DEFAULT&scaleWidth=" + Constants.COVER_THUMBNAIL_WIDTH + "&scaleHeight=" + Constants.COVER_THUMBNAIL_HEIGHT;
-            mPicasso.load(url)
+            Uri uri = BookBrowserRequestHandler.getBookPage(book, "DEFAULT", Constants.COVER_THUMBNAIL_WIDTH, Constants.COVER_THUMBNAIL_HEIGHT);
+            mPicasso.load(uri)
                     .into(mBookImageView);
         }
     }
