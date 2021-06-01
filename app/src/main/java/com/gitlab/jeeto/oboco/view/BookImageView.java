@@ -5,13 +5,13 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import androidx.appcompat.widget.AppCompatImageView;
 
-public class CoverImageView extends AppCompatImageView {
+public class BookImageView extends AppCompatImageView {
 
-    public CoverImageView(Context context) {
+    public BookImageView(Context context) {
         super(context);
     }
 
-    public CoverImageView(Context context, AttributeSet attributeSet) {
+    public BookImageView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
     }
 

@@ -6,7 +6,7 @@ import androidx.viewpager.widget.ViewPager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
-public class ComicViewPager extends ViewPager {
+public class BookViewPager extends ViewPager {
     private float mStartX = 0;
     private OnSwipeOutListener mSwipeOutListener;
 
@@ -15,11 +15,11 @@ public class ComicViewPager extends ViewPager {
         public void onSwipeOutAtEnd();
     }
 
-    public ComicViewPager(Context context, AttributeSet attrs) {
+    public BookViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public ComicViewPager(Context context) {
+    public BookViewPager(Context context) {
         super(context);
     }
 

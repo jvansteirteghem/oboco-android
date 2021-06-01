@@ -6,14 +6,14 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import androidx.appcompat.widget.AppCompatImageView;
 
-public class GroupImageView extends AppCompatImageView {
+public class BookCollectionImageView extends AppCompatImageView {
 
-    public GroupImageView(Context context) {
+    public BookCollectionImageView(Context context) {
         super(context);
         setScaleType(ScaleType.MATRIX);
     }
 
-    public GroupImageView(Context context, AttributeSet attributeSet) {
+    public BookCollectionImageView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         setScaleType(ScaleType.MATRIX);
     }

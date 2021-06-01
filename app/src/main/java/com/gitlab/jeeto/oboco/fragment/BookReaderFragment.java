@@ -46,7 +46,7 @@ import com.gitlab.jeeto.oboco.manager.LocalBookReaderManager;
 import com.gitlab.jeeto.oboco.manager.BookReaderManager;
 import com.gitlab.jeeto.oboco.manager.RemoteBookReaderManager;
 import com.gitlab.jeeto.oboco.common.Utils;
-import com.gitlab.jeeto.oboco.view.ComicViewPager;
+import com.gitlab.jeeto.oboco.view.BookViewPager;
 import com.gitlab.jeeto.oboco.view.PageImageView;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
@@ -61,7 +61,7 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
     public static final String STATE_FULLSCREEN = "STATE_FULLSCREEN";
     public static final String STATE_BOOK_PAGE = "STATE_BOOK_PAGE";
 
-    private ComicViewPager mViewPager;
+    private BookViewPager mViewPager;
     private LinearLayout mPageNavLayout;
     private SeekBar mPageSeekBar;
     private TextView mPageNavTextView;
@@ -253,7 +253,7 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
             }
         });
         mPageNavTextView = (TextView) mPageNavLayout.findViewById(R.id.pageNavTextView);
-        mViewPager = (ComicViewPager) view.findViewById(R.id.viewPager);
+        mViewPager = (BookViewPager) view.findViewById(R.id.viewPager);
         mViewPager.setAdapter(new BookReaderPagerAdapter());
         mViewPager.setOffscreenPageLimit(3);
         mViewPager.setOnTouchListener(this);
@@ -272,7 +272,7 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                 }
             }
         });
-        mViewPager.setOnSwipeOutListener(new ComicViewPager.OnSwipeOutListener() {
+        mViewPager.setOnSwipeOutListener(new BookViewPager.OnSwipeOutListener() {
             @Override
             public void onSwipeOutAtStart() {
                 if (mIsLeftToRight)
