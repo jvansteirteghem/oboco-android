@@ -33,7 +33,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.gitlab.jeeto.oboco.activity.ReaderActivity"
+            android:name="com.gitlab.jeeto.oboco.activity.BookReaderActivity"
             android:label="@string/app_name"
             android:parentActivityName="com.gitlab.jeeto.oboco.activity.MainActivity"
             android:theme="@style/ReaderTheme">

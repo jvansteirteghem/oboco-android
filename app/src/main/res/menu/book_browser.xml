@@ -7,14 +7,14 @@
           app:showAsAction="always">
         <menu>
             <group android:checkableBehavior="single">
-                <item android:id="@+id/menu_browser_filter_all"
+                <item android:id="@+id/menu_book_browser_filter_all"
                       android:title="@string/menu_browser_filter_all"
                       android:checked="true"/>
-                <item android:id="@+id/menu_browser_filter_unread"
+                <item android:id="@+id/menu_book_browser_filter_unread"
                       android:title="@string/menu_browser_filter_unread"/>
-                <item android:id="@+id/menu_browser_filter_reading"
+                <item android:id="@+id/menu_book_browser_filter_reading"
                       android:title="@string/menu_browser_filter_reading"/>
-                <item android:id="@+id/menu_browser_filter_read"
+                <item android:id="@+id/menu_book_browser_filter_read"
                       android:title="@string/menu_browser_filter_read"/>
             </group>
         </menu>

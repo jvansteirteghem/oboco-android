@@ -1,7 +1,5 @@
 package com.gitlab.jeeto.oboco.activity;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -13,35 +11,38 @@ import androidx.fragment.app.Fragment;
 import com.gitlab.jeeto.oboco.MainApplication;
 import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.api.OnErrorListener;
-import com.gitlab.jeeto.oboco.fragment.ReaderFragment;
+import com.gitlab.jeeto.oboco.fragment.BookReaderFragment;
+import com.gitlab.jeeto.oboco.manager.BookReaderManager;
+import com.gitlab.jeeto.oboco.manager.LocalBookReaderManager;
+import com.gitlab.jeeto.oboco.manager.RemoteBookReaderManager;
 
 import java.io.File;
 
 
-public class ReaderActivity extends AppCompatActivity implements OnErrorListener {
+public class BookReaderActivity extends AppCompatActivity implements OnErrorListener {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.layout_reader);
+        setContentView(R.layout.layout_book_reader);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_reader);
         setSupportActionBar(toolbar);
 
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
-            ReaderFragment.Mode mode = (ReaderFragment.Mode) extras.getSerializable(ReaderFragment.PARAM_MODE);
+            BookReaderManager.Mode mode = (BookReaderManager.Mode) extras.getSerializable(BookReaderManager.PARAM_MODE);
 
-            ReaderFragment fragment = null;
-            if (mode == ReaderFragment.Mode.MODE_REMOTE) {
-                Long bookId = extras.getLong(ReaderFragment.PARAM_BOOK_ID);
+            BookReaderFragment fragment = null;
+            if (mode == BookReaderManager.Mode.MODE_REMOTE) {
+                Long bookId = extras.getLong(RemoteBookReaderManager.PARAM_BOOK_ID);
 
-                fragment = ReaderFragment.create(bookId);
-            } else if (mode == ReaderFragment.Mode.MODE_LOCAL) {
-                File bookFile = (File) extras.getSerializable(ReaderFragment.PARAM_BOOK_FILE);
+                fragment = BookReaderFragment.create(bookId);
+            } else if (mode == BookReaderManager.Mode.MODE_LOCAL) {
+                File bookFile = (File) extras.getSerializable(LocalBookReaderManager.PARAM_BOOK_FILE);
 
-                fragment = ReaderFragment.create(bookFile);
+                fragment = BookReaderFragment.create(bookFile);
             }
             setFragment(fragment);
         }

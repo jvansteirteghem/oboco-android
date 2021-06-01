@@ -18,12 +18,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
             <com.gitlab.jeeto.oboco.view.GroupImageView
-                    android:id="@+id/card_group_imageview"
+                    android:id="@+id/bookCollectionImageView"
                     android:foreground="?android:attr/selectableItemBackground"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"/>
             <TextView
-                android:id="@+id/comic_group_folder_bookCollectionNumberOfBooksTextView"
+                android:id="@+id/bookCollectionNumberOfBooksTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/card_padding"
@@ -40,7 +40,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentRight="true">
                 <ImageView
-                    android:id="@+id/comic_group_folder_bookDownloadImageView"
+                    android:id="@+id/bookCollectionDownloadImageView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/card_padding"
@@ -50,7 +50,7 @@
                     android:background="@color/lightest"
                     android:foreground="?android:attr/selectableItemBackground" />
                 <ImageView
-                    android:id="@+id/comic_group_folder_bookMarkUpdateImageView"
+                    android:id="@+id/bookCollectionBookMarkImageView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/card_padding"
@@ -64,7 +64,7 @@
             </LinearLayout>
         </RelativeLayout>
         <TextView
-            android:id="@+id/comic_group_folder_bookCollectionTextView"
+            android:id="@+id/bookCollectionTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/card_padding"

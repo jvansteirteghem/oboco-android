@@ -16,17 +16,12 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
-import androidx.work.Constraints;
-import androidx.work.Data;
-import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
-import androidx.work.WorkRequest;
 
 import com.gitlab.jeeto.oboco.R;
-import com.gitlab.jeeto.oboco.activity.ReaderActivity;
+import com.gitlab.jeeto.oboco.activity.BookReaderActivity;
 import com.gitlab.jeeto.oboco.common.Utils;
-import com.gitlab.jeeto.oboco.manager.DownloadBookWorker;
+import com.gitlab.jeeto.oboco.manager.BookReaderManager;
+import com.gitlab.jeeto.oboco.manager.LocalBookReaderManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -123,9 +118,9 @@ public class BrowserFragment extends Fragment
         if (file.isDirectory()) {
             setCurrentDir(file);
         } else {
-            Intent intent = new Intent(getActivity(), ReaderActivity.class);
-            intent.putExtra(ReaderFragment.PARAM_BOOK_FILE, file);
-            intent.putExtra(ReaderFragment.PARAM_MODE, ReaderFragment.Mode.MODE_LOCAL);
+            Intent intent = new Intent(getActivity(), BookReaderActivity.class);
+            intent.putExtra(BookReaderManager.PARAM_MODE, BookReaderManager.Mode.MODE_LOCAL);
+            intent.putExtra(LocalBookReaderManager.PARAM_BOOK_FILE, file);
             startActivity(intent);
         }
     }

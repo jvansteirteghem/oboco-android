@@ -2,6 +2,8 @@ package com.gitlab.jeeto.oboco.manager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.Bundle;
 
 import com.gitlab.jeeto.oboco.api.ApplicationService;
 import com.gitlab.jeeto.oboco.api.AuthenticationManager;
@@ -9,7 +11,10 @@ import com.gitlab.jeeto.oboco.api.BookCollectionDto;
 import com.gitlab.jeeto.oboco.api.BookDto;
 import com.gitlab.jeeto.oboco.api.BookMarkDto;
 import com.gitlab.jeeto.oboco.api.PageableListDto;
-import com.gitlab.jeeto.oboco.fragment.LibraryBrowserFragment;
+import com.gitlab.jeeto.oboco.fragment.BookBrowserFragment;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Request;
+import com.squareup.picasso.RequestHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,9 +29,11 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
+import okio.Okio;
 
 public class RemoteBookBrowserManager extends BookBrowserManager {
-    private LibraryBrowserFragment mLibraryBrowserFragment;
+    public static final String PARAM_BOOK_COLLECTION_ID = "PARAM_BOOK_COLLECTION_ID";
+    private BookBrowserFragment mBookBrowserFragment;
     private Long mBookCollectionId;
 
     private String mBaseUrl;
@@ -35,29 +42,29 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
     private Disposable mAuthenticationManagerDisposable;
     private ApplicationService mApplicationService;
 
-    public RemoteBookBrowserManager(Long bookCollectionId) {
+    public RemoteBookBrowserManager(BookBrowserFragment bookBrowserFragment) {
         super();
-        mBookCollectionId = bookCollectionId;
+        mBookBrowserFragment = bookBrowserFragment;
     }
 
-    public void create(LibraryBrowserFragment libraryBrowserFragment) {
-        mLibraryBrowserFragment = libraryBrowserFragment;
+    public void create(Bundle savedInstanceState) {
+        mBookCollectionId = mBookBrowserFragment.getArguments().getLong(PARAM_BOOK_COLLECTION_ID);
 
-        SharedPreferences sp = mLibraryBrowserFragment.getContext().getSharedPreferences("application", Context.MODE_PRIVATE);
+        SharedPreferences sp = mBookBrowserFragment.getContext().getSharedPreferences("application", Context.MODE_PRIVATE);
         mBaseUrl = sp.getString("baseUrl", "");
 
-        mAuthenticationManager = new AuthenticationManager(mLibraryBrowserFragment.getContext());
+        mAuthenticationManager = new AuthenticationManager(mBookBrowserFragment.getContext());
         Observable<Throwable> observable = mAuthenticationManager.getErrors();
         observable = observable.observeOn(AndroidSchedulers.mainThread());
         observable = observable.subscribeOn(Schedulers.io());
         mAuthenticationManagerDisposable = observable.subscribe(new Consumer<Throwable>() {
             @Override
             public void accept(Throwable e) throws Exception {
-                mLibraryBrowserFragment.onError(e);
+                mBookBrowserFragment.onError(e);
             }
         });
 
-        mApplicationService = new ApplicationService(mLibraryBrowserFragment.getContext(), mBaseUrl, mAuthenticationManager);
+        mApplicationService = new ApplicationService(mBookBrowserFragment.getContext(), mBaseUrl, mAuthenticationManager);
     }
 
     public void destroy() {
@@ -65,9 +72,12 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
     }
 
     @Override
-    public void load(String bookMarkStatus, int page, int pageSize) {
-        mLibraryBrowserFragment.setRefreshing(true);
+    public void saveInstanceState(Bundle outState) {
 
+    }
+
+    @Override
+    public void load(String bookMarkStatus, int page, int pageSize) {
         Single<BookCollectionDto> single = new Single<BookCollectionDto>() {
             @Override
             protected void subscribeActual(SingleObserver<? super BookCollectionDto> observer) {
@@ -119,14 +129,12 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
 
                         @Override
                         public void onSuccess(PageableListDto<BookDto> bookPageableList) {
-                            mLibraryBrowserFragment.onLoad(bookCollection, bookPageableList);
-                            mLibraryBrowserFragment.setRefreshing(false);
+                            mBookBrowserFragment.onLoad(bookCollection, bookPageableList);
                         }
 
                         @Override
                         public void onError(Throwable e) {
-                            mLibraryBrowserFragment.onError(e);
-                            mLibraryBrowserFragment.setRefreshing(false);
+                            mBookBrowserFragment.onError(e);
                         }
                     });
                 }
@@ -134,16 +142,13 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
 
             @Override
             public void onError(Throwable e) {
-                mLibraryBrowserFragment.onError(e);
-                mLibraryBrowserFragment.setRefreshing(false);
+                mBookBrowserFragment.onError(e);
             }
         });
     }
 
     @Override
     public void loadBookPageableList(String bookMarkStatus, int page, int pageSize) {
-        mLibraryBrowserFragment.setRefreshing(true);
-
         Single<PageableListDto<BookDto>> single = new Single<PageableListDto<BookDto>>() {
             @Override
             protected void subscribeActual(SingleObserver<? super PageableListDto<BookDto>> observer) {
@@ -166,14 +171,12 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
 
             @Override
             public void onSuccess(PageableListDto<BookDto> bookPageableList) {
-                mLibraryBrowserFragment.onLoadBookPageableList(bookPageableList);
-                mLibraryBrowserFragment.setRefreshing(false);
+                mBookBrowserFragment.onLoadBookPageableList(bookPageableList);
             }
 
             @Override
             public void onError(Throwable e) {
-                mLibraryBrowserFragment.onError(e);
-                mLibraryBrowserFragment.setRefreshing(false);
+                mBookBrowserFragment.onError(e);
             }
         });
     }
@@ -205,12 +208,12 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
 
             @Override
             public void onSuccess(BookMarkDto bookMark) {
-                mLibraryBrowserFragment.onAddBookMark(book, bookMark);
+                mBookBrowserFragment.onAddBookMark(book, bookMark);
             }
 
             @Override
             public void onError(Throwable e) {
-                mLibraryBrowserFragment.onError(e);
+                mBookBrowserFragment.onError(e);
             }
         });
     }
@@ -239,21 +242,48 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
 
             @Override
             public void onComplete() {
-                mLibraryBrowserFragment.onRemoveBookMark(book);
+                mBookBrowserFragment.onRemoveBookMark(book);
             }
 
             @Override
             public void onError(Throwable e) {
-                mLibraryBrowserFragment.onError(e);
+                mBookBrowserFragment.onError(e);
             }
         });
     }
 
-    public InputStream getBookPage(BookDto book, String scaleType, int scaleWidth, int scaleHeight) throws IOException {
-        ResponseBody responseBody = mApplicationService.downloadBookPage(book.getId(), 1, scaleType, scaleWidth, scaleHeight).blockingGet();
+    public Uri getBookPageUri(BookDto book, String scaleType, int scaleWidth, int scaleHeight) {
+        return new Uri.Builder()
+                .scheme("bookBrowserManager")
+                .authority("")
+                .path("/bookPage")
+                .appendQueryParameter("bookId", Long.toString(book.getId()))
+                .appendQueryParameter("scaleType", scaleType)
+                .appendQueryParameter("scaleWidth", Integer.toString(scaleWidth))
+                .appendQueryParameter("scaleHeight", Integer.toString(scaleHeight))
+                .build();
+    }
 
-        InputStream inputStream = responseBody.byteStream();
+    @Override
+    public boolean canHandleRequest(Request request) {
+        return request.uri.getScheme().equals("bookBrowserManager");
+    }
 
-        return inputStream;
+    @Override
+    public Result load(Request request, int networkPolicy) throws IOException {
+        if(request.uri.getPath().equals("/bookPage")) {
+            Long bookId = Long.parseLong(request.uri.getQueryParameter("bookId"));
+            String scaleType = request.uri.getQueryParameter("scaleType");
+            Integer scaleWidth = Integer.parseInt(request.uri.getQueryParameter("scaleWidth"));
+            Integer scaleHeight = Integer.parseInt(request.uri.getQueryParameter("scaleHeight"));
+
+            ResponseBody responseBody = mApplicationService.downloadBookPage(bookId, 1, scaleType, scaleWidth, scaleHeight).blockingGet();
+
+            InputStream inputStream = responseBody.byteStream();
+
+            return new RequestHandler.Result(Okio.source(inputStream), Picasso.LoadedFrom.NETWORK);
+        } else {
+            throw new IOException("uri is invalid");
+        }
     }
 }

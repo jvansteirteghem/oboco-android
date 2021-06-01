@@ -2,12 +2,17 @@ package com.gitlab.jeeto.oboco.manager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.Bundle;
 
 import com.gitlab.jeeto.oboco.api.ApplicationService;
 import com.gitlab.jeeto.oboco.api.AuthenticationManager;
 import com.gitlab.jeeto.oboco.api.BookCollectionDto;
 import com.gitlab.jeeto.oboco.api.PageableListDto;
-import com.gitlab.jeeto.oboco.fragment.LibraryFragment;
+import com.gitlab.jeeto.oboco.fragment.BookCollectionBrowserFragment;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Request;
+import com.squareup.picasso.RequestHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,9 +27,12 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
+import okio.Okio;
 
 public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserManager {
-    private LibraryFragment mLibraryFragment;
+    public static final String PARAM_BOOK_COLLECTION_ID = "PARAM_BOOK_COLLECTION_ID";
+    public static final String STATE_CURRENT_BOOK_COLLECTION_ID = "STATE_CURRENT_BOOK_COLLECTION_ID";
+    private BookCollectionBrowserFragment mBookCollectionBrowserFragment;
     private Long mBookCollectionId;
 
     private String mBaseUrl;
@@ -33,29 +41,37 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
     private Disposable mAuthenticationManagerDisposable;
     private ApplicationService mApplicationService;
 
-    public RemoteBookCollectionBrowserManager(Long bookCollectionId) {
+    public RemoteBookCollectionBrowserManager(BookCollectionBrowserFragment bookCollectionBrowserFragment) {
         super();
-        mBookCollectionId = bookCollectionId;
+        mBookCollectionBrowserFragment = bookCollectionBrowserFragment;
     }
 
-    public void create(LibraryFragment libraryFragment) {
-        mLibraryFragment = libraryFragment;
+    public void create(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            mBookCollectionId = savedInstanceState.getLong(STATE_CURRENT_BOOK_COLLECTION_ID);
+        } else {
+            if(mBookCollectionBrowserFragment.getArguments() != null) {
+                mBookCollectionId = mBookCollectionBrowserFragment.getArguments().getLong(PARAM_BOOK_COLLECTION_ID);
+            } else {
+                mBookCollectionId = null;
+            }
+        }
 
-        SharedPreferences sp = mLibraryFragment.getContext().getSharedPreferences("application", Context.MODE_PRIVATE);
+        SharedPreferences sp = mBookCollectionBrowserFragment.getContext().getSharedPreferences("application", Context.MODE_PRIVATE);
         mBaseUrl = sp.getString("baseUrl", "");
 
-        mAuthenticationManager = new AuthenticationManager(mLibraryFragment.getContext());
+        mAuthenticationManager = new AuthenticationManager(mBookCollectionBrowserFragment.getContext());
         Observable<Throwable> observable = mAuthenticationManager.getErrors();
         observable = observable.observeOn(AndroidSchedulers.mainThread());
         observable = observable.subscribeOn(Schedulers.io());
         mAuthenticationManagerDisposable = observable.subscribe(new Consumer<Throwable>() {
             @Override
             public void accept(Throwable e) throws Exception {
-                mLibraryFragment.onError(e);
+                mBookCollectionBrowserFragment.onError(e);
             }
         });
 
-        mApplicationService = new ApplicationService(mLibraryFragment.getContext(), mBaseUrl, mAuthenticationManager);
+        mApplicationService = new ApplicationService(mBookCollectionBrowserFragment.getContext(), mBaseUrl, mAuthenticationManager);
 
     }
 
@@ -63,9 +79,12 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
         mAuthenticationManagerDisposable.dispose();
     }
 
-    public void load(String bookCollectionName, int page, int pageSize) {
-        mLibraryFragment.setRefreshing(true);
+    @Override
+    public void saveInstanceState(Bundle outState) {
+        outState.putLong(STATE_CURRENT_BOOK_COLLECTION_ID, mBookCollectionId);
+    }
 
+    public void load(String bookCollectionName, int page, int pageSize) {
         Single<BookCollectionDto> single = new Single<BookCollectionDto>() {
             @Override
             protected void subscribeActual(SingleObserver<? super BookCollectionDto> observer) {
@@ -95,11 +114,13 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
             @Override
             public void onSuccess(BookCollectionDto bookCollection) {
                 if(bookCollection != null) {
+                    mBookCollectionId = bookCollection.getId();
+
                     Single<PageableListDto<BookCollectionDto>> single = new Single<PageableListDto<BookCollectionDto>>() {
                         @Override
                         protected void subscribeActual(SingleObserver<? super PageableListDto<BookCollectionDto>> observer) {
                             try {
-                                PageableListDto<BookCollectionDto> bookCollectionPageableList = mApplicationService.getBookCollections(bookCollection.getId(), bookCollectionName, page, pageSize, "(bookCollections,books)").blockingGet();
+                                PageableListDto<BookCollectionDto> bookCollectionPageableList = mApplicationService.getBookCollections(mBookCollectionId, bookCollectionName, page, pageSize, "(bookCollections,books)").blockingGet();
 
                                 observer.onSuccess(bookCollectionPageableList);
                             } catch(Exception e) {
@@ -117,14 +138,12 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
 
                         @Override
                         public void onSuccess(PageableListDto<BookCollectionDto> bookCollectionPageableList) {
-                            mLibraryFragment.onLoad(bookCollection, bookCollectionPageableList);
-                            mLibraryFragment.setRefreshing(false);
+                            mBookCollectionBrowserFragment.onLoad(bookCollection, bookCollectionPageableList);
                         }
 
                         @Override
                         public void onError(Throwable e) {
-                            mLibraryFragment.onError(e);
-                            mLibraryFragment.setRefreshing(false);
+                            mBookCollectionBrowserFragment.onError(e);
                         }
                     });
                 }
@@ -132,15 +151,12 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
 
             @Override
             public void onError(Throwable e) {
-                mLibraryFragment.onError(e);
-                mLibraryFragment.setRefreshing(false);
+                mBookCollectionBrowserFragment.onError(e);
             }
         });
     }
 
     public void loadBookCollectionPageableList(String bookCollectionName, int page, int pageSize) {
-        mLibraryFragment.setRefreshing(true);
-
         Single<PageableListDto<BookCollectionDto>> single = new Single<PageableListDto<BookCollectionDto>>() {
             @Override
             protected void subscribeActual(SingleObserver<? super PageableListDto<BookCollectionDto>> observer) {
@@ -163,14 +179,12 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
 
             @Override
             public void onSuccess(PageableListDto<BookCollectionDto> bookCollectionPageableList) {
-                mLibraryFragment.onLoadBookCollectionPageableList(bookCollectionPageableList);
-                mLibraryFragment.setRefreshing(false);
+                mBookCollectionBrowserFragment.onLoadBookCollectionPageableList(bookCollectionPageableList);
             }
 
             @Override
             public void onError(Throwable e) {
-                mLibraryFragment.onError(e);
-                mLibraryFragment.setRefreshing(false);
+                mBookCollectionBrowserFragment.onError(e);
             }
         });
     }
@@ -198,12 +212,12 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
 
             @Override
             public void onComplete() {
-                mLibraryFragment.onAddBookMark(bookCollection);
+                mBookCollectionBrowserFragment.onAddBookMark(bookCollection);
             }
 
             @Override
             public void onError(Throwable e) {
-                mLibraryFragment.onError(e);
+                mBookCollectionBrowserFragment.onError(e);
             }
         });
     }
@@ -231,21 +245,48 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
 
             @Override
             public void onComplete() {
-                mLibraryFragment.onRemoveBookMark(bookCollection);
+                mBookCollectionBrowserFragment.onRemoveBookMark(bookCollection);
             }
 
             @Override
             public void onError(Throwable e) {
-                mLibraryFragment.onError(e);
+                mBookCollectionBrowserFragment.onError(e);
             }
         });
     }
 
-    public InputStream getBookCollectionPage(BookCollectionDto bookCollection, String scaleType, int scaleWidth, int scaleHeight) throws IOException {
-        ResponseBody responseBody = mApplicationService.downloadBookCollectionPage(bookCollection.getId(), scaleType, scaleWidth, scaleHeight).blockingGet();
+    public Uri getBookCollectionPageUri(BookCollectionDto bookCollection, String scaleType, int scaleWidth, int scaleHeight) {
+        return new Uri.Builder()
+                .scheme("bookCollectionBrowserManager")
+                .authority("")
+                .path("/bookCollectionPage")
+                .appendQueryParameter("bookCollectionId", Long.toString(bookCollection.getId()))
+                .appendQueryParameter("scaleType", scaleType)
+                .appendQueryParameter("scaleWidth", Integer.toString(scaleWidth))
+                .appendQueryParameter("scaleHeight", Integer.toString(scaleHeight))
+                .build();
+    }
 
-        InputStream inputStream = responseBody.byteStream();
+    @Override
+    public boolean canHandleRequest(Request request) {
+        return request.uri.getScheme().equals("bookCollectionBrowserManager");
+    }
 
-        return inputStream;
+    @Override
+    public Result load(Request request, int networkPolicy) throws IOException {
+        if(request.uri.getPath().equals("/bookCollectionPage")) {
+            Long bookCollectionId = Long.parseLong(request.uri.getQueryParameter("bookCollectionId"));
+            String scaleType = request.uri.getQueryParameter("scaleType");
+            Integer scaleWidth = Integer.parseInt(request.uri.getQueryParameter("scaleWidth"));
+            Integer scaleHeight = Integer.parseInt(request.uri.getQueryParameter("scaleHeight"));
+
+            ResponseBody responseBody = mApplicationService.downloadBookCollectionPage(bookCollectionId, scaleType, scaleWidth, scaleHeight).blockingGet();
+
+            InputStream inputStream = responseBody.byteStream();
+
+            return new RequestHandler.Result(Okio.source(inputStream), Picasso.LoadedFrom.NETWORK);
+        } else {
+            throw new IOException("uri is invalid");
+        }
     }
 }

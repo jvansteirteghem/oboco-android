@@ -32,13 +32,10 @@ import com.gitlab.jeeto.oboco.Constants;
 import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.MainActivity;
 import com.gitlab.jeeto.oboco.api.BookCollectionDto;
-import com.gitlab.jeeto.oboco.api.BookDto;
-import com.gitlab.jeeto.oboco.api.BookMarkDto;
 import com.gitlab.jeeto.oboco.api.OnErrorListener;
 import com.gitlab.jeeto.oboco.api.PageableListDto;
 import com.gitlab.jeeto.oboco.common.Utils;
 import com.gitlab.jeeto.oboco.manager.BookCollectionBrowserManager;
-import com.gitlab.jeeto.oboco.manager.BookCollectionBrowserRequestHandler;
 import com.gitlab.jeeto.oboco.manager.DownloadBookCollectionWorker;
 import com.gitlab.jeeto.oboco.manager.RemoteBookCollectionBrowserManager;
 import com.squareup.picasso.Picasso;
@@ -46,26 +43,17 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.Completable;
-import io.reactivex.CompletableObserver;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
+public class BookCollectionBrowserFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, SearchView.OnQueryTextListener {
+    final int ITEM_VIEW_TYPE_BOOK_COLLECTION = 1;
 
-public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, SearchView.OnQueryTextListener {
-    final int ITEM_VIEW_TYPE_GROUP = 1;
     private Picasso mPicasso;
-    private RecyclerView mGroupListView;
+    private RecyclerView mBookCollectionListView;
     private View mEmptyView;
     private View mNotEmptyView;
     private SwipeRefreshLayout mRefreshView;
 
     private String mFilterSearch = "";
 
-    private static final String PARAM_BOOK_COLLECTION_ID = "PARAM_BOOK_COLLECTION_ID";
-    private static final String STATE_CURRENT_BOOK_COLLECTION_ID = "STATE_CURRENT_BOOK_COLLECTION_ID";
-
-    private Long mBookCollectionId;
     private BookCollectionDto mBookCollection;
     private List<BookCollectionDto> mBookCollectionList;
 
@@ -92,11 +80,9 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
     }
 
     public void onError(Throwable e) {
-        mOnErrorListener.onError(e);
-    }
+        mRefreshView.setRefreshing(false);
 
-    public void setRefreshing(boolean refreshing) {
-        mRefreshView.setRefreshing(refreshing);
+        mOnErrorListener.onError(e);
     }
 
     @Override
@@ -127,37 +113,27 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
         return name;
     }
 
-    public static LibraryFragment create(Long bookCollectionId) {
-        LibraryFragment fragment = new LibraryFragment();
+    public static BookCollectionBrowserFragment create(Long bookCollectionId) {
+        BookCollectionBrowserFragment fragment = new BookCollectionBrowserFragment();
         Bundle args = new Bundle();
-        args.putLong(PARAM_BOOK_COLLECTION_ID, bookCollectionId);
+        args.putLong(RemoteBookCollectionBrowserManager.PARAM_BOOK_COLLECTION_ID, bookCollectionId);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public LibraryFragment() {}
+    public BookCollectionBrowserFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState != null) {
-            mBookCollectionId = savedInstanceState.getLong(STATE_CURRENT_BOOK_COLLECTION_ID);
-        } else {
-            if(getArguments() != null) {
-                mBookCollectionId = getArguments().getLong(PARAM_BOOK_COLLECTION_ID);
-            } else {
-                mBookCollectionId = null;
-            }
-        }
-
         mBookCollectionList = new ArrayList<BookCollectionDto>();
 
-        mBookCollectionBrowserManager = new RemoteBookCollectionBrowserManager(mBookCollectionId);
-        mBookCollectionBrowserManager.create(this);
+        mBookCollectionBrowserManager = new RemoteBookCollectionBrowserManager(this);
+        mBookCollectionBrowserManager.create(savedInstanceState);
 
         mPicasso = new Picasso.Builder(getActivity())
-                .addRequestHandler(new BookCollectionBrowserRequestHandler(mBookCollectionBrowserManager))
+                .addRequestHandler(mBookCollectionBrowserManager)
                 .listener(new Picasso.Listener() {
                     @Override
                     public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
@@ -170,7 +146,8 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
     }
 
     public void onLoad(BookCollectionDto bookCollection, PageableListDto<BookCollectionDto> bookCollectionPageableList) {
-        mBookCollectionId = bookCollection.getId();
+        mRefreshView.setRefreshing(false);
+
         mBookCollection = bookCollection;
 
         mPage = bookCollectionPageableList.getPage() == null? 0: bookCollectionPageableList.getPage();
@@ -178,7 +155,7 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         mBookCollectionList = bookCollectionPageableList.getElements();
 
-        mGroupListView.getAdapter().notifyDataSetChanged();
+        mBookCollectionListView.getAdapter().notifyDataSetChanged();
 
         onLoad();
     }
@@ -204,12 +181,14 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
     }
 
     public void onLoadBookCollectionPageableList(PageableListDto<BookCollectionDto> bookCollectionPageableList) {
+        mRefreshView.setRefreshing(false);
+
         mPage = bookCollectionPageableList.getPage() == null? 0: bookCollectionPageableList.getPage();
         mNextPage = bookCollectionPageableList.getNextPage() == null? 0: bookCollectionPageableList.getNextPage();
 
         mBookCollectionList.addAll(bookCollectionPageableList.getElements());
 
-        mGroupListView.getAdapter().notifyDataSetChanged();
+        mBookCollectionListView.getAdapter().notifyDataSetChanged();
     }
 
     @Override
@@ -217,6 +196,8 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
         super.onResume();
 
         if(mBookCollection == null) {
+            mRefreshView.setRefreshing(true);
+
             String bookCollectionName = getBookCollectionName();
 
             mBookCollectionBrowserManager.load(bookCollectionName, 1, mPageSize);
@@ -227,6 +208,8 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     @Override
     public void onRefresh() {
+        mRefreshView.setRefreshing(true);
+
         String bookCollectionName = getBookCollectionName();
 
         mBookCollectionBrowserManager.load(bookCollectionName, 1, mPageSize);
@@ -239,7 +222,7 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         setHasOptionsMenu(true);
 
-        final View view = inflater.inflate(R.layout.fragment_library, container, false);
+        final View view = inflater.inflate(R.layout.fragment_book_collection_browser, container, false);
 
         final int numColumns = calculateNumColumns();
         int spacing = (int) getResources().getDimension(R.dimen.grid_margin);
@@ -247,12 +230,12 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
         GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), numColumns);
         layoutManager.setSpanSizeLookup(createSpanSizeLookup());
 
-        mGroupListView = (RecyclerView) view.findViewById(R.id.fragmentLibraryLayout);
-        mGroupListView.setHasFixedSize(true);
-        mGroupListView.setLayoutManager(layoutManager);
-        mGroupListView.setAdapter(new GroupGridAdapter());
-        mGroupListView.addItemDecoration(new GridSpacingItemDecoration(numColumns, spacing));
-        mGroupListView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        mBookCollectionListView = (RecyclerView) view.findViewById(R.id.bookCollectionBrowserGrid);
+        mBookCollectionListView.setHasFixedSize(true);
+        mBookCollectionListView.setLayoutManager(layoutManager);
+        mBookCollectionListView.setAdapter(new BookCollectionGridAdapter());
+        mBookCollectionListView.addItemDecoration(new GridSpacingItemDecoration(numColumns, spacing));
+        mBookCollectionListView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
@@ -272,6 +255,8 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
                     if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
                             && firstVisibleItemPosition >= 0
                             && totalItemCount >= mPageSize) {
+                        mRefreshView.setRefreshing(true);
+
                         String bookCollectionName = getBookCollectionName();
 
                         mBookCollectionBrowserManager.loadBookCollectionPageableList(bookCollectionName, mNextPage, mPageSize);
@@ -280,14 +265,14 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
             }
         });
 
-        mRefreshView = view.findViewById(R.id.library_refresh);
+        mRefreshView = view.findViewById(R.id.bookCollectionBrowserRefresh);
         mRefreshView.setOnRefreshListener(this);
         mRefreshView.setEnabled(true);
 
-        mNotEmptyView = view.findViewById(R.id.library_not_empty);
+        mNotEmptyView = view.findViewById(R.id.bookCollectionBrowserNotEmpty);
         mNotEmptyView.setVisibility(View.GONE);
 
-        mEmptyView = view.findViewById(R.id.library_empty);
+        mEmptyView = view.findViewById(R.id.bookCollectionBrowserEmpty);
         mEmptyView.setVisibility(View.GONE);
 
         return view;
@@ -296,7 +281,7 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
-        inflater.inflate(R.menu.library, menu);
+        inflater.inflate(R.menu.book_collection_browser, menu);
 
         MenuItem searchItem = menu.findItem(R.id.search);
 
@@ -312,6 +297,8 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
         if(mFilterSearch.equals(s) == false) {
             mFilterSearch = s;
 
+            mRefreshView.setRefreshing(true);
+
             String bookCollectionName = getBookCollectionName();
 
             mBookCollectionBrowserManager.load(bookCollectionName, 1, mPageSize);
@@ -326,7 +313,8 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putLong(STATE_CURRENT_BOOK_COLLECTION_ID, mBookCollectionId);
+        mBookCollectionBrowserManager.saveInstanceState(outState);
+
         super.onSaveInstanceState(outState);
     }
 
@@ -371,7 +359,7 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
         }
     }
 
-    private final class GroupGridAdapter extends RecyclerView.Adapter {
+    private final class BookCollectionGridAdapter extends RecyclerView.Adapter {
         @Override
         public int getItemCount() {
             return mBookCollectionList.size();
@@ -379,7 +367,7 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         @Override
         public int getItemViewType(int position) {
-            return ITEM_VIEW_TYPE_GROUP;
+            return ITEM_VIEW_TYPE_BOOK_COLLECTION;
         }
 
         @Override
@@ -387,50 +375,50 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
             Context ctx = viewGroup.getContext();
 
             View view = LayoutInflater.from(ctx)
-                    .inflate(R.layout.card_group, viewGroup, false);
-            return new GroupViewHolder(view);
+                    .inflate(R.layout.card_book_collection, viewGroup, false);
+            return new BookCollectionViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
-            if (viewHolder.getItemViewType() == ITEM_VIEW_TYPE_GROUP) {
+            if (viewHolder.getItemViewType() == ITEM_VIEW_TYPE_BOOK_COLLECTION) {
                 BookCollectionDto bookCollection = mBookCollectionList.get(i);
-                GroupViewHolder holder = (GroupViewHolder) viewHolder;
-                holder.setupGroup(bookCollection);
+                BookCollectionViewHolder holder = (BookCollectionViewHolder) viewHolder;
+                holder.setupBookCollection(bookCollection);
             }
         }
     }
 
-    private class GroupViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private ImageView groupImageView;
-        private TextView bookCollectionTextView;
-        private TextView bookCollectionNumberOfBooksTextView;
-        private ImageView bookMarkUpdateImageView;
-        private ImageView bookDownloadImageView;
+    private class BookCollectionViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private ImageView mBookCollectionImageView;
+        private TextView mBookCollectionTextView;
+        private TextView mBookCollectionNumberOfBooksTextView;
+        private ImageView mBookCollectionBookMarkImageView;
+        private ImageView mBookCollectionDownloadImageView;
 
-        public GroupViewHolder(View itemView) {
+        public BookCollectionViewHolder(View itemView) {
             super(itemView);
             if(mBookCollectionList.size() > 0) {
-                groupImageView = (ImageView) itemView.findViewById(R.id.card_group_imageview);
-                groupImageView.setOnClickListener(new View.OnClickListener() {
+                mBookCollectionImageView = (ImageView) itemView.findViewById(R.id.bookCollectionImageView);
+                mBookCollectionImageView.setOnClickListener(new View.OnClickListener() {
 
                     @Override
                     public void onClick(View view) {
                         int i = getAdapterPosition();
                         BookCollectionDto bookCollection = mBookCollectionList.get(i);
 
-                        LibraryBrowserFragment fragment = LibraryBrowserFragment.create(bookCollection.getId());
+                        BookBrowserFragment fragment = BookBrowserFragment.create(bookCollection.getId());
                         ((MainActivity) getActivity()).pushFragment(fragment);
                     }
                 });
 
-                bookCollectionTextView = (TextView) itemView.findViewById(R.id.comic_group_folder_bookCollectionTextView);
+                mBookCollectionTextView = (TextView) itemView.findViewById(R.id.bookCollectionTextView);
 
-                bookCollectionNumberOfBooksTextView = (TextView) itemView.findViewById(R.id.comic_group_folder_bookCollectionNumberOfBooksTextView);
+                mBookCollectionNumberOfBooksTextView = (TextView) itemView.findViewById(R.id.bookCollectionNumberOfBooksTextView);
 
-                bookMarkUpdateImageView = (ImageView) itemView.findViewById(R.id.comic_group_folder_bookMarkUpdateImageView);
+                mBookCollectionBookMarkImageView = (ImageView) itemView.findViewById(R.id.bookCollectionBookMarkImageView);
 
-                bookMarkUpdateImageView.setOnClickListener(new View.OnClickListener() {
+                mBookCollectionBookMarkImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         int i = getAdapterPosition();
@@ -464,9 +452,9 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
                     }
                 });
 
-                bookDownloadImageView = (ImageView) itemView.findViewById(R.id.comic_group_folder_bookDownloadImageView);
+                mBookCollectionDownloadImageView = (ImageView) itemView.findViewById(R.id.bookCollectionDownloadImageView);
 
-                bookDownloadImageView.setOnClickListener(new View.OnClickListener() {
+                mBookCollectionDownloadImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         int i = getAdapterPosition();
@@ -516,28 +504,28 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
             itemView.setOnClickListener(this);
         }
 
-        public void setupGroup(BookCollectionDto bookCollection) {
-            bookCollectionTextView.setText(bookCollection.getName());
+        public void setupBookCollection(BookCollectionDto bookCollection) {
+            mBookCollectionTextView.setText(bookCollection.getName());
 
             if(bookCollection.getNumberOfBooks() != 0) {
-                groupImageView.setVisibility(View.VISIBLE);
-                bookCollectionNumberOfBooksTextView.setVisibility(View.VISIBLE);
-                bookMarkUpdateImageView.setVisibility(View.VISIBLE);
-                bookDownloadImageView.setVisibility(View.VISIBLE);
+                mBookCollectionImageView.setVisibility(View.VISIBLE);
+                mBookCollectionNumberOfBooksTextView.setVisibility(View.VISIBLE);
+                mBookCollectionBookMarkImageView.setVisibility(View.VISIBLE);
+                mBookCollectionDownloadImageView.setVisibility(View.VISIBLE);
 
-                groupImageView.setImageResource(android.R.color.transparent);
+                mBookCollectionImageView.setImageResource(android.R.color.transparent);
 
-                Uri uri = BookCollectionBrowserRequestHandler.getBookCollectionPage(bookCollection, "DEFAULT", Constants.COVER_THUMBNAIL_HEIGHT, Constants.COVER_THUMBNAIL_WIDTH);
+                Uri uri = mBookCollectionBrowserManager.getBookCollectionPageUri(bookCollection, "DEFAULT", Constants.COVER_THUMBNAIL_HEIGHT, Constants.COVER_THUMBNAIL_WIDTH);
                 mPicasso.load(uri)
                         .tag(getActivity())
-                        .into(groupImageView);
+                        .into(mBookCollectionImageView);
 
-                bookCollectionNumberOfBooksTextView.setText(bookCollection.getNumberOfBooks().toString());
+                mBookCollectionNumberOfBooksTextView.setText(bookCollection.getNumberOfBooks().toString());
             } else {
-                groupImageView.setVisibility(View.GONE);
-                bookCollectionNumberOfBooksTextView.setVisibility(View.GONE);
-                bookMarkUpdateImageView.setVisibility(View.GONE);
-                bookDownloadImageView.setVisibility(View.GONE);
+                mBookCollectionImageView.setVisibility(View.GONE);
+                mBookCollectionNumberOfBooksTextView.setVisibility(View.GONE);
+                mBookCollectionBookMarkImageView.setVisibility(View.GONE);
+                mBookCollectionDownloadImageView.setVisibility(View.GONE);
             }
         }
 
@@ -546,7 +534,7 @@ public class LibraryFragment extends Fragment implements SwipeRefreshLayout.OnRe
             int i = getAdapterPosition();
             BookCollectionDto bookCollection = mBookCollectionList.get(i);
 
-            LibraryFragment fragment = LibraryFragment.create(bookCollection.getId());
+            BookCollectionBrowserFragment fragment = BookCollectionBrowserFragment.create(bookCollection.getId());
             ((MainActivity)getActivity()).pushFragment(fragment);
         }
     }

@@ -2,13 +2,18 @@ package com.gitlab.jeeto.oboco.manager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.Bundle;
 
 import com.gitlab.jeeto.oboco.api.ApplicationService;
 import com.gitlab.jeeto.oboco.api.AuthenticationManager;
 import com.gitlab.jeeto.oboco.api.BookDto;
 import com.gitlab.jeeto.oboco.api.BookMarkDto;
 import com.gitlab.jeeto.oboco.api.PageableListDto;
-import com.gitlab.jeeto.oboco.fragment.ReaderFragment;
+import com.gitlab.jeeto.oboco.fragment.BookReaderFragment;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Request;
+import com.squareup.picasso.RequestHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,9 +27,11 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
+import okio.Okio;
 
 public class RemoteBookReaderManager extends BookReaderManager {
-    private ReaderFragment mReaderFragment;
+    public static final String PARAM_BOOK_ID = "PARAM_BOOK_ID";
+    private BookReaderFragment mBookReaderFragment;
     private Long mBookId;
 
     private String mBaseUrl;
@@ -33,35 +40,42 @@ public class RemoteBookReaderManager extends BookReaderManager {
     private Disposable mAuthenticationManagerDisposable;
     private ApplicationService mApplicationService;
 
-    public RemoteBookReaderManager(Long bookId) {
+    public RemoteBookReaderManager(BookReaderFragment bookReaderFragment) {
         super();
-        mBookId = bookId;
+        mBookReaderFragment = bookReaderFragment;
     }
 
     @Override
-    public void create(ReaderFragment readerFragment) {
-        mReaderFragment = readerFragment;
+    public void create(Bundle savedInstanceState) {
+        Bundle bundle = mBookReaderFragment.getArguments();
 
-        SharedPreferences sp = mReaderFragment.getContext().getSharedPreferences("application", Context.MODE_PRIVATE);
+        mBookId = bundle.getLong(RemoteBookReaderManager.PARAM_BOOK_ID);
+
+        SharedPreferences sp = mBookReaderFragment.getContext().getSharedPreferences("application", Context.MODE_PRIVATE);
         mBaseUrl = sp.getString("baseUrl", "");
 
-        mAuthenticationManager = new AuthenticationManager(mReaderFragment.getContext());
+        mAuthenticationManager = new AuthenticationManager(mBookReaderFragment.getContext());
         Observable<Throwable> observable = mAuthenticationManager.getErrors();
         observable = observable.observeOn(AndroidSchedulers.mainThread());
         observable = observable.subscribeOn(Schedulers.io());
         mAuthenticationManagerDisposable = observable.subscribe(new Consumer<Throwable>() {
             @Override
             public void accept(Throwable e) throws Exception {
-                mReaderFragment.onError(e);
+                mBookReaderFragment.onError(e);
             }
         });
 
-        mApplicationService = new ApplicationService(mReaderFragment.getContext(), mBaseUrl, mAuthenticationManager);
+        mApplicationService = new ApplicationService(mBookReaderFragment.getContext(), mBaseUrl, mAuthenticationManager);
     }
 
     @Override
     public void destroy() {
         mAuthenticationManagerDisposable.dispose();
+    }
+
+    @Override
+    public void saveInstanceState(Bundle outState) {
+
     }
 
     @Override
@@ -112,13 +126,13 @@ public class RemoteBookReaderManager extends BookReaderManager {
                         @Override
                         public void onSuccess(List<BookDto> bookList) {
                             if(bookList != null) {
-                                mReaderFragment.onLoad(book, bookList);
+                                mBookReaderFragment.onLoad(book, bookList);
                             }
                         }
 
                         @Override
                         public void onError(Throwable e) {
-                            mReaderFragment.onError(e);
+                            mBookReaderFragment.onError(e);
                         }
                     });
                 }
@@ -126,7 +140,7 @@ public class RemoteBookReaderManager extends BookReaderManager {
 
             @Override
             public void onError(Throwable e) {
-                mReaderFragment.onError(e);
+                mBookReaderFragment.onError(e);
             }
         });
     }
@@ -158,21 +172,42 @@ public class RemoteBookReaderManager extends BookReaderManager {
 
             @Override
             public void onSuccess(BookMarkDto bookMark) {
-                mReaderFragment.onAddBookMark(bookMark);
+                mBookReaderFragment.onAddBookMark(bookMark);
             }
 
             @Override
             public void onError(Throwable e) {
-                mReaderFragment.onError(e);
+                mBookReaderFragment.onError(e);
             }
         });
     }
 
-    public InputStream getBookPage(int bookPage) throws IOException {
-        ResponseBody responseBody = mApplicationService.downloadBookPage(mBookId, bookPage, null, null, null).blockingGet();
+    public Uri getBookPageUri(int bookPage) {
+        return new Uri.Builder()
+                .scheme("bookReaderManager")
+                .authority("")
+                .path("/bookPage")
+                .appendQueryParameter("bookPage", Integer.toString(bookPage))
+                .build();
+    }
 
-        InputStream inputStream = responseBody.byteStream();
+    @Override
+    public boolean canHandleRequest(Request request) {
+        return request.uri.getScheme().equals("bookReaderManager");
+    }
 
-        return inputStream;
+    @Override
+    public Result load(Request request, int networkPolicy) throws IOException {
+        if(request.uri.getPath().equals("/bookPage")) {
+            Integer bookPage = Integer.parseInt(request.uri.getQueryParameter("bookPage"));
+
+            ResponseBody responseBody = mApplicationService.downloadBookPage(mBookId, bookPage, null, null, null).blockingGet();
+
+            InputStream inputStream = responseBody.byteStream();
+
+            return new RequestHandler.Result(Okio.source(inputStream), Picasso.LoadedFrom.NETWORK);
+        } else {
+            throw new IOException("uri is invalid");
+        }
     }
 }

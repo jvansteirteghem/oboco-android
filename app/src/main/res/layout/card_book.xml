@@ -8,7 +8,7 @@
     cardview:cardElevation="2dp"
     cardview:cardBackgroundColor="@color/lightest">
     <LinearLayout
-        android:id="@+id/comicLayout"
+        android:id="@+id/bookLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -17,12 +17,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
             <com.gitlab.jeeto.oboco.view.CoverImageView
-                android:id="@+id/comicBookImageView"
+                android:id="@+id/bookImageView"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"/>
             <TextView
-                android:id="@+id/comicBookMarkTextView"
+                android:id="@+id/bookBookMarkTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/card_padding"
@@ -39,7 +39,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentRight="true">
                 <ImageView
-                    android:id="@+id/comicBookDownloadImageView"
+                    android:id="@+id/bookDownloadImageView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/card_padding"
@@ -49,7 +49,7 @@
                     android:background="@color/lightest"
                     android:foreground="?android:attr/selectableItemBackground" />
                 <ImageView
-                    android:id="@+id/comicBookMarkUpdateImageView"
+                    android:id="@+id/bookBookMarkImageView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/card_padding"
@@ -64,7 +64,7 @@
         </RelativeLayout>
 
         <TextView
-            android:id="@+id/comicBookTextView"
+            android:id="@+id/bookTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/card_padding"

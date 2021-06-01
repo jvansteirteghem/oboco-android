@@ -38,11 +38,10 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.gitlab.jeeto.oboco.Constants;
 import com.gitlab.jeeto.oboco.R;
-import com.gitlab.jeeto.oboco.activity.ReaderActivity;
+import com.gitlab.jeeto.oboco.activity.BookReaderActivity;
 import com.gitlab.jeeto.oboco.api.BookDto;
 import com.gitlab.jeeto.oboco.api.BookMarkDto;
 import com.gitlab.jeeto.oboco.api.OnErrorListener;
-import com.gitlab.jeeto.oboco.manager.BookReaderRequestHandler;
 import com.gitlab.jeeto.oboco.manager.LocalBookReaderManager;
 import com.gitlab.jeeto.oboco.manager.BookReaderManager;
 import com.gitlab.jeeto.oboco.manager.RemoteBookReaderManager;
@@ -58,10 +57,7 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
 
-public class ReaderFragment extends Fragment implements View.OnTouchListener {
-    public static final String PARAM_MODE = "PARAM_MODE";
-    public static final String PARAM_BOOK_ID = "PARAM_BOOK_ID";
-    public static final String PARAM_BOOK_FILE = "PARAM_BOOK_FILE";
+public class BookReaderFragment extends Fragment implements View.OnTouchListener {
     public static final String STATE_FULLSCREEN = "STATE_FULLSCREEN";
     public static final String STATE_BOOK_PAGE = "STATE_BOOK_PAGE";
 
@@ -79,19 +75,14 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
     private boolean mIsLeftToRight;
 
     private Picasso mPicasso;
-    private SparseArray<ReaderTarget> mTargets = new SparseArray<>();
+    private SparseArray<BookReaderTarget> mTargets = new SparseArray<>();
 
     private BookReaderManager mBookReaderManager;
     private OnErrorListener mOnErrorListener;
 
-    private Mode mMode;
+    private BookReaderManager.Mode mMode;
     private BookDto mBook;
     private List<BookDto> mBookList;
-
-    public enum Mode {
-        MODE_REMOTE,
-        MODE_LOCAL;
-    }
 
     static {
         RESOURCE_VIEW_MODE = new HashMap<Integer, Constants.PageViewMode>();
@@ -100,25 +91,25 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         RESOURCE_VIEW_MODE.put(R.id.view_mode_fit_width, Constants.PageViewMode.FIT_WIDTH);
     }
 
-    public static ReaderFragment create(Long bookId) {
-        ReaderFragment fragment = new ReaderFragment();
+    public static BookReaderFragment create(Long bookId) {
+        BookReaderFragment fragment = new BookReaderFragment();
         Bundle args = new Bundle();
-        args.putSerializable(PARAM_MODE, Mode.MODE_REMOTE);
-        args.putLong(PARAM_BOOK_ID, bookId);
+        args.putSerializable(BookReaderManager.PARAM_MODE, BookReaderManager.Mode.MODE_REMOTE);
+        args.putLong(RemoteBookReaderManager.PARAM_BOOK_ID, bookId);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public static ReaderFragment create(File bookFile) {
-        ReaderFragment fragment = new ReaderFragment();
+    public static BookReaderFragment create(File bookFile) {
+        BookReaderFragment fragment = new BookReaderFragment();
         Bundle args = new Bundle();
-        args.putSerializable(PARAM_MODE, Mode.MODE_LOCAL);
-        args.putSerializable(PARAM_BOOK_FILE, bookFile);
+        args.putSerializable(BookReaderManager.PARAM_MODE, BookReaderManager.Mode.MODE_LOCAL);
+        args.putSerializable(LocalBookReaderManager.PARAM_BOOK_FILE, bookFile);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public ReaderFragment() {
+    public BookReaderFragment() {
         super();
     }
 
@@ -149,23 +140,19 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         super.onCreate(savedInstanceState);
 
         Bundle bundle = getArguments();
-        mMode = (Mode) bundle.getSerializable(PARAM_MODE);
+        mMode = (BookReaderManager.Mode) bundle.getSerializable(BookReaderManager.PARAM_MODE);
 
-        if(mMode == Mode.MODE_REMOTE) {
-            Long bookId = bundle.getLong(ReaderFragment.PARAM_BOOK_ID);
-
-            mBookReaderManager = new RemoteBookReaderManager(bookId);
-        } else if(mMode == Mode.MODE_LOCAL) {
-            File bookFile = (File) bundle.getSerializable(ReaderFragment.PARAM_BOOK_FILE);
-
-            mBookReaderManager = new LocalBookReaderManager(bookFile);
+        if(mMode == BookReaderManager.Mode.MODE_REMOTE) {
+            mBookReaderManager = new RemoteBookReaderManager(this);
+        } else if(mMode == BookReaderManager.Mode.MODE_LOCAL) {
+            mBookReaderManager = new LocalBookReaderManager(this);
         }
-        mBookReaderManager.create(this);
+        mBookReaderManager.create(savedInstanceState);
 
         mCurrentPage = 1;
 
         mPicasso = new Picasso.Builder(getActivity())
-                .addRequestHandler(new BookReaderRequestHandler(mBookReaderManager))
+                .addRequestHandler(mBookReaderManager)
                 .listener(new Picasso.Listener() {
                     @Override
                     public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
@@ -222,7 +209,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mGestureDetector = new GestureDetector(getActivity(), new ReaderTouchListener());
+        mGestureDetector = new GestureDetector(getActivity(), new BookReaderTouchListener());
 
         mPreferences = getActivity().getSharedPreferences(Constants.SETTINGS_NAME, 0);
         int viewModeInt = mPreferences.getInt(
@@ -233,7 +220,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
 
         setHasOptionsMenu(true);
 
-        final View view = inflater.inflate(R.layout.fragment_reader, container, false);
+        final View view = inflater.inflate(R.layout.fragment_book_reader, container, false);
 
         mPageNavLayout = (LinearLayout) getActivity().findViewById(R.id.pageNavLayout);
         mPageSeekBar = (SeekBar) mPageNavLayout.findViewById(R.id.pageSeekBar);
@@ -267,7 +254,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         });
         mPageNavTextView = (TextView) mPageNavLayout.findViewById(R.id.pageNavTextView);
         mViewPager = (ComicViewPager) view.findViewById(R.id.viewPager);
-        mViewPager.setAdapter(new ComicPagerAdapter());
+        mViewPager.setAdapter(new BookReaderPagerAdapter());
         mViewPager.setOffscreenPageLimit(3);
         mViewPager.setOnTouchListener(this);
         mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
@@ -318,7 +305,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.reader, menu);
+        inflater.inflate(R.menu.book_reader, menu);
 
         switch (mPageViewMode) {
             case ASPECT_FILL:
@@ -342,8 +329,11 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        mBookReaderManager.saveInstanceState(outState);
+
         outState.putBoolean(STATE_FULLSCREEN, isFullscreen());
         outState.putInt(STATE_BOOK_PAGE, mCurrentPage);
+
         super.onSaveInstanceState(outState);
     }
 
@@ -440,7 +430,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         }
     }
 
-    private class ComicPagerAdapter extends PagerAdapter {
+    private class BookReaderPagerAdapter extends PagerAdapter {
         @Override
         public int getItemPosition(Object object) {
             return POSITION_NONE;
@@ -465,17 +455,17 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
             final LayoutInflater inflater = (LayoutInflater)getActivity()
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            View layout = inflater.inflate(R.layout.fragment_reader_page, container, false);
+            View layout = inflater.inflate(R.layout.fragment_book_reader_page, container, false);
 
             PageImageView pageImageView = (PageImageView) layout.findViewById(R.id.pageImageView);
             if (mPageViewMode == Constants.PageViewMode.ASPECT_FILL)
                 pageImageView.setTranslateToRightEdge(!mIsLeftToRight);
             pageImageView.setViewMode(mPageViewMode);
-            pageImageView.setOnTouchListener(ReaderFragment.this);
+            pageImageView.setOnTouchListener(BookReaderFragment.this);
 
             container.addView(layout);
 
-            ReaderTarget t = new ReaderTarget(layout, position);
+            BookReaderTarget t = new BookReaderTarget(layout, position);
             loadImage(t);
             mTargets.put(position, t);
 
@@ -503,7 +493,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         }
     }
 
-    private void loadImage(ReaderTarget t) {
+    private void loadImage(BookReaderTarget t) {
         int page;
         if (mIsLeftToRight) {
             page = t.position + 1;
@@ -512,7 +502,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
             page = mViewPager.getAdapter().getCount() - t.position;
         }
 
-        Uri uri = BookReaderRequestHandler.getBookPage(page);
+        Uri uri = mBookReaderManager.getBookPageUri(page);
         mPicasso.load(uri)
                 .memoryPolicy(MemoryPolicy.NO_STORE)
                 .tag(getActivity())
@@ -522,11 +512,11 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
                 .into(t);
     }
 
-    public class ReaderTarget implements Target, View.OnClickListener {
+    public class BookReaderTarget implements Target, View.OnClickListener {
         private WeakReference<View> mLayout;
         public final int position;
 
-        public ReaderTarget(View layout, int position) {
+        public BookReaderTarget(View layout, int position) {
             mLayout = new WeakReference<>(layout);
             this.position = position;
         }
@@ -577,7 +567,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         }
     }
 
-    private class ReaderTouchListener extends GestureDetector.SimpleOnGestureListener {
+    private class BookReaderTouchListener extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             if (!isFullscreen()) {
@@ -743,8 +733,8 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
                 .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ReaderActivity activity = (ReaderActivity) getActivity();
-                        activity.setFragment(ReaderFragment.create(newBook.getId()));
+                        BookReaderActivity activity = (BookReaderActivity) getActivity();
+                        activity.setFragment(BookReaderFragment.create(newBook.getId()));
                     }
                 })
                 .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {

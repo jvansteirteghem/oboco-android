@@ -1,35 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/librarybrowser_refresh"
+        android:id="@+id/bookCollectionBrowserRefresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <LinearLayout
-                android:id="@+id/librarybrowser_not_empty"
+                android:id="@+id/bookCollectionBrowserNotEmpty"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_height="match_parent">
+
                 <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/library_grid"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scrollbars="vertical" />
+                    android:id="@+id/bookCollectionBrowserGrid"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scrollbars="vertical" />
             </LinearLayout>
             <LinearLayout
-                android:id="@+id/librarybrowser_empty"
+                android:id="@+id/bookCollectionBrowserEmpty"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/librarybrowser_empty"
+                    android:text="@string/library_empty"
                     android:textSize="@dimen/card_text"
                     android:gravity="center"
                     android:padding="@dimen/button_horizontal_padding"/>
