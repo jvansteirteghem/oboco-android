@@ -80,18 +80,7 @@ public class RemoteBookReaderManager extends BookReaderManager {
 
     @Override
     public void load() {
-        Single<BookDto> single = new Single<BookDto>() {
-            @Override
-            protected void subscribeActual(SingleObserver<? super BookDto> observer) {
-                try {
-                    BookDto book = mApplicationService.getBook(mBookId, "(bookCollection,bookMark)").blockingGet();
-
-                    observer.onSuccess(book);
-                } catch(Exception e) {
-                    observer.onError(e);
-                }
-            }
-        };
+        Single<BookDto> single = mApplicationService.getBook(mBookId, "(bookCollection,bookMark)");
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
         single.subscribe(new SingleObserver<BookDto>() {
@@ -103,31 +92,20 @@ public class RemoteBookReaderManager extends BookReaderManager {
             @Override
             public void onSuccess(BookDto book) {
                 if(book != null) {
-                    Single<List<BookDto>> single = new Single<List<BookDto>>() {
-                        @Override
-                        protected void subscribeActual(SingleObserver<? super List<BookDto>> observer) {
-                            try {
-                                PageableListDto<BookDto> bookPageableList = mApplicationService.getBooks(book.getBookCollection().getId(), book.getId(), "()").blockingGet();
-
-                                observer.onSuccess(bookPageableList.getElements());
-                            } catch(Exception e) {
-                                observer.onError(e);
-                            }
-                        }
-                    };
+                    Single<PageableListDto<BookDto>> single = mApplicationService.getBooks(book.getBookCollection().getId(), book.getId(), "()");
                     single = single.observeOn(AndroidSchedulers.mainThread());
                     single = single.subscribeOn(Schedulers.io());
-                    single.subscribe(new SingleObserver<List<BookDto>>() {
+                    single.subscribe(new SingleObserver<PageableListDto<BookDto>>() {
                         @Override
                         public void onSubscribe(Disposable d) {
 
                         }
 
                         @Override
-                        public void onSuccess(List<BookDto> bookList) {
-                            if(bookList != null) {
-                                mBookReaderFragment.onLoad(book, bookList);
-                            }
+                        public void onSuccess(PageableListDto<BookDto> bookPageableList) {
+                            List<BookDto> bookList = bookPageableList.getElements();
+
+                            mBookReaderFragment.onLoad(book, bookList);
                         }
 
                         @Override
@@ -147,21 +125,10 @@ public class RemoteBookReaderManager extends BookReaderManager {
 
     @Override
     public void addBookMark(int bookPage) {
-        Single<BookMarkDto> single = new Single<BookMarkDto>() {
-            @Override
-            protected void subscribeActual(SingleObserver<? super BookMarkDto> observer) {
-                try {
-                    BookMarkDto bookMark = new BookMarkDto();
-                    bookMark.setPage(bookPage);
+        BookMarkDto bookMark = new BookMarkDto();
+        bookMark.setPage(bookPage);
 
-                    bookMark = mApplicationService.createOrUpdateBookMark(mBookId, bookMark).blockingGet();
-
-                    observer.onSuccess(bookMark);
-                } catch(Exception e) {
-                    observer.onError(e);
-                }
-            }
-        };
+        Single<BookMarkDto> single = mApplicationService.createOrUpdateBookMark(mBookId, bookMark);
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
         single.subscribe(new SingleObserver<BookMarkDto>() {

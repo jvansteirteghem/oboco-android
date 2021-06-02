@@ -78,24 +78,12 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
 
     @Override
     public void load(String bookMarkStatus, int page, int pageSize) {
-        Single<BookCollectionDto> single = new Single<BookCollectionDto>() {
-            @Override
-            protected void subscribeActual(SingleObserver<? super BookCollectionDto> observer) {
-                try {
-                    if(mBookCollectionId == null) {
-                        BookCollectionDto bookCollection = mApplicationService.getRootBookCollection("(parentBookCollection)").blockingGet();
-
-                        observer.onSuccess(bookCollection);
-                    } else {
-                        BookCollectionDto bookCollection = mApplicationService.getBookCollection(mBookCollectionId, "(parentBookCollection)").blockingGet();
-
-                        observer.onSuccess(bookCollection);
-                    }
-                } catch(Exception e) {
-                    observer.onError(e);
-                }
-            }
-        };
+        Single<BookCollectionDto> single;
+        if(mBookCollectionId == null) {
+            single = mApplicationService.getRootBookCollection("(parentBookCollection)");
+        } else {
+            single = mApplicationService.getBookCollection(mBookCollectionId, "(parentBookCollection)");
+        }
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
         single.subscribe(new SingleObserver<BookCollectionDto>() {
@@ -107,18 +95,7 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
             @Override
             public void onSuccess(BookCollectionDto bookCollection) {
                 if(bookCollection != null) {
-                    Single<PageableListDto<BookDto>> single = new Single<PageableListDto<BookDto>>() {
-                        @Override
-                        protected void subscribeActual(SingleObserver<? super PageableListDto<BookDto>> observer) {
-                            try {
-                                PageableListDto<BookDto> bookPageableList = mApplicationService.getBooks(bookCollection.getId(), bookMarkStatus, page, pageSize, "(bookMark)").blockingGet();
-
-                                observer.onSuccess(bookPageableList);
-                            } catch(Exception e) {
-                                observer.onError(e);
-                            }
-                        }
-                    };
+                    Single<PageableListDto<BookDto>> single = mApplicationService.getBooks(bookCollection.getId(), bookMarkStatus, page, pageSize, "(bookMark)");
                     single = single.observeOn(AndroidSchedulers.mainThread());
                     single = single.subscribeOn(Schedulers.io());
                     single.subscribe(new SingleObserver<PageableListDto<BookDto>>() {
@@ -149,18 +126,7 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
 
     @Override
     public void loadBookPageableList(String bookMarkStatus, int page, int pageSize) {
-        Single<PageableListDto<BookDto>> single = new Single<PageableListDto<BookDto>>() {
-            @Override
-            protected void subscribeActual(SingleObserver<? super PageableListDto<BookDto>> observer) {
-                try {
-                    PageableListDto<BookDto> bookPageableList = mApplicationService.getBooks(mBookCollectionId, bookMarkStatus, page, pageSize, "(bookMark)").blockingGet();
-
-                    observer.onSuccess(bookPageableList);
-                } catch(Exception e) {
-                    observer.onError(e);
-                }
-            }
-        };
+        Single<PageableListDto<BookDto>> single = mApplicationService.getBooks(mBookCollectionId, bookMarkStatus, page, pageSize, "(bookMark)");
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
         single.subscribe(new SingleObserver<PageableListDto<BookDto>>() {
@@ -183,21 +149,10 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
 
     @Override
     public void addBookMark(BookDto book) {
-        Single<BookMarkDto> single = new Single<BookMarkDto>() {
-            @Override
-            protected void subscribeActual(SingleObserver<? super BookMarkDto> observer) {
-                try {
-                    BookMarkDto bookMark = new BookMarkDto();
-                    bookMark.setPage(book.getNumberOfPages());
+        BookMarkDto bookMark = new BookMarkDto();
+        bookMark.setPage(book.getNumberOfPages());
 
-                    bookMark = mApplicationService.createOrUpdateBookMark(book.getId(), bookMark).blockingGet();
-
-                    observer.onSuccess(bookMark);
-                } catch(Exception e) {
-                    observer.onError(e);
-                }
-            }
-        };
+        Single<BookMarkDto> single = mApplicationService.createOrUpdateBookMark(book.getId(), bookMark);
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
         single.subscribe(new SingleObserver<BookMarkDto>() {
@@ -220,18 +175,7 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
 
     @Override
     public void removeBookMark(BookDto book) {
-        Completable completable = new Completable() {
-            @Override
-            protected void subscribeActual(CompletableObserver observer) {
-                try {
-                    mApplicationService.deleteBookMark(book.getId()).blockingAwait();
-
-                    observer.onComplete();
-                } catch(Exception e) {
-                    observer.onError(e);
-                }
-            }
-        };
+        Completable completable = mApplicationService.deleteBookMark(book.getId());
         completable = completable.observeOn(AndroidSchedulers.mainThread());
         completable = completable.subscribeOn(Schedulers.io());
         completable.subscribe(new CompletableObserver() {
