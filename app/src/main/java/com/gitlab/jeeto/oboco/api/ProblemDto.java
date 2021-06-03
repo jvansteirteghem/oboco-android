@@ -1,12 +1,15 @@
 package com.gitlab.jeeto.oboco.api;
 
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.Expose;
 
 import java.io.Serializable;
 
 public class ProblemDto implements Serializable {
+    @Expose()
     private Integer statusCode;
+    @Expose()
     private String code;
+    @Expose()
     private String description;
     public ProblemDto() {
         super();
@@ -17,21 +20,18 @@ public class ProblemDto implements Serializable {
         this.code = code;
         this.description = description;
     }
-    @SerializedName("statusCode")
     public Integer getStatusCode() {
         return statusCode;
     }
     public void setStatusCode(Integer statusCode) {
         this.statusCode = statusCode;
     }
-    @SerializedName("code")
     public String getCode() {
         return code;
     }
     public void setCode(String code) {
         this.code = code;
     }
-    @SerializedName("description")
     public String getDescription() {
         return description;
     }

@@ -40,9 +40,9 @@ public class BookReaderActivity extends AppCompatActivity implements OnErrorList
 
                 fragment = BookReaderFragment.create(bookId);
             } else if (mode == BookReaderManager.Mode.MODE_LOCAL) {
-                File bookFile = (File) extras.getSerializable(LocalBookReaderManager.PARAM_BOOK_FILE);
+                String bookPath = extras.getString(LocalBookReaderManager.PARAM_BOOK_PATH);
 
-                fragment = BookReaderFragment.create(bookFile);
+                fragment = BookReaderFragment.create(bookPath);
             }
             setFragment(fragment);
         }

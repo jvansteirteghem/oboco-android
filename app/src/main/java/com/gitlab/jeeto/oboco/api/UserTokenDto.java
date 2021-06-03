@@ -1,15 +1,15 @@
 package com.gitlab.jeeto.oboco.api;
 
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.Expose;
 
 import java.io.Serializable;
 
 public class UserTokenDto implements Serializable {
+    @Expose()
     private String token;
     public UserTokenDto() {
         super();
     }
-    @SerializedName("token")
     public String getToken() {
         return token;
     }

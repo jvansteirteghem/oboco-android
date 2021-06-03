@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Date;
 
 import okhttp3.ResponseBody;
 
@@ -82,10 +83,17 @@ public class DownloadBookCollectionWorker extends Worker {
     }
 
     private void download(Long bookCollectionId) throws Exception {
-        // Downloads a file and updates bytes read
-        // Calls setForegroundAsync(createForegroundInfo(myProgress))
-        // periodically when it needs to update the ongoing Notification.
         Context context = getApplicationContext();
+
+        long now = new Date().getTime();
+        for(File file: context.getExternalCacheDir().listFiles()) {
+            if(file.isFile() && file.getName().endsWith(".download")) {
+                // 1 day = 24 * 60 * 60 * 1000
+                if((now - file.lastModified()) > 86400000) {
+                    file.delete();
+                }
+            }
+        }
 
         ApplicationService applicationService = createApplicationService(context);
 
@@ -112,12 +120,9 @@ public class DownloadBookCollectionWorker extends Worker {
                 if(file.isFile() == false) {
                     ResponseBody responseBody = applicationService.downloadBook(book.getId()).blockingGet();
 
-                    File parentFile = file.getParentFile();
-                    if (parentFile.isDirectory() == false) {
-                        parentFile.mkdirs();
-                    }
+                    File downloadFile = new File(context.getExternalCacheDir(), book.getName() +  ".cbz."  + now + ".download");
 
-                    File downloadFile = new File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), bookCollection.getName() + File.separator  + "DOWNLOAD_" + book.getName() +  ".cbz");
+                    Exception exception = null;
 
                     InputStream inputStream = null;
                     OutputStream outputStream = null;
@@ -128,13 +133,15 @@ public class DownloadBookCollectionWorker extends Worker {
                         byte[] buffer = new byte[8 * 1024];
                         int bufferSize;
                         while ((bufferSize = inputStream.read(buffer)) != -1) {
-                            if(isStopped()) {
+                            if (isStopped()) {
                                 break;
                             }
 
                             outputStream.write(buffer, 0, bufferSize);
                         }
                         outputStream.flush();
+                    } catch(Exception e) {
+                        exception = e;
                     } finally {
                         if(outputStream != null) {
                             try {
@@ -152,9 +159,19 @@ public class DownloadBookCollectionWorker extends Worker {
                         }
                     }
 
+                    if(exception != null) {
+                        downloadFile.delete();
+
+                        throw exception;
+                    }
+
                     if(isStopped()) {
                         downloadFile.delete();
                     } else {
+                        File parentFile = file.getParentFile();
+                        if (parentFile.isDirectory() == false) {
+                            parentFile.mkdirs();
+                        }
                         downloadFile.renameTo(file);
                     }
                 }

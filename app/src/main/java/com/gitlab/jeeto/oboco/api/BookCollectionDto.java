@@ -1,77 +1,85 @@
 package com.gitlab.jeeto.oboco.api;
 
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.Expose;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 public class BookCollectionDto implements Serializable {
+    @Expose()
     private Long id;
+    @Expose()
     private Date updateDate;
+    @Expose()
     private String name;
+    @Expose()
     private BookCollectionDto parentBookCollection;
+    @Expose()
     private List<BookCollectionDto> bookCollections;
+    @Expose()
     private Integer numberOfBookCollections;
+    @Expose()
     private List<BookDto> books;
+    @Expose()
     private Integer numberOfBooks;
+    @Expose(serialize = false, deserialize = false)
+    private String path;
     public BookCollectionDto() {
         super();
     }
-    @SerializedName("id")
     public Long getId() {
         return id;
     }
     public void setId(Long id) {
         this.id = id;
     }
-    @SerializedName("updateDate")
     public Date getUpdateDate() {
         return updateDate;
     }
     public void setUpdateDate(Date updateDate) {
         this.updateDate = updateDate;
     }
-    @SerializedName("name")
     public String getName() {
         return name;
     }
     public void setName(String name) {
         this.name = name;
     }
-    @SerializedName("parentBookCollection")
     public BookCollectionDto getParentBookCollection() {
         return parentBookCollection;
     }
     public void setParentBookCollection(BookCollectionDto parentBookCollection) {
         this.parentBookCollection = parentBookCollection;
     }
-    @SerializedName("bookCollections")
     public List<BookCollectionDto> getBookCollections() {
         return bookCollections;
     }
     public void setBookCollections(List<BookCollectionDto> bookCollections) {
         this.bookCollections = bookCollections;
     }
-    @SerializedName("numberOfBookCollections")
     public Integer getNumberOfBookCollections() {
         return numberOfBookCollections;
     }
     public void setNumberOfBookCollections(Integer numberOfBookCollections) {
         this.numberOfBookCollections = numberOfBookCollections;
     }
-    @SerializedName("books")
     public List<BookDto> getBooks() {
         return books;
     }
     public void setBooks(List<BookDto> books) {
         this.books = books;
     }
-    @SerializedName("numberOfBooks")
     public Integer getNumberOfBooks() {
         return numberOfBooks;
     }
     public void setNumberOfBooks(Integer numberOfBooks) {
         this.numberOfBooks = numberOfBooks;
+    }
+    public String getPath() {
+        return path;
+    }
+    public void setPath(String path) {
+        this.path = path;
     }
 }

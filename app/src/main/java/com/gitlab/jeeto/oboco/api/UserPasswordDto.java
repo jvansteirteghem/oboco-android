@@ -1,26 +1,23 @@
 package com.gitlab.jeeto.oboco.api;
 
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.Expose;
 
 import java.io.Serializable;
 
 public class UserPasswordDto implements Serializable {
+    @Expose()
     private String password;
+    @Expose()
     private String updatePassword;
-
     public UserPasswordDto() {
         super();
     }
-
-    @SerializedName("password")
     public String getPassword() {
         return password;
     }
     public void setPassword(String password) {
         this.password = password;
     }
-
-    @SerializedName("updatePassword")
     public String getUpdatePassword() {
         return updatePassword;
     }

@@ -52,7 +52,6 @@ import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
@@ -100,11 +99,11 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
         return fragment;
     }
 
-    public static BookReaderFragment create(File bookFile) {
+    public static BookReaderFragment create(String bookPath) {
         BookReaderFragment fragment = new BookReaderFragment();
         Bundle args = new Bundle();
         args.putSerializable(BookReaderManager.PARAM_MODE, BookReaderManager.Mode.MODE_LOCAL);
-        args.putSerializable(LocalBookReaderManager.PARAM_BOOK_FILE, bookFile);
+        args.putString(LocalBookReaderManager.PARAM_BOOK_PATH, bookPath);
         fragment.setArguments(args);
         return fragment;
     }
@@ -734,7 +733,11 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         BookReaderActivity activity = (BookReaderActivity) getActivity();
-                        activity.setFragment(BookReaderFragment.create(newBook.getId()));
+                        if(mMode == BookReaderManager.Mode.MODE_REMOTE) {
+                            activity.setFragment(BookReaderFragment.create(newBook.getId()));
+                        } else if(mMode == BookReaderManager.Mode.MODE_LOCAL) {
+                            activity.setFragment(BookReaderFragment.create(newBook.getPath()));
+                        }
                     }
                 })
                 .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {

@@ -34,6 +34,7 @@ public class ApplicationService extends Service {
         OkHttpClient client = builder.build();
 
         Gson gson = new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
                 .registerTypeAdapter(Date.class, new DateJsonSerializer())
                 .registerTypeAdapter(Date.class, new DateJsonDeserializer())
                 .create();

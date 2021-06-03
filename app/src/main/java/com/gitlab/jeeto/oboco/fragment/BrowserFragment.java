@@ -16,9 +16,11 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.BookReaderActivity;
+import com.gitlab.jeeto.oboco.common.NaturalOrderComparator;
 import com.gitlab.jeeto.oboco.common.Utils;
 import com.gitlab.jeeto.oboco.manager.BookReaderManager;
 import com.gitlab.jeeto.oboco.manager.LocalBookReaderManager;
@@ -29,7 +31,7 @@ import java.util.Collections;
 
 
 public class BrowserFragment extends Fragment
-        implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
+        implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, SwipeRefreshLayout.OnRefreshListener {
     private final static String STATE_CURRENT_DIR = "stateCurrentDir";
 
     private ListView mListView;
@@ -64,12 +66,12 @@ public class BrowserFragment extends Fragment
         toolbar.addView(breadcrumbLayout);
         mDirTextView = (TextView) breadcrumbLayout.findViewById(R.id.dir_textview);
 
-        setCurrentDir(mCurrentDir);
-
         mListView = (ListView) view.findViewById(R.id.listview_browser);
         mListView.setAdapter(new DirectoryAdapter());
         mListView.setOnItemClickListener(this);
         mListView.setOnItemLongClickListener(this);
+
+        setCurrentDir(mCurrentDir);
 
         return view;
     }
@@ -78,6 +80,11 @@ public class BrowserFragment extends Fragment
     public void onSaveInstanceState(Bundle outState) {
         outState.putSerializable(STATE_CURRENT_DIR, mCurrentDir);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onRefresh() {
+        setCurrentDir(mCurrentDir);
     }
 
     @Override
@@ -102,7 +109,12 @@ public class BrowserFragment extends Fragment
                 }
             }
         }
-        Collections.sort(subdirs);
+        Collections.sort(subdirs, new NaturalOrderComparator() {
+            @Override
+            public String stringValue(Object o) {
+                return ((File) o).getName();
+            }
+        });
         mSubdirs = subdirs.toArray(new File[subdirs.size()]);
 
         if (mListView != null) {
@@ -120,7 +132,7 @@ public class BrowserFragment extends Fragment
         } else {
             Intent intent = new Intent(getActivity(), BookReaderActivity.class);
             intent.putExtra(BookReaderManager.PARAM_MODE, BookReaderManager.Mode.MODE_LOCAL);
-            intent.putExtra(LocalBookReaderManager.PARAM_BOOK_FILE, file);
+            intent.putExtra(LocalBookReaderManager.PARAM_BOOK_PATH, file.getAbsolutePath());
             startActivity(intent);
         }
     }
@@ -136,15 +148,7 @@ public class BrowserFragment extends Fragment
                     .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            if (file.isFile()) {
-                                file.delete();
-                            } else {
-                                File[] files = file.listFiles();
-                                for (int i = 0; i < files.length; i = i + 1) {
-                                    files[i].delete();
-                                }
-                                file.delete();
-                            }
+                            deleteFile(file);
 
                             setCurrentDir(mCurrentDir);
                         }
@@ -160,6 +164,16 @@ public class BrowserFragment extends Fragment
         }
 
         return true;
+    }
+
+    private boolean deleteFile(File parentFile) {
+        File[] files = parentFile.listFiles();
+        if(files != null) {
+            for(File file : files) {
+                deleteFile(file);
+            }
+        }
+        return parentFile.delete();
     }
 
     private void setIcon(View convertView, File file) {
