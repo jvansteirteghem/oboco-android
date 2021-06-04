@@ -80,8 +80,8 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
     private OnErrorListener mOnErrorListener;
 
     private BookReaderManager.Mode mMode;
-    private BookDto mBook;
-    private List<BookDto> mBookList;
+    private BookDto mBookDto;
+    private List<BookDto> mBookListDto;
 
     static {
         RESOURCE_VIEW_MODE = new HashMap<Integer, Constants.PageViewMode>();
@@ -130,8 +130,8 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
         mOnErrorListener.onError(e);
     }
 
-    public void onAddBookMark(BookMarkDto bookMark) {
-        mBook.setBookMark(bookMark);
+    public void onAddBookMark(BookMarkDto bookMarkDto) {
+        mBookDto.setBookMark(bookMarkDto);
     }
 
     @Override
@@ -163,9 +163,9 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                 .build();
     }
 
-    public void onLoad(BookDto book, List<BookDto> bookList) {
-        mBook = book;
-        mBookList = bookList;
+    public void onLoad(BookDto bookDto, List<BookDto> bookListDto) {
+        mBookDto = bookDto;
+        mBookListDto = bookListDto;
 
         mViewPager.getAdapter().notifyDataSetChanged();
 
@@ -176,22 +176,22 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
         FragmentActivity fragmentActivity = getActivity();
 
         if(fragmentActivity != null) {
-            fragmentActivity.setTitle(mBook.getName());
+            fragmentActivity.setTitle(mBookDto.getName());
 
-            mPageSeekBar.setMax(mBook.getNumberOfPages() - 1);
+            mPageSeekBar.setMax(mBookDto.getNumberOfPages() - 1);
 
             updateSeekBar();
 
             setCurrentPage(mCurrentPage);
 
-            if (mBook.getBookMark() != null && mBook.getBookMark().getPage() != mCurrentPage) {
+            if (mBookDto.getBookMark() != null && mBookDto.getBookMark().getPage() != mCurrentPage) {
                 AlertDialog dialog = new AlertDialog.Builder(fragmentActivity, R.style.AppCompatAlertDialogStyle)
                         .setTitle("Would you like to switch to the bookmarked page?")
-                        .setMessage(mBook.getBookMark().getPage().toString())
+                        .setMessage(mBookDto.getBookMark().getPage().toString())
                         .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                setCurrentPage(mBook.getBookMark().getPage());
+                                setCurrentPage(mBookDto.getBookMark().getPage());
                             }
                         })
                         .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
@@ -340,7 +340,7 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
     public void onResume() {
         super.onResume();
 
-        if(mBook == null) {
+        if(mBookDto == null) {
             mBookReaderManager.load();
         } else {
             onLoad();
@@ -419,7 +419,7 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
         }
 
         String navPage = new StringBuilder()
-                .append(page).append("/").append(mBook.getNumberOfPages())
+                .append(page).append("/").append(mBookDto.getNumberOfPages())
                 .toString();
 
         mPageNavTextView.setText(navPage);
@@ -437,10 +437,10 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
 
         @Override
         public int getCount() {
-            if(mBook == null) {
+            if(mBookDto == null) {
                 return 0;
             } else {
-                return mBook.getNumberOfPages();
+                return mBookDto.getNumberOfPages();
             }
         }
 
@@ -690,9 +690,9 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
 
     private int getBookListIndex() {
         int index = -1;
-        for(int i = 0; i < mBookList.size(); i = i + 1) {
-            BookDto book = mBookList.get(i);
-            if(mBook.getId().equals(book.getId())) {
+        for(int i = 0; i < mBookListDto.size(); i = i + 1) {
+            BookDto bookDto = mBookListDto.get(i);
+            if(mBookDto.getId().equals(bookDto.getId())) {
                 index = i;
                 break;
             }
@@ -701,42 +701,42 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
     }
 
     private void hitBeginning() {
-        if (mBook != null) {
+        if (mBookDto != null) {
             int newIndex = getBookListIndex() - 1;
             if(newIndex >= 0) {
-                BookDto newBook = mBookList.get(newIndex);
+                BookDto newBookDto = mBookListDto.get(newIndex);
 
-                confirmSwitch(newBook, R.string.switch_prev_comic);
+                confirmSwitch(newBookDto, R.string.switch_prev_comic);
             }
         }
     }
 
     private void hitEnding() {
-        if (mBook != null) {
+        if (mBookDto != null) {
             int newIndex = getBookListIndex() + 1;
-            if(newIndex < mBookList.size()) {
-                BookDto newBook = mBookList.get(newIndex);
+            if(newIndex < mBookListDto.size()) {
+                BookDto newBookDto = mBookListDto.get(newIndex);
 
-                confirmSwitch(newBook, R.string.switch_next_comic);
+                confirmSwitch(newBookDto, R.string.switch_next_comic);
             }
         }
     }
 
-    private void confirmSwitch(BookDto newBook, int titleRes) {
-        if (newBook == null)
+    private void confirmSwitch(BookDto newBookDto, int titleRes) {
+        if (newBookDto == null)
             return;
 
         AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(titleRes)
-                .setMessage(newBook.getName())
+                .setMessage(newBookDto.getName())
                 .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         BookReaderActivity activity = (BookReaderActivity) getActivity();
                         if(mMode == BookReaderManager.Mode.MODE_REMOTE) {
-                            activity.setFragment(BookReaderFragment.create(newBook.getId()));
+                            activity.setFragment(BookReaderFragment.create(newBookDto.getId()));
                         } else if(mMode == BookReaderManager.Mode.MODE_LOCAL) {
-                            activity.setFragment(BookReaderFragment.create(newBook.getPath()));
+                            activity.setFragment(BookReaderFragment.create(newBookDto.getPath()));
                         }
                     }
                 })

@@ -100,9 +100,9 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
             }
 
             @Override
-            public void onSuccess(BookCollectionDto bookCollection) {
-                if(bookCollection != null) {
-                    mBookCollectionId = bookCollection.getId();
+            public void onSuccess(BookCollectionDto bookCollectionDto) {
+                if(bookCollectionDto != null) {
+                    mBookCollectionId = bookCollectionDto.getId();
 
                     Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollections(mBookCollectionId, bookCollectionName, page, pageSize, "(bookCollections,books)");
                     single = single.observeOn(AndroidSchedulers.mainThread());
@@ -114,8 +114,8 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
                         }
 
                         @Override
-                        public void onSuccess(PageableListDto<BookCollectionDto> bookCollectionPageableList) {
-                            mBookCollectionBrowserFragment.onLoad(bookCollection, bookCollectionPageableList);
+                        public void onSuccess(PageableListDto<BookCollectionDto> bookCollectionPageableListDto) {
+                            mBookCollectionBrowserFragment.onLoad(bookCollectionDto, bookCollectionPageableListDto);
                         }
 
                         @Override
@@ -144,8 +144,8 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
             }
 
             @Override
-            public void onSuccess(PageableListDto<BookCollectionDto> bookCollectionPageableList) {
-                mBookCollectionBrowserFragment.onLoadBookCollectionPageableList(bookCollectionPageableList);
+            public void onSuccess(PageableListDto<BookCollectionDto> bookCollectionPageableListDto) {
+                mBookCollectionBrowserFragment.onLoadBookCollectionPageableList(bookCollectionPageableListDto);
             }
 
             @Override
@@ -155,8 +155,8 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
         });
     }
 
-    public void addBookMark(BookCollectionDto bookCollection) {
-        Completable completable = mApplicationService.createOrUpdateBookMarks(bookCollection.getId());
+    public void addBookMark(BookCollectionDto bookCollectionDto) {
+        Completable completable = mApplicationService.createOrUpdateBookMarks(bookCollectionDto.getId());
         completable = completable.observeOn(AndroidSchedulers.mainThread());
         completable = completable.subscribeOn(Schedulers.io());
         completable.subscribe(new CompletableObserver() {
@@ -167,7 +167,7 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
 
             @Override
             public void onComplete() {
-                mBookCollectionBrowserFragment.onAddBookMark(bookCollection);
+                mBookCollectionBrowserFragment.onAddBookMark(bookCollectionDto);
             }
 
             @Override
@@ -177,8 +177,8 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
         });
     }
 
-    public void removeBookMark(BookCollectionDto bookCollection) {
-        Completable completable = mApplicationService.deleteBookMarks(bookCollection.getId());
+    public void removeBookMark(BookCollectionDto bookCollectionDto) {
+        Completable completable = mApplicationService.deleteBookMarks(bookCollectionDto.getId());
         completable = completable.observeOn(AndroidSchedulers.mainThread());
         completable = completable.subscribeOn(Schedulers.io());
         completable.subscribe(new CompletableObserver() {
@@ -189,7 +189,7 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
 
             @Override
             public void onComplete() {
-                mBookCollectionBrowserFragment.onRemoveBookMark(bookCollection);
+                mBookCollectionBrowserFragment.onRemoveBookMark(bookCollectionDto);
             }
 
             @Override
@@ -199,12 +199,12 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
         });
     }
 
-    public Uri getBookCollectionPageUri(BookCollectionDto bookCollection, String scaleType, int scaleWidth, int scaleHeight) {
+    public Uri getBookCollectionPageUri(BookCollectionDto bookCollectionDto, String scaleType, int scaleWidth, int scaleHeight) {
         return new Uri.Builder()
                 .scheme("bookCollectionBrowserManager")
                 .authority("")
                 .path("/bookCollectionPage")
-                .appendQueryParameter("bookCollectionId", Long.toString(bookCollection.getId()))
+                .appendQueryParameter("bookCollectionId", Long.toString(bookCollectionDto.getId()))
                 .appendQueryParameter("scaleType", scaleType)
                 .appendQueryParameter("scaleWidth", Integer.toString(scaleWidth))
                 .appendQueryParameter("scaleHeight", Integer.toString(scaleHeight))

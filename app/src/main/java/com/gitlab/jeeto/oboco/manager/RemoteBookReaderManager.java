@@ -90,9 +90,9 @@ public class RemoteBookReaderManager extends BookReaderManager {
             }
 
             @Override
-            public void onSuccess(BookDto book) {
-                if(book != null) {
-                    Single<PageableListDto<BookDto>> single = mApplicationService.getBooks(book.getBookCollection().getId(), book.getId(), "()");
+            public void onSuccess(BookDto bookDto) {
+                if(bookDto != null) {
+                    Single<PageableListDto<BookDto>> single = mApplicationService.getBooks(bookDto.getBookCollection().getId(), bookDto.getId(), "()");
                     single = single.observeOn(AndroidSchedulers.mainThread());
                     single = single.subscribeOn(Schedulers.io());
                     single.subscribe(new SingleObserver<PageableListDto<BookDto>>() {
@@ -102,10 +102,10 @@ public class RemoteBookReaderManager extends BookReaderManager {
                         }
 
                         @Override
-                        public void onSuccess(PageableListDto<BookDto> bookPageableList) {
-                            List<BookDto> bookList = bookPageableList.getElements();
+                        public void onSuccess(PageableListDto<BookDto> bookPageableListDto) {
+                            List<BookDto> bookList = bookPageableListDto.getElements();
 
-                            mBookReaderFragment.onLoad(book, bookList);
+                            mBookReaderFragment.onLoad(bookDto, bookList);
                         }
 
                         @Override
@@ -125,10 +125,10 @@ public class RemoteBookReaderManager extends BookReaderManager {
 
     @Override
     public void addBookMark(int bookPage) {
-        BookMarkDto bookMark = new BookMarkDto();
-        bookMark.setPage(bookPage);
+        BookMarkDto bookMarkDto = new BookMarkDto();
+        bookMarkDto.setPage(bookPage);
 
-        Single<BookMarkDto> single = mApplicationService.createOrUpdateBookMark(mBookId, bookMark);
+        Single<BookMarkDto> single = mApplicationService.createOrUpdateBookMark(mBookId, bookMarkDto);
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
         single.subscribe(new SingleObserver<BookMarkDto>() {
@@ -138,8 +138,8 @@ public class RemoteBookReaderManager extends BookReaderManager {
             }
 
             @Override
-            public void onSuccess(BookMarkDto bookMark) {
-                mBookReaderFragment.onAddBookMark(bookMark);
+            public void onSuccess(BookMarkDto bookMarkDto) {
+                mBookReaderFragment.onAddBookMark(bookMarkDto);
             }
 
             @Override

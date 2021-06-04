@@ -1,165 +1,184 @@
 package com.gitlab.jeeto.oboco.common;
 
-/*
- NaturalOrderComparator.java -- Perform 'natural order' comparisons of strings in Java.
- Copyright (C) 2003 by Pierre-Luc Paour <natorder@paour.com>
- Based on the C version by Martin Pool, of which this is more or less a straight conversion.
- Copyright (C) 2000 by Martin Pool <mbp@humbug.org.au>
- This software is provided 'as-is', without any express or implied
- warranty.  In no event will the authors be held liable for any damages
- arising from the use of this software.
- Permission is granted to anyone to use this software for any purpose,
- including commercial applications, and to alter it and redistribute it
- freely, subject to the following restrictions:
- 1. The origin of this software must not be misrepresented; you must not
- claim that you wrote the original software. If you use this software
- in a product, an acknowledgment in the product documentation would be
- appreciated but is not required.
- 2. Altered source versions must be plainly marked as such, and must not be
- misrepresented as being the original software.
- 3. This notice may not be removed or altered from any source distribution.
+import java.util.Comparator;
+
+/**
+ * Probably the best natural strings comparator.
  */
+public class NaturalOrderComparator<T> implements Comparator<T> {
 
-import java.util.*;
+    protected final boolean ignoreCase;
+    protected final boolean skipSpaces;
 
-public abstract class NaturalOrderComparator implements Comparator
-{
-    int compareRight(String a, String b)
-    {
-        int bias = 0;
-        int ia = 0;
-        int ib = 0;
+    public NaturalOrderComparator() {
+        this(false, true);
+    }
 
-        // The longest run of digits wins. That aside, the greatest
-        // value wins, but we can't know that it will until we've scanned
-        // both numbers to know that they have the same magnitude, so we
-        // remember it in BIAS.
-        for (;; ia++, ib++)
-        {
-            char ca = charAt(a, ia);
-            char cb = charAt(b, ib);
+    public NaturalOrderComparator(final boolean ignoreCase, final boolean skipSpaces) {
+        this.ignoreCase = ignoreCase;
+        this.skipSpaces = skipSpaces;
+    }
 
-            if (!Character.isDigit(ca) && !Character.isDigit(cb))
-            {
-                return bias;
+    /**
+     * Compare digits at certain position in two strings.
+     * The longest run of digits wins. That aside, the greatest
+     * value wins.
+     * @return if numbers are different, only 1 element is returned.
+     */
+    protected int[] compareDigits(final String str1, int ndx1, final String str2, int ndx2) {
+        // iterate all digits in the first string
+
+        int zeroCount1 = 0;
+        while (charAt(str1, ndx1) == '0') {
+            zeroCount1++;
+            ndx1++;
+        }
+
+        int len1 = 0;
+        while (true) {
+            final char char1 = charAt(str1, ndx1);
+            final boolean isDigitChar1 = isDigit(char1);
+            if (!isDigitChar1) {
+                break;
             }
-            else if (!Character.isDigit(ca))
-            {
-                return -1;
+            len1++;
+            ndx1++;
+        }
+
+        // iterate all digits in the second string and compare with the first
+
+        int zeroCount2 = 0;
+        while (charAt(str2, ndx2) == '0') {
+            zeroCount2++;
+            ndx2++;
+        }
+
+        int len2 = 0;
+
+        int ndx1_new = ndx1 - len1;
+        int equalNumbers = 0;
+
+        while (true) {
+            final char char2 = charAt(str2, ndx2);
+            final boolean isDigitChar2 = isDigit(char2);
+            if (!isDigitChar2) {
+                break;
             }
-            else if (!Character.isDigit(cb))
-            {
-                return +1;
+            if (equalNumbers == 0 && (ndx1_new < ndx1)) {
+                equalNumbers = charAt(str1, ndx1_new++) - char2;
             }
-            else if (ca < cb)
-            {
-                if (bias == 0)
-                {
-                    bias = -1;
+            len2++;
+            ndx2++;
+        }
+
+        // compare
+
+        if (len1 != len2) {
+            // numbers are not equals size
+            return new int[] {len1 - len2};
+        }
+
+        if (equalNumbers != 0) {
+            return new int[] {equalNumbers};
+        }
+
+        // numbers are equal, but number of zeros is different
+        return new int[] {0, zeroCount1 - zeroCount2, ndx1, ndx2};
+    }
+
+    @Override
+    public int compare(final T o1, final T o2) {
+        String str1 = toString(o1);
+        String str2 = toString(o2);
+
+        int ndx1 = 0, ndx2 = 0;
+        char char1, char2;
+        int lastZeroDifference = 0;
+
+        while (true) {
+            char1 = charAt(str1, ndx1);
+            char2 = charAt(str2, ndx2);
+
+            // skip over spaces in both strings
+            if (skipSpaces) {
+                while (isSpaceChar(char1)) {
+                    ndx1++;
+                    char1 = charAt(str1, ndx1);
+                }
+
+                while (isSpaceChar(char2)) {
+                    ndx2++;
+                    char2 = charAt(str2, ndx2);
                 }
             }
-            else if (ca > cb)
-            {
-                if (bias == 0)
-                    bias = +1;
+
+            // check for numbers
+
+            final boolean isDigitChar1 = isDigit(char1);
+            final boolean isDigitChar2 = isDigit(char2);
+
+            if (isDigitChar1 && isDigitChar2) {
+                // numbers detected!
+
+                final int[] result = compareDigits(str1, ndx1, str2, ndx2);
+
+                if (result[0] != 0) {
+                    // not equals, return
+                    return result[0];
+                }
+
+                // equals, save zero difference if not already saved
+                if (lastZeroDifference == 0) {
+                    lastZeroDifference = result[1];
+                }
+
+                ndx1 = result[2];
+                ndx2 = result[3];
+                continue;
             }
-            else if (ca == 0 && cb == 0)
-            {
-                return bias;
+
+            if (char1 == 0 && char2 == 0) {
+                // both strings end; the strings are the same
+                return lastZeroDifference;
             }
+
+            // compare chars
+            if (ignoreCase) {
+                char1 = Character.toLowerCase(char1);
+                char2 = Character.toLowerCase(char2);
+            }
+
+            if (char1 < char2) {
+                return -1;
+            }
+            if (char1 > char2) {
+                return 1;
+            }
+
+            ndx1++;
+            ndx2++;
         }
     }
 
-    public abstract String stringValue(Object o);
-
-    public int compare(Object o1, Object o2)
-    {
-        String a = stringValue(o1);
-        String b = stringValue(o2);
-
-        int ia = 0, ib = 0;
-        int nza = 0, nzb = 0;
-        char ca, cb;
-        int result;
-
-        while (true)
-        {
-            // only count the number of zeroes leading the last number compared
-            nza = nzb = 0;
-
-            ca = charAt(a, ia);
-            cb = charAt(b, ib);
-
-            // skip over leading spaces or zeros
-            while (Character.isSpaceChar(ca) || ca == '0')
-            {
-                if (ca == '0')
-                {
-                    nza++;
-                }
-                else
-                {
-                    // only count consecutive zeroes
-                    nza = 0;
-                }
-
-                ca = charAt(a, ++ia);
-            }
-
-            while (Character.isSpaceChar(cb) || cb == '0')
-            {
-                if (cb == '0')
-                {
-                    nzb++;
-                }
-                else
-                {
-                    // only count consecutive zeroes
-                    nzb = 0;
-                }
-
-                cb = charAt(b, ++ib);
-            }
-
-            // process run of digits
-            if (Character.isDigit(ca) && Character.isDigit(cb))
-            {
-                if ((result = compareRight(a.substring(ia), b.substring(ib))) != 0)
-                {
-                    return result;
-                }
-            }
-
-            if (ca == 0 && cb == 0)
-            {
-                // The strings compare the same. Perhaps the caller
-                // will want to call strcmp to break the tie.
-                return nza - nzb;
-            }
-
-            if (ca < cb)
-            {
-                return -1;
-            }
-            else if (ca > cb)
-            {
-                return +1;
-            }
-
-            ++ia;
-            ++ib;
-        }
+    private static boolean isDigit(final char c) {
+        return Character.isDigit(c);
     }
 
-    static char charAt(String s, int i)
-    {
-        if (i >= s.length())
-        {
+    private static boolean isSpaceChar(final char c) {
+        return Character.isSpaceChar(c) || c == '_';
+    }
+
+    /**
+     * Safe {@code charAt} that returns 0 when ndx is out of boundaries.
+     */
+    private static char charAt(final String string, final int ndx) {
+        if (ndx >= string.length()) {
             return 0;
         }
-        else
-        {
-            return s.charAt(i);
-        }
+        return string.charAt(ndx);
+    }
+
+    public String toString(T o) {
+        return o.toString();
     }
 }

@@ -3,9 +3,14 @@ package com.gitlab.jeeto.oboco.manager;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.room.Room;
+
 import com.gitlab.jeeto.oboco.api.BookDto;
 import com.gitlab.jeeto.oboco.api.BookMarkDto;
 import com.gitlab.jeeto.oboco.common.NaturalOrderComparator;
+import com.gitlab.jeeto.oboco.database.AppDatabase;
+import com.gitlab.jeeto.oboco.database.Book;
+import com.gitlab.jeeto.oboco.database.BookDao;
 import com.gitlab.jeeto.oboco.fragment.BookReaderFragment;
 import com.gitlab.jeeto.oboco.reader.BookReader;
 import com.gitlab.jeeto.oboco.reader.ZipBookReader;
@@ -20,6 +25,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.reactivex.Completable;
+import io.reactivex.CompletableObserver;
+import io.reactivex.Maybe;
+import io.reactivex.MaybeObserver;
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import okio.Okio;
 
 public class LocalBookReaderManager extends BookReaderManager {
@@ -27,6 +41,7 @@ public class LocalBookReaderManager extends BookReaderManager {
     private BookReaderFragment mBookReaderFragment;
     private BookReader mBookReader;
     private File mBookFile;
+    private AppDatabase mAppDatabase;
 
     public LocalBookReaderManager(BookReaderFragment bookReaderFragment) {
         super();
@@ -47,6 +62,8 @@ public class LocalBookReaderManager extends BookReaderManager {
         } catch(Exception e) {
             mBookReaderFragment.onError(e);
         }
+
+        mAppDatabase = Room.databaseBuilder(mBookReaderFragment.getActivity().getApplicationContext(), AppDatabase.class, "database").build();
     }
 
     @Override
@@ -65,8 +82,8 @@ public class LocalBookReaderManager extends BookReaderManager {
 
     @Override
     public void load() {
-        BookDto book = null;
-        List<BookDto> bookList = new ArrayList<BookDto>();
+        BookDto bookDto = new BookDto();;
+        List<BookDto> bookListDto = new ArrayList<BookDto>();
 
         File[] files = mBookFile.getParentFile().listFiles();
         List<File> bookFileList = new ArrayList<File>();
@@ -76,10 +93,10 @@ public class LocalBookReaderManager extends BookReaderManager {
             }
         }
 
-        Collections.sort(bookFileList, new NaturalOrderComparator() {
+        Collections.sort(bookFileList, new NaturalOrderComparator<File>() {
             @Override
-            public String stringValue(Object o) {
-                return ((File) o).getName();
+            public String toString(File o) {
+                return o.getName();
             }
         });
 
@@ -91,31 +108,30 @@ public class LocalBookReaderManager extends BookReaderManager {
                 if(index - 1 >= 0) {
                     File previousBookFile = bookFileList.get(index - 1);
 
-                    BookDto previousBook = new BookDto();
-                    previousBook.setId(new Long(index - 1));
-                    previousBook.setName(previousBookFile.getName());
-                    previousBook.setNumberOfPages(0);
-                    previousBook.setPath(previousBookFile.getAbsolutePath());
+                    BookDto previousBookDto = new BookDto();
+                    previousBookDto.setId(new Long(index - 1));
+                    previousBookDto.setName(previousBookFile.getName());
+                    previousBookDto.setNumberOfPages(0);
+                    previousBookDto.setPath(previousBookFile.getAbsolutePath());
 
-                    bookList.add(previousBook);
+                    bookListDto.add(previousBookDto);
                 }
-                book = new BookDto();
-                book.setId(new Long(index));
-                book.setName(bookFile.getName());
-                book.setNumberOfPages(mBookReader.getNumberOfPages());
-                book.setPath(bookFile.getAbsolutePath());
+                bookDto.setId(new Long(index));
+                bookDto.setName(bookFile.getName());
+                bookDto.setNumberOfPages(mBookReader.getNumberOfPages());
+                bookDto.setPath(bookFile.getAbsolutePath());
 
-                bookList.add(book);
+                bookListDto.add(bookDto);
                 if(index + 1 < bookFileList.size()) {
                     File nextBookFile = bookFileList.get(index + 1);
 
-                    BookDto nextBook = new BookDto();
-                    nextBook.setId(new Long(index + 1));
-                    nextBook.setName(nextBookFile.getName());
-                    nextBook.setNumberOfPages(0);
-                    nextBook.setPath(nextBookFile.getAbsolutePath());
+                    BookDto nextBookDto = new BookDto();
+                    nextBookDto.setId(new Long(index + 1));
+                    nextBookDto.setName(nextBookFile.getName());
+                    nextBookDto.setNumberOfPages(0);
+                    nextBookDto.setPath(nextBookFile.getAbsolutePath());
 
-                    bookList.add(nextBook);
+                    bookListDto.add(nextBookDto);
                 }
                 break;
             }
@@ -123,15 +139,106 @@ public class LocalBookReaderManager extends BookReaderManager {
             index = index + 1;
         }
 
-        mBookReaderFragment.onLoad(book, bookList);
+        Single<Book> single = mAppDatabase.bookDao().findByPath(mBookFile.getAbsolutePath());
+        single = single.observeOn(AndroidSchedulers.mainThread());
+        single = single.subscribeOn(Schedulers.io());
+        single.subscribe(new SingleObserver<Book>() {
+            @Override
+            public void onSubscribe(Disposable disposable) {
+
+            }
+
+            @Override
+            public void onSuccess(Book book) {
+                BookMarkDto bookMarkDto = new BookMarkDto();
+                bookMarkDto.setId(new Long(0));
+                bookMarkDto.setPage(book.page);
+
+                bookDto.setBookMark(bookMarkDto);
+
+                mBookReaderFragment.onLoad(bookDto, bookListDto);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                mBookReaderFragment.onLoad(bookDto, bookListDto);
+            }
+        });
     }
 
     @Override
     public void addBookMark(int bookPage) {
-        BookMarkDto bookMark = new BookMarkDto();
-        bookMark.setPage(bookPage);
+        Single<Book> single = mAppDatabase.bookDao().findByPath(mBookFile.getAbsolutePath());
+        single = single.observeOn(AndroidSchedulers.mainThread());
+        single = single.subscribeOn(Schedulers.io());
+        single.subscribe(new SingleObserver<Book>() {
+            @Override
+            public void onSubscribe(Disposable disposable) {
 
-        mBookReaderFragment.onAddBookMark(bookMark);
+            }
+
+            @Override
+            public void onSuccess(Book book) {
+                book.page = bookPage;
+
+                Completable completable = mAppDatabase.bookDao().update(book);
+                completable = completable.observeOn(AndroidSchedulers.mainThread());
+                completable = completable.subscribeOn(Schedulers.io());
+                completable.subscribe(new CompletableObserver() {
+                    @Override
+                    public void onSubscribe(Disposable disposable) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        BookMarkDto bookMarkDto = new BookMarkDto();
+                        bookMarkDto.setId(new Long(0));
+                        bookMarkDto.setPage(bookPage);
+
+                        mBookReaderFragment.onAddBookMark(bookMarkDto);
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        mBookReaderFragment.onAddBookMark(null);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                Book book = new Book();
+                book.path = mBookFile.getAbsolutePath();
+                book.bookCollectionPath = mBookFile.getParentFile().getAbsolutePath();
+                book.page = bookPage;
+                book.numberOfPages = mBookReader.getNumberOfPages();
+
+                Completable completable = mAppDatabase.bookDao().create(book);
+                completable = completable.observeOn(AndroidSchedulers.mainThread());
+                completable = completable.subscribeOn(Schedulers.io());
+                completable.subscribe(new CompletableObserver() {
+                    @Override
+                    public void onSubscribe(Disposable disposable) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        BookMarkDto bookMarkDto = new BookMarkDto();
+                        bookMarkDto.setId(new Long(0));
+                        bookMarkDto.setPage(bookPage);
+
+                        mBookReaderFragment.onAddBookMark(bookMarkDto);
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        mBookReaderFragment.onAddBookMark(null);
+                    }
+                });
+            }
+        });
     }
 
     public Uri getBookPageUri(int bookPage) {

@@ -93,9 +93,9 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
             }
 
             @Override
-            public void onSuccess(BookCollectionDto bookCollection) {
-                if(bookCollection != null) {
-                    Single<PageableListDto<BookDto>> single = mApplicationService.getBooks(bookCollection.getId(), bookMarkStatus, page, pageSize, "(bookMark)");
+            public void onSuccess(BookCollectionDto bookCollectionDto) {
+                if(bookCollectionDto != null) {
+                    Single<PageableListDto<BookDto>> single = mApplicationService.getBooks(bookCollectionDto.getId(), bookMarkStatus, page, pageSize, "(bookMark)");
                     single = single.observeOn(AndroidSchedulers.mainThread());
                     single = single.subscribeOn(Schedulers.io());
                     single.subscribe(new SingleObserver<PageableListDto<BookDto>>() {
@@ -105,8 +105,8 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
                         }
 
                         @Override
-                        public void onSuccess(PageableListDto<BookDto> bookPageableList) {
-                            mBookBrowserFragment.onLoad(bookCollection, bookPageableList);
+                        public void onSuccess(PageableListDto<BookDto> bookPageableListDto) {
+                            mBookBrowserFragment.onLoad(bookCollectionDto, bookPageableListDto);
                         }
 
                         @Override
@@ -136,8 +136,8 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
             }
 
             @Override
-            public void onSuccess(PageableListDto<BookDto> bookPageableList) {
-                mBookBrowserFragment.onLoadBookPageableList(bookPageableList);
+            public void onSuccess(PageableListDto<BookDto> bookPageableListDto) {
+                mBookBrowserFragment.onLoadBookPageableList(bookPageableListDto);
             }
 
             @Override
@@ -148,11 +148,11 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
     }
 
     @Override
-    public void addBookMark(BookDto book) {
-        BookMarkDto bookMark = new BookMarkDto();
-        bookMark.setPage(book.getNumberOfPages());
+    public void addBookMark(BookDto bookDto) {
+        BookMarkDto bookMarkDto = new BookMarkDto();
+        bookMarkDto.setPage(bookDto.getNumberOfPages());
 
-        Single<BookMarkDto> single = mApplicationService.createOrUpdateBookMark(book.getId(), bookMark);
+        Single<BookMarkDto> single = mApplicationService.createOrUpdateBookMark(bookDto.getId(), bookMarkDto);
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
         single.subscribe(new SingleObserver<BookMarkDto>() {
@@ -162,8 +162,8 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
             }
 
             @Override
-            public void onSuccess(BookMarkDto bookMark) {
-                mBookBrowserFragment.onAddBookMark(book, bookMark);
+            public void onSuccess(BookMarkDto bookMarkDto) {
+                mBookBrowserFragment.onAddBookMark(bookDto, bookMarkDto);
             }
 
             @Override
@@ -174,8 +174,8 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
     }
 
     @Override
-    public void removeBookMark(BookDto book) {
-        Completable completable = mApplicationService.deleteBookMark(book.getId());
+    public void removeBookMark(BookDto bookDto) {
+        Completable completable = mApplicationService.deleteBookMark(bookDto.getId());
         completable = completable.observeOn(AndroidSchedulers.mainThread());
         completable = completable.subscribeOn(Schedulers.io());
         completable.subscribe(new CompletableObserver() {
@@ -186,7 +186,7 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
 
             @Override
             public void onComplete() {
-                mBookBrowserFragment.onRemoveBookMark(book);
+                mBookBrowserFragment.onRemoveBookMark(bookDto);
             }
 
             @Override
@@ -196,12 +196,12 @@ public class RemoteBookBrowserManager extends BookBrowserManager {
         });
     }
 
-    public Uri getBookPageUri(BookDto book, String scaleType, int scaleWidth, int scaleHeight) {
+    public Uri getBookPageUri(BookDto bookDto, String scaleType, int scaleWidth, int scaleHeight) {
         return new Uri.Builder()
                 .scheme("bookBrowserManager")
                 .authority("")
                 .path("/bookPage")
-                .appendQueryParameter("bookId", Long.toString(book.getId()))
+                .appendQueryParameter("bookId", Long.toString(bookDto.getId()))
                 .appendQueryParameter("scaleType", scaleType)
                 .appendQueryParameter("scaleWidth", Integer.toString(scaleWidth))
                 .appendQueryParameter("scaleHeight", Integer.toString(scaleHeight))

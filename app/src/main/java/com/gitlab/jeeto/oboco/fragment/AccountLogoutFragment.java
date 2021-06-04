@@ -27,6 +27,8 @@ import com.gitlab.jeeto.oboco.api.UserPasswordDto;
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
@@ -83,18 +85,7 @@ public class AccountLogoutFragment extends Fragment {
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Completable completable = new Completable() {
-                    @Override
-                    protected void subscribeActual(CompletableObserver observer) {
-                        try {
-                            mAuthenticationManager.logout().blockingAwait();
-
-                            observer.onComplete();
-                        } catch(Exception e) {
-                            observer.onError(e);
-                        }
-                    }
-                };
+                Completable completable = mAuthenticationManager.logout();
                 completable = completable.observeOn(AndroidSchedulers.mainThread());
                 completable = completable.subscribeOn(Schedulers.io());
                 completable.subscribe(new CompletableObserver() {
@@ -143,46 +134,24 @@ public class AccountLogoutFragment extends Fragment {
         btnUpdatePassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Completable completable = new Completable() {
-                    @Override
-                    protected void subscribeActual(CompletableObserver observer) {
-                        try {
-                            UserPasswordDto userPassword = new UserPasswordDto();
-                            userPassword.setPassword(etPassword.getText().toString());
-                            userPassword.setUpdatePassword(etUpdatePassword.getText().toString());
+                UserPasswordDto userPasswordDto = new UserPasswordDto();
+                userPasswordDto.setPassword(etPassword.getText().toString());
+                userPasswordDto.setUpdatePassword(etUpdatePassword.getText().toString());
 
-                            UserDto user = mApplicationService.updateAuthenticatedUserPassword(userPassword).blockingGet();
-
-                            observer.onComplete();
-                        } catch (Exception e) {
-                            observer.onError(e);
-                        }
-                    }
-                };
-                completable = completable.observeOn(AndroidSchedulers.mainThread());
-                completable = completable.subscribeOn(Schedulers.io());
-                completable.subscribe(new CompletableObserver() {
+                Single<UserDto> single = mApplicationService.updateAuthenticatedUserPassword(userPasswordDto);
+                single = single.observeOn(AndroidSchedulers.mainThread());
+                single = single.subscribeOn(Schedulers.io());
+                single.subscribe(new SingleObserver<UserDto>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         btnUpdatePassword.setEnabled(false);
                     }
 
                     @Override
-                    public void onComplete() {
+                    public void onSuccess(UserDto userDto) {
                         btnUpdatePassword.setEnabled(true);
 
-                        Completable completable = new Completable() {
-                            @Override
-                            protected void subscribeActual(CompletableObserver observer) {
-                                try {
-                                    mAuthenticationManager.logout().blockingAwait();
-
-                                    observer.onComplete();
-                                } catch(Exception e) {
-                                    observer.onError(e);
-                                }
-                            }
-                        };
+                        Completable completable = mAuthenticationManager.logout();
                         completable = completable.observeOn(AndroidSchedulers.mainThread());
                         completable = completable.subscribeOn(Schedulers.io());
                         completable.subscribe(new CompletableObserver() {

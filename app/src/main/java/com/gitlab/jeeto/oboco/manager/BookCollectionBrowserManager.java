@@ -12,7 +12,7 @@ public abstract class BookCollectionBrowserManager extends RequestHandler {
     public abstract void saveInstanceState(Bundle outState);
     public abstract void load(String bookCollectionName, int page, int pageSize);
     public abstract void loadBookCollectionPageableList(String bookCollectionName, int page, int pageSize);
-    public abstract void addBookMark(BookCollectionDto bookCollection);
-    public abstract void removeBookMark(BookCollectionDto bookCollection);
-    public abstract Uri getBookCollectionPageUri(BookCollectionDto bookCollection, String scaleType, int scaleWidth, int scaleHeight);
+    public abstract void addBookMark(BookCollectionDto bookCollectionDto);
+    public abstract void removeBookMark(BookCollectionDto bookCollectionDto);
+    public abstract Uri getBookCollectionPageUri(BookCollectionDto bookCollectionDto, String scaleType, int scaleWidth, int scaleHeight);
 }

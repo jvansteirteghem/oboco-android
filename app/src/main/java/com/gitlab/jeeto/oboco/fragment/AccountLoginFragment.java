@@ -99,19 +99,9 @@ public class AccountLoginFragment extends Fragment {
                 editor.putString("refreshToken", "");
                 editor.commit();
 
-                Completable completable = new Completable() {
-                    @Override
-                    protected void subscribeActual(CompletableObserver observer) {
-                        try {
-                            AuthenticationManager authenticationManager = new AuthenticationManager(getContext());
-                            authenticationManager.login(name, password).blockingAwait();
+                AuthenticationManager authenticationManager = new AuthenticationManager(getContext());
 
-                            observer.onComplete();
-                        } catch(Exception e) {
-                            observer.onError(e);
-                        }
-                    }
-                };
+                Completable completable = authenticationManager.login(name, password);
                 completable = completable.observeOn(AndroidSchedulers.mainThread());
                 completable = completable.subscribeOn(Schedulers.io());
                 completable.subscribe(new CompletableObserver() {

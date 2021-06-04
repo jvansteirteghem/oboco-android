@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/breadcrumb_layout"
+    android:id="@+id/browser_breadcrumb_layout"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -13,7 +13,7 @@
         android:text="@string/menu_browser"
         android:textColor="@color/lightest"/>
     <TextView
-        android:id="@+id/dir_textview"
+        android:id="@+id/browser_breadcrumb_textview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="18sp"

@@ -59,8 +59,8 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
 
     private Picasso mPicasso;
 
-    private BookCollectionDto mBookCollection;
-    private List<BookDto> mBookList;
+    private BookCollectionDto mBookCollectionDto;
+    private List<BookDto> mBookListDto;
 
     private int mPage = 0;
     private int mPageSize = 100;
@@ -104,8 +104,8 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mBookCollection = null;
-        mBookList = new ArrayList<BookDto>();
+        mBookCollectionDto = null;
+        mBookListDto = new ArrayList<BookDto>();
 
         mBookBrowserManager = new RemoteBookBrowserManager(this);
         mBookBrowserManager.create(savedInstanceState);
@@ -137,15 +137,15 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         super.onSaveInstanceState(outState);
     }
 
-    public void onLoad(BookCollectionDto bookCollection, PageableListDto<BookDto> bookPageableList) {
+    public void onLoad(BookCollectionDto bookCollectionDto, PageableListDto<BookDto> bookPageableListDto) {
         mRefreshView.setRefreshing(false);
 
-        mBookCollection = bookCollection;
+        mBookCollectionDto = bookCollectionDto;
 
-        mPage = bookPageableList.getPage() == null? 0: bookPageableList.getPage();
-        mNextPage = bookPageableList.getNextPage() == null? 0: bookPageableList.getNextPage();
+        mPage = bookPageableListDto.getPage() == null? 0: bookPageableListDto.getPage();
+        mNextPage = bookPageableListDto.getNextPage() == null? 0: bookPageableListDto.getNextPage();
 
-        mBookList = bookPageableList.getElements();
+        mBookListDto = bookPageableListDto.getElements();
 
         mBookListView.getAdapter().notifyDataSetChanged();
 
@@ -156,9 +156,9 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         FragmentActivity fragmentActivity = getActivity();
 
         if(fragmentActivity != null) {
-            fragmentActivity.setTitle(mBookCollection.getName());
+            fragmentActivity.setTitle(mBookCollectionDto.getName());
 
-            if(mBookList.size() != 0) {
+            if(mBookListDto.size() != 0) {
                 mNotEmptyView.setVisibility(View.VISIBLE);
                 mEmptyView.setVisibility(View.GONE);
             } else {
@@ -168,27 +168,27 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         }
     }
 
-    public void onLoadBookPageableList(PageableListDto<BookDto> bookPageableList) {
+    public void onLoadBookPageableList(PageableListDto<BookDto> bookPageableListDto) {
         mRefreshView.setRefreshing(false);
 
-        if(mBookList != null) {
-            mPage = bookPageableList.getPage() == null? 0: bookPageableList.getPage();
-            mNextPage = bookPageableList.getNextPage() == null? 0: bookPageableList.getNextPage();
+        if(mBookListDto != null) {
+            mPage = bookPageableListDto.getPage() == null? 0: bookPageableListDto.getPage();
+            mNextPage = bookPageableListDto.getNextPage() == null? 0: bookPageableListDto.getNextPage();
 
-            mBookList.addAll(bookPageableList.getElements());
+            mBookListDto.addAll(bookPageableListDto.getElements());
 
             mBookListView.getAdapter().notifyDataSetChanged();
         }
     }
 
-    public void onAddBookMark(BookDto book, BookMarkDto bookMark) {
-        book.setBookMark(bookMark);
+    public void onAddBookMark(BookDto bookDto, BookMarkDto bookMarkDto) {
+        bookDto.setBookMark(bookMarkDto);
 
         mBookListView.getAdapter().notifyDataSetChanged();
     }
 
-    public void onRemoveBookMark(BookDto book) {
-        book.setBookMark(null);
+    public void onRemoveBookMark(BookDto bookDto) {
+        bookDto.setBookMark(null);
 
         mBookListView.getAdapter().notifyDataSetChanged();
     }
@@ -276,7 +276,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
     public void onResume() {
         super.onResume();
 
-        if(mBookCollection == null) {
+        if(mBookCollectionDto == null) {
             mRefreshView.setRefreshing(true);
 
             String bookMarkStatus = getBookMarkStatus();
@@ -325,16 +325,16 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         return super.onOptionsItemSelected(item);
     }
 
-    public void openBook(BookDto book) {
+    public void openBook(BookDto bookDto) {
         Intent intent = new Intent(getActivity(), BookReaderActivity.class);
         intent.putExtra(BookReaderManager.PARAM_MODE, BookReaderManager.Mode.MODE_REMOTE);
-        intent.putExtra(RemoteBookReaderManager.PARAM_BOOK_ID, book.getId());
+        intent.putExtra(RemoteBookReaderManager.PARAM_BOOK_ID, bookDto.getId());
         startActivity(intent);
     }
 
     private BookDto getBookAtPosition(int position) {
-        BookDto book = mBookList.get(position);
-        return book;
+        BookDto bookDto = mBookListDto.get(position);
+        return bookDto;
     }
 
     private int getItemViewTypeAtPosition(int position) {
@@ -390,7 +390,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
     private final class BookGridAdapter extends RecyclerView.Adapter {
         @Override
         public int getItemCount() {
-            return mBookList.size();
+            return mBookListDto.size();
         }
 
         @Override
@@ -410,9 +410,9 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
             if (viewHolder.getItemViewType() == ITEM_VIEW_TYPE_BOOK) {
-                BookDto book = getBookAtPosition(i);
+                BookDto bookDto = getBookAtPosition(i);
                 BookViewHolder holder = (BookViewHolder) viewHolder;
-                holder.setupBook(book);
+                holder.setupBook(bookDto);
             }
         }
     }
@@ -442,8 +442,8 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                 @Override
                 public void onClick(View view) {
                     int i = getAdapterPosition();
-                    BookDto book = getBookAtPosition(i);
-                    openBook(book);
+                    BookDto bookDto = getBookAtPosition(i);
+                    openBook(bookDto);
                 }
             });
 
@@ -455,9 +455,9 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                 @Override
                 public void onClick(View view) {
                     int i = getAdapterPosition();
-                    BookDto selectedBook = getBookAtPosition(i);
+                    BookDto selectedBookDto = getBookAtPosition(i);
 
-                    String message = selectedBook.getName();
+                    String message = selectedBookDto.getName();
 
                     AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
                             .setTitle("Would you like to update the bookmark to the last page?")
@@ -465,7 +465,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                             .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    mBookBrowserManager.addBookMark(selectedBook);
+                                    mBookBrowserManager.addBookMark(selectedBookDto);
                                 }
                             })
                             .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
@@ -477,7 +477,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                             .setNeutralButton("Delete", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    mBookBrowserManager.removeBookMark(selectedBook);
+                                    mBookBrowserManager.removeBookMark(selectedBookDto);
                                 }
                             })
                             .create();
@@ -491,9 +491,9 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                 @Override
                 public void onClick(View view) {
                     int i = getAdapterPosition();
-                    BookDto selectedBook = getBookAtPosition(i);
+                    BookDto selectedBookDto = getBookAtPosition(i);
 
-                    String message = selectedBook.getName();
+                    String message = selectedBookDto.getName();
 
                     AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
                             .setTitle("Would you like to download the book?")
@@ -512,7 +512,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                                                     .addTag("download")
                                                     .setInputData(
                                                             new Data.Builder()
-                                                                    .putLong("bookId",  selectedBook.getId())
+                                                                    .putLong("bookId",  selectedBookDto.getId())
                                                                     .build()
                                                     )
                                                     .build();
@@ -534,18 +534,18 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
             });
         }
 
-        public void setupBook(BookDto book) {
-            mBookTextView.setText(book.getName());
+        public void setupBook(BookDto bookDto) {
+            mBookTextView.setText(bookDto.getName());
 
-            if(book.getBookMark() == null) {
-                mBookBookMarkTextView.setText("0/" + book.getNumberOfPages());
+            if(bookDto.getBookMark() == null) {
+                mBookBookMarkTextView.setText("0/" + bookDto.getNumberOfPages());
             } else {
-                mBookBookMarkTextView.setText(book.getBookMark().getPage() + "/" + book.getNumberOfPages());
+                mBookBookMarkTextView.setText(bookDto.getBookMark().getPage() + "/" + bookDto.getNumberOfPages());
             }
 
             mBookImageView.setImageResource(android.R.color.transparent);
 
-            Uri uri = mBookBrowserManager.getBookPageUri(book, "DEFAULT", Constants.COVER_THUMBNAIL_WIDTH, Constants.COVER_THUMBNAIL_HEIGHT);
+            Uri uri = mBookBrowserManager.getBookPageUri(bookDto, "DEFAULT", Constants.COVER_THUMBNAIL_WIDTH, Constants.COVER_THUMBNAIL_HEIGHT);
             mPicasso.load(uri)
                     .into(mBookImageView);
         }

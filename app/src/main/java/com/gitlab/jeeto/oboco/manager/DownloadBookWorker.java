@@ -106,47 +106,43 @@ public class DownloadBookWorker extends Worker {
 
             File downloadFile = new File(context.getExternalCacheDir(), book.getName() +  ".cbz."  + now + ".download");
 
-            Exception exception = null;
-
-            InputStream inputStream = null;
-            OutputStream outputStream = null;
             try {
-                inputStream = responseBody.byteStream();
-                outputStream = new FileOutputStream(downloadFile, false);
+                InputStream inputStream = null;
+                OutputStream outputStream = null;
+                try {
+                    inputStream = responseBody.byteStream();
+                    outputStream = new FileOutputStream(downloadFile, false);
 
-                byte[] buffer = new byte[8 * 1024];
-                int bufferSize;
-                while ((bufferSize = inputStream.read(buffer)) != -1) {
-                    if(isStopped()) {
-                        break;
+                    byte[] buffer = new byte[8 * 1024];
+                    int bufferSize;
+                    while ((bufferSize = inputStream.read(buffer)) != -1) {
+                        if (isStopped()) {
+                            break;
+                        }
+
+                        outputStream.write(buffer, 0, bufferSize);
                     }
-
-                    outputStream.write(buffer, 0, bufferSize);
+                    outputStream.flush();
+                } finally {
+                    if (outputStream != null) {
+                        try {
+                            outputStream.close();
+                        } catch (Exception e) {
+                            // pass
+                        }
+                    }
+                    if (inputStream != null) {
+                        try {
+                            inputStream.close();
+                        } catch (Exception e) {
+                            // pass
+                        }
+                    }
                 }
-                outputStream.flush();
             } catch(Exception e) {
-                exception = e;
-            } finally {
-                if(outputStream != null) {
-                    try {
-                        outputStream.close();
-                    } catch(Exception e) {
-                        // pass
-                    }
-                }
-                if(inputStream != null) {
-                    try {
-                        inputStream.close();
-                    } catch(Exception e) {
-                        // pass
-                    }
-                }
-            }
-
-            if(exception != null) {
                 downloadFile.delete();
 
-                throw exception;
+                throw e;
             }
 
             if(isStopped()) {
@@ -170,14 +166,14 @@ public class DownloadBookWorker extends Worker {
                 .createCancelPendingIntent(getId());
 
         NotificationCompat.Builder notification = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setTicker("Downloading book")
-                .setContentTitle("Downloading book")
+                .setTicker("Download book")
+                .setContentTitle("Download book")
                 .setContentText(info)
                 .setSmallIcon(R.drawable.notification_action_background)
                 .setOngoing(true)
                 // Add the cancel action to the notification which can
                 // be used to cancel the worker
-                .addAction(android.R.drawable.ic_delete, "Cancel", intent);
+                .addAction(android.R.drawable.ic_delete, "Stop", intent);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannel(notification, CHANNEL_ID);

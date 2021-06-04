@@ -34,10 +34,10 @@ public class ZipBookReader implements BookReader {
             }
         }
 
-        Collections.sort(mZipEntries, new NaturalOrderComparator() {
+        Collections.sort(mZipEntries, new NaturalOrderComparator<ZipEntry>() {
             @Override
-            public String stringValue(Object o) {
-                return ((ZipEntry) o).getName();
+            public String toString(ZipEntry o) {
+                return o.getName();
             }
         });
     }
