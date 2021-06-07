@@ -1,5 +1,6 @@
 package com.gitlab.jeeto.oboco.fragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -325,11 +326,39 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == 1 && resultCode == Activity.RESULT_OK) {
+            List<BookDto> updatedBookListDto = (List<BookDto>) data.getSerializableExtra("updatedBookList");
+
+            if(updatedBookListDto.size() != 0) {
+                int index = 0;
+
+                while (index < mBookListDto.size()) {
+                    BookDto bookDto = mBookListDto.get(index);
+
+                    for (BookDto updatedBookDto : updatedBookListDto) {
+                        if (bookDto.getId().equals(updatedBookDto.getId())) {
+                            mBookListDto.set(index, updatedBookDto);
+                        }
+                    }
+
+                    index = index + 1;
+                }
+
+                mBookListView.getAdapter().notifyDataSetChanged();
+            }
+        }
+    }
+
     public void openBook(BookDto bookDto) {
         Intent intent = new Intent(getActivity(), BookReaderActivity.class);
         intent.putExtra(BookReaderManager.PARAM_MODE, BookReaderManager.Mode.MODE_REMOTE);
         intent.putExtra(RemoteBookReaderManager.PARAM_BOOK_ID, bookDto.getId());
-        startActivity(intent);
+        startActivityForResult(intent, 1);
     }
 
     private BookDto getBookAtPosition(int position) {

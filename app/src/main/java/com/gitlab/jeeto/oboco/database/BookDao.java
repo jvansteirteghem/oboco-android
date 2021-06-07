@@ -14,7 +14,7 @@ import io.reactivex.Single;
 @Dao
 public interface BookDao {
     @Query("SELECT * FROM book WHERE path = :path")
-    Single<Book> findByPath(String path);
+    Single<List<Book>> findByPath(String path);
 
     @Query("SELECT * FROM book WHERE book_collection_path = :bookCollectionPath")
     Single<List<Book>> findByBookCollectionPath(String bookCollectionPath);
@@ -26,5 +26,5 @@ public interface BookDao {
     Completable update(Book book);
 
     @Delete
-    Completable delete(Book book);
+    Completable delete(List<Book> book);
 }

@@ -1,10 +1,11 @@
 package com.gitlab.jeeto.oboco.fragment;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,60 +18,66 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.room.Room;
 
 import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.BookReaderActivity;
-import com.gitlab.jeeto.oboco.common.NaturalOrderComparator;
-import com.gitlab.jeeto.oboco.common.Utils;
-import com.gitlab.jeeto.oboco.database.AppDatabase;
-import com.gitlab.jeeto.oboco.database.Book;
+import com.gitlab.jeeto.oboco.api.BookCollectionDto;
+import com.gitlab.jeeto.oboco.api.BookDto;
+import com.gitlab.jeeto.oboco.api.BookMarkDto;
+import com.gitlab.jeeto.oboco.api.OnErrorListener;
 import com.gitlab.jeeto.oboco.manager.BookReaderManager;
+import com.gitlab.jeeto.oboco.manager.BrowserManager;
 import com.gitlab.jeeto.oboco.manager.LocalBookReaderManager;
+import com.gitlab.jeeto.oboco.manager.LocalBrowserManager;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import io.reactivex.Completable;
-import io.reactivex.CompletableObserver;
-import io.reactivex.Single;
-import io.reactivex.SingleObserver;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
-
-public class BrowserFragment extends Fragment
-        implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
-    private final static String STATE_CURRENT_FILE = "STATE_CURRENT_FILE";
-
+public class BrowserFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
     private ListView mListView;
-    private File mCurrentFile;
-    private File mRootFile;
-    private File[] mFiles;
     private TextView mFileTextView;
 
-    private AppDatabase mAppDatabase;
-    private Book[] mBooks;
+    private BrowserManager mBrowserManager;
+    private OnErrorListener mOnErrorListener;
+
+    private BookCollectionDto mCurrentBookCollectionDto;
+    private List<Object> mObjectList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mRootFile = getContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-        mFiles = new File[]{};
+        mBrowserManager = new LocalBrowserManager(this);
+        mBrowserManager.create(savedInstanceState);
 
-        if (savedInstanceState != null) {
-            mCurrentFile = (File) savedInstanceState.getSerializable(STATE_CURRENT_FILE);
-        }
-        else {
-            mCurrentFile = getContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-        }
+        mObjectList = new ArrayList<Object>();
 
         getActivity().setTitle(R.string.menu_browser);
+    }
 
-        mAppDatabase = Room.databaseBuilder(getActivity().getApplicationContext(), AppDatabase.class, "database").build();
+    @Override
+    public void onDestroy() {
+        mBrowserManager.destroy();
+
+        super.onDestroy();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnErrorListener) {
+            mOnErrorListener = (OnErrorListener) context;
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mOnErrorListener = null;
+    }
+
+    public void onError(Throwable e) {
+        mOnErrorListener.onError(e);
     }
 
     @Override
@@ -83,26 +90,20 @@ public class BrowserFragment extends Fragment
         mFileTextView = (TextView) breadcrumbLayout.findViewById(R.id.browser_breadcrumb_textview);
 
         mListView = (ListView) view.findViewById(R.id.browser_listview);
-        mListView.setAdapter(new DirectoryAdapter());
+        mListView.setAdapter(new BrowserAdapter());
         mListView.setOnItemClickListener(this);
         mListView.setOnItemLongClickListener(this);
 
-        setCurrentFile(mCurrentFile);
+        mBrowserManager.load();
 
         return view;
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable(STATE_CURRENT_FILE, mCurrentFile);
+        mBrowserManager.saveInstanceState(outState);
+
         super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        setCurrentFile(mCurrentFile);
     }
 
     @Override
@@ -113,122 +114,126 @@ public class BrowserFragment extends Fragment
         super.onDestroyView();
     }
 
-    private void setCurrentFile(File currentFile) {
-        mCurrentFile = currentFile;
-        List<File> fileList = new ArrayList<File>();
-        if (!mCurrentFile.getAbsolutePath().equals(mRootFile.getAbsolutePath())) {
-            fileList.add(mCurrentFile.getParentFile());
+    public void onLoad(BookCollectionDto currentBookCollectionDto) {
+        mCurrentBookCollectionDto = currentBookCollectionDto;
+
+        mObjectList = new ArrayList<Object>();
+
+        if(mCurrentBookCollectionDto.getParentBookCollection() != null) {
+            mObjectList.add(mCurrentBookCollectionDto.getParentBookCollection());
         }
-        File[] files = mCurrentFile.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory() || Utils.isArchive(file.getName())) {
-                    fileList.add(file);
-                }
-            }
+
+        for(BookCollectionDto bookCollectionDto: mCurrentBookCollectionDto.getBookCollections()) {
+            mObjectList.add(bookCollectionDto);
         }
-        Collections.sort(fileList, new NaturalOrderComparator<File>() {
-            @Override
-            public String toString(File o) {
-                return o.getName();
-            }
-        });
-        mFiles = fileList.toArray(new File[fileList.size()]);
 
-        mBooks = new Book[mFiles.length];
+        for(BookDto bookDto: mCurrentBookCollectionDto.getBooks()) {
+            mObjectList.add(bookDto);
+        }
 
-        Single<List<Book>> single = mAppDatabase.bookDao().findByBookCollectionPath(currentFile.getAbsolutePath());
-        single = single.observeOn(AndroidSchedulers.mainThread());
-        single = single.subscribeOn(Schedulers.io());
-        single.subscribe(new SingleObserver<List<Book>>() {
-            @Override
-            public void onSubscribe(Disposable d) {
+        if (mListView != null) {
+            mListView.invalidateViews();
+        }
 
-            }
+        mFileTextView.setText(mCurrentBookCollectionDto.getPath());
+    }
 
-            @Override
-            public void onSuccess(List<Book> bookList) {
-                for(int index = 0; index < mFiles.length; index = index + 1) {
-                    File file = mFiles[index];
+    public void onDeleteBook(BookDto bookDto) {
+        mCurrentBookCollectionDto.getBooks().remove(bookDto);
 
-                    mBooks[index] = null;
-                    for(Book book: bookList) {
-                        if(file.getAbsolutePath().equals(book.path)) {
-                            mBooks[index] = book;
+        onLoad(mCurrentBookCollectionDto);
+    }
 
-                            break;
-                        }
-                    }
-                }
+    public void onDeleteBookCollection(BookCollectionDto bookCollectionDto) {
+        mCurrentBookCollectionDto.getBookCollections().remove(bookCollectionDto);
 
-                if (mListView != null) {
-                    mListView.invalidateViews();
-                }
-
-                mFileTextView.setText(currentFile.getAbsolutePath());
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                if (mListView != null) {
-                    mListView.invalidateViews();
-                }
-
-                mFileTextView.setText(currentFile.getAbsolutePath());
-            }
-        });
+        onLoad(mCurrentBookCollectionDto);
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        File file = mFiles[position];
+        Object object = mObjectList.get(position);
 
-        if (file.isDirectory()) {
-            setCurrentFile(file);
+        if (object instanceof BookCollectionDto) {
+            BookCollectionDto bookCollectionDto = (BookCollectionDto) object;
+
+            mBrowserManager.load(bookCollectionDto);
         } else {
+            BookDto bookDto = (BookDto) object;
+
             Intent intent = new Intent(getActivity(), BookReaderActivity.class);
             intent.putExtra(BookReaderManager.PARAM_MODE, BookReaderManager.Mode.MODE_LOCAL);
-            intent.putExtra(LocalBookReaderManager.PARAM_BOOK_PATH, file.getAbsolutePath());
-            startActivity(intent);
+            intent.putExtra(LocalBookReaderManager.PARAM_BOOK_PATH, bookDto.getPath());
+            startActivityForResult(intent, 1);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == 1 && resultCode == Activity.RESULT_OK) {
+            List<BookDto> updatedBookListDto = (List<BookDto>) data.getSerializableExtra("updatedBookList");
+
+            if(updatedBookListDto.size() != 0) {
+                List<BookDto> bookListDto = mCurrentBookCollectionDto.getBooks();
+
+                int index = 0;
+
+                while (index < bookListDto.size()) {
+                    BookDto bookDto = bookListDto.get(index);
+
+                    for (BookDto updatedBookDto : updatedBookListDto) {
+                        if (bookDto.getId().equals(updatedBookDto.getId())) {
+                            bookListDto.set(index, updatedBookDto);
+                        }
+                    }
+
+                    index = index + 1;
+                }
+
+                onLoad(mCurrentBookCollectionDto);
+            }
         }
     }
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        File file = mFiles[position];
+        Object object = mObjectList.get(position);
 
-        if(!file.getAbsolutePath().equals(mRootFile.getAbsolutePath())) {
+        if(object instanceof BookCollectionDto) {
+            BookCollectionDto bookCollectionDto = (BookCollectionDto) object;
+
+            if(!(position == 0 && mCurrentBookCollectionDto.getParentBookCollection() != null)) {
+                AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
+                        .setTitle("Would you like to delete the books?")
+                        .setMessage(bookCollectionDto.getName())
+                        .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mBrowserManager.deleteBookCollection(bookCollectionDto);
+                            }
+                        })
+                        .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // do nothing
+                            }
+                        })
+                        .create();
+                dialog.show();
+            }
+        } else {
+            BookDto bookDto = (BookDto) object;
+
             AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
-                    .setTitle("Would you like to delete the books?")
-                    .setMessage(file.getName())
+                    .setTitle("Would you like to delete the book?")
+                    .setMessage(bookDto.getName())
                     .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            deleteFile(file);
-
-                            Book book = mBooks[position];
-
-                            if(book != null) {
-                                Completable complatable = mAppDatabase.bookDao().delete(book);
-                                complatable = complatable.observeOn(AndroidSchedulers.mainThread());
-                                complatable = complatable.subscribeOn(Schedulers.io());
-                                complatable.subscribe(new CompletableObserver() {
-                                    @Override
-                                    public void onSubscribe(Disposable disposable) {
-
-                                    }
-
-                                    @Override
-                                    public void onComplete() {
-                                        setCurrentFile(mCurrentFile);
-                                    }
-
-                                    @Override
-                                    public void onError(Throwable throwable) {
-                                        setCurrentFile(mCurrentFile);
-                                    }
-                                });
-                            }
+                            mBrowserManager.deleteBook(bookDto);
                         }
                     })
                     .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
@@ -244,29 +249,22 @@ public class BrowserFragment extends Fragment
         return true;
     }
 
-    private boolean deleteFile(File parentFile) {
-        File[] files = parentFile.listFiles();
-        if(files != null) {
-            for(File file : files) {
-                deleteFile(file);
-            }
-        }
-        return parentFile.delete();
-    }
-
-    private void setIcon(View convertView, File file, Book book) {
+    private void setIcon(View convertView, Object object) {
         ImageView view = (ImageView) convertView.findViewById(R.id.browser_row_icon);
         int colorRes = R.color.circle_grey;
-        if (file.isDirectory()) {
+        if (object instanceof BookCollectionDto) {
             view.setImageResource(R.drawable.ic_folder_white_24dp);
         }
         else {
             view.setImageResource(R.drawable.ic_file_document_box_white_24dp);
 
-            if(book != null) {
-                if(book.page > 1 && book.page < book.numberOfPages) {
+            BookDto bookDto = (BookDto) object;
+            BookMarkDto bookMarkDto = bookDto.getBookMark();
+
+            if(bookMarkDto != null) {
+                if(bookMarkDto.getPage() > 1 && bookMarkDto.getPage() < bookDto.getNumberOfPages()) {
                     colorRes = R.color.circle_green;
-                } else if(book.page == book.numberOfPages) {
+                } else if(bookMarkDto.getPage() == bookDto.getNumberOfPages()) {
                     colorRes = R.color.circle_red;
                 }
             }
@@ -276,10 +274,10 @@ public class BrowserFragment extends Fragment
         shape.setColor(ContextCompat.getColor(getContext(), colorRes));
     }
 
-    private final class DirectoryAdapter extends BaseAdapter {
+    private final class BrowserAdapter extends BaseAdapter {
         @Override
         public int getCount() {
-            return mFiles.length;
+            return mObjectList.size();
         }
 
         @Override
@@ -289,7 +287,7 @@ public class BrowserFragment extends Fragment
 
         @Override
         public Object getItem(int position) {
-            return mFiles[position];
+            return mObjectList.get(position);
         }
 
         @Override
@@ -298,20 +296,25 @@ public class BrowserFragment extends Fragment
                 convertView = getActivity().getLayoutInflater().inflate(R.layout.browser_row, parent, false);
             }
 
-            File file = mFiles[position];
+            Object object = mObjectList.get(position);
 
             TextView textView = (TextView) convertView.findViewById(R.id.browser_row_text);
 
-            if (position == 0 && !mCurrentFile.getAbsolutePath().equals(mRootFile.getAbsolutePath())) {
+            if(position == 0 && mCurrentBookCollectionDto.getParentBookCollection() != null) {
                 textView.setText("..");
-            }
-            else {
-                textView.setText(file.getName());
+            } else {
+                if(object instanceof BookCollectionDto) {
+                    BookCollectionDto bookCollectionDto = (BookCollectionDto) object;
+
+                    textView.setText(bookCollectionDto.getName());
+                } else {
+                    BookDto bookDto = (BookDto) object;
+
+                    textView.setText(bookDto.getName());
+                }
             }
 
-            Book book = mBooks[position];
-
-            setIcon(convertView, file, book);
+            setIcon(convertView, object);
 
             return convertView;
         }

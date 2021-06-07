@@ -132,6 +132,8 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
 
     public void onAddBookMark(BookMarkDto bookMarkDto) {
         mBookDto.setBookMark(bookMarkDto);
+
+        ((BookReaderActivity) getActivity()).onAddBook(mBookDto);
     }
 
     @Override

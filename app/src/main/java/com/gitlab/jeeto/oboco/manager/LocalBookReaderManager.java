@@ -10,7 +10,6 @@ import com.gitlab.jeeto.oboco.api.BookMarkDto;
 import com.gitlab.jeeto.oboco.common.NaturalOrderComparator;
 import com.gitlab.jeeto.oboco.database.AppDatabase;
 import com.gitlab.jeeto.oboco.database.Book;
-import com.gitlab.jeeto.oboco.database.BookDao;
 import com.gitlab.jeeto.oboco.fragment.BookReaderFragment;
 import com.gitlab.jeeto.oboco.reader.BookReader;
 import com.gitlab.jeeto.oboco.reader.ZipBookReader;
@@ -27,8 +26,6 @@ import java.util.List;
 
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
-import io.reactivex.Maybe;
-import io.reactivex.MaybeObserver;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -139,104 +136,113 @@ public class LocalBookReaderManager extends BookReaderManager {
             index = index + 1;
         }
 
-        Single<Book> single = mAppDatabase.bookDao().findByPath(mBookFile.getAbsolutePath());
+        Single<List<Book>> single = mAppDatabase.bookDao().findByPath(mBookFile.getAbsolutePath());
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
-        single.subscribe(new SingleObserver<Book>() {
+        single.subscribe(new SingleObserver<List<Book>>() {
             @Override
             public void onSubscribe(Disposable disposable) {
 
             }
 
             @Override
-            public void onSuccess(Book book) {
-                BookMarkDto bookMarkDto = new BookMarkDto();
-                bookMarkDto.setId(new Long(0));
-                bookMarkDto.setPage(book.page);
+            public void onSuccess(List<Book> bookList) {
+                if(bookList.size() == 1) {
+                    Book book = bookList.get(0);
 
-                bookDto.setBookMark(bookMarkDto);
+                    BookMarkDto bookMarkDto = new BookMarkDto();
+                    bookMarkDto.setId(new Long(0));
+                    bookMarkDto.setPage(book.page);
+
+                    bookDto.setBookMark(bookMarkDto);
+                }
 
                 mBookReaderFragment.onLoad(bookDto, bookListDto);
             }
 
             @Override
-            public void onError(Throwable throwable) {
-                mBookReaderFragment.onLoad(bookDto, bookListDto);
+            public void onError(Throwable e) {
+                mBookReaderFragment.onError(e);
             }
         });
     }
 
     @Override
     public void addBookMark(int bookPage) {
-        Single<Book> single = mAppDatabase.bookDao().findByPath(mBookFile.getAbsolutePath());
+        Single<List<Book>> single = mAppDatabase.bookDao().findByPath(mBookFile.getAbsolutePath());
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
-        single.subscribe(new SingleObserver<Book>() {
+        single.subscribe(new SingleObserver<List<Book>>() {
             @Override
             public void onSubscribe(Disposable disposable) {
 
             }
 
             @Override
-            public void onSuccess(Book book) {
-                book.page = bookPage;
+            public void onSuccess(List<Book> bookList) {
+                if(bookList.size() == 1) {
+                    Book book = bookList.get(0);
+                    book.page = bookPage;
 
-                Completable completable = mAppDatabase.bookDao().update(book);
-                completable = completable.observeOn(AndroidSchedulers.mainThread());
-                completable = completable.subscribeOn(Schedulers.io());
-                completable.subscribe(new CompletableObserver() {
-                    @Override
-                    public void onSubscribe(Disposable disposable) {
+                    Completable completable = mAppDatabase.bookDao().update(book);
+                    completable = completable.observeOn(AndroidSchedulers.mainThread());
+                    completable = completable.subscribeOn(Schedulers.io());
+                    completable.subscribe(new CompletableObserver() {
+                        @Override
+                        public void onSubscribe(Disposable disposable) {
 
-                    }
+                        }
 
-                    @Override
-                    public void onComplete() {
-                        BookMarkDto bookMarkDto = new BookMarkDto();
-                        bookMarkDto.setId(new Long(0));
-                        bookMarkDto.setPage(bookPage);
+                        @Override
+                        public void onComplete() {
+                            BookMarkDto bookMarkDto = new BookMarkDto();
+                            bookMarkDto.setId(new Long(0));
+                            bookMarkDto.setPage(bookPage);
 
-                        mBookReaderFragment.onAddBookMark(bookMarkDto);
-                    }
+                            mBookReaderFragment.onAddBookMark(bookMarkDto);
+                        }
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        mBookReaderFragment.onAddBookMark(null);
-                    }
-                });
+                        @Override
+                        public void onError(Throwable e) {
+                            mBookReaderFragment.onError(e);
+                        }
+                    });
+                } else {
+                    Book book = new Book();
+                    book.path = mBookFile.getAbsolutePath();
+                    book.bookCollectionPath = mBookFile.getParentFile().getAbsolutePath();
+                    book.page = bookPage;
+                    book.numberOfPages = mBookReader.getNumberOfPages();
+
+                    Completable completable = mAppDatabase.bookDao().create(book);
+                    completable = completable.observeOn(AndroidSchedulers.mainThread());
+                    completable = completable.subscribeOn(Schedulers.io());
+                    completable.subscribe(new CompletableObserver() {
+                        @Override
+                        public void onSubscribe(Disposable disposable) {
+
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            BookMarkDto bookMarkDto = new BookMarkDto();
+                            bookMarkDto.setId(new Long(0));
+                            bookMarkDto.setPage(bookPage);
+
+                            mBookReaderFragment.onAddBookMark(bookMarkDto);
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            mBookReaderFragment.onError(e);
+                        }
+                    });
+                }
             }
 
             @Override
-            public void onError(Throwable throwable) {
-                Book book = new Book();
-                book.path = mBookFile.getAbsolutePath();
-                book.bookCollectionPath = mBookFile.getParentFile().getAbsolutePath();
-                book.page = bookPage;
-                book.numberOfPages = mBookReader.getNumberOfPages();
-
-                Completable completable = mAppDatabase.bookDao().create(book);
-                completable = completable.observeOn(AndroidSchedulers.mainThread());
-                completable = completable.subscribeOn(Schedulers.io());
-                completable.subscribe(new CompletableObserver() {
-                    @Override
-                    public void onSubscribe(Disposable disposable) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        BookMarkDto bookMarkDto = new BookMarkDto();
-                        bookMarkDto.setId(new Long(0));
-                        bookMarkDto.setPage(bookPage);
-
-                        mBookReaderFragment.onAddBookMark(bookMarkDto);
-                    }
-
-                    @Override
-                    public void onError(Throwable throwable) {
-                        mBookReaderFragment.onAddBookMark(null);
-                    }
-                });
+            public void onError(Throwable e) {
+                mBookReaderFragment.onError(e);
             }
         });
     }

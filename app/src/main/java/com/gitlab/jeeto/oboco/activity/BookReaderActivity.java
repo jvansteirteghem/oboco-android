@@ -1,5 +1,7 @@
 package com.gitlab.jeeto.oboco.activity;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -10,20 +12,26 @@ import androidx.fragment.app.Fragment;
 
 import com.gitlab.jeeto.oboco.MainApplication;
 import com.gitlab.jeeto.oboco.R;
+import com.gitlab.jeeto.oboco.api.BookDto;
 import com.gitlab.jeeto.oboco.api.OnErrorListener;
 import com.gitlab.jeeto.oboco.fragment.BookReaderFragment;
 import com.gitlab.jeeto.oboco.manager.BookReaderManager;
 import com.gitlab.jeeto.oboco.manager.LocalBookReaderManager;
 import com.gitlab.jeeto.oboco.manager.RemoteBookReaderManager;
 
-import java.io.File;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class BookReaderActivity extends AppCompatActivity implements OnErrorListener {
+    private List<BookDto> mUpdatedBookListDto;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mUpdatedBookListDto = new ArrayList<BookDto>();
 
         setContentView(R.layout.layout_book_reader);
 
@@ -65,6 +73,11 @@ public class BookReaderActivity extends AppCompatActivity implements OnErrorList
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                Intent data = new Intent();
+                data.putExtra("updatedBookList", (Serializable) mUpdatedBookListDto);
+
+                setResult(Activity.RESULT_OK, data);
+
                 finish();
                 return true;
         }
@@ -73,12 +86,37 @@ public class BookReaderActivity extends AppCompatActivity implements OnErrorList
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        // do not call super.onBackPressed(), the resultCode will be Activity.RESULT_CANCELED
+        //super.onBackPressed();
+        Intent data = new Intent();
+        data.putExtra("updatedBookList", (Serializable) mUpdatedBookListDto);
+
+        setResult(Activity.RESULT_OK, data);
+
         finish();
     }
 
     @Override
     public void onError(Throwable e) {
         MainApplication.handleError(this, e);
+    }
+
+    public void onAddBook(BookDto bookDto) {
+        int index = 0;
+
+        while(index < mUpdatedBookListDto.size()) {
+            BookDto updatedBookDto = mUpdatedBookListDto.get(index);
+            if(updatedBookDto.getId().equals(bookDto.getId())) {
+                mUpdatedBookListDto.set(index, bookDto);
+
+                break;
+            }
+
+            index = index + 1;
+        }
+
+        if(index == mUpdatedBookListDto.size()) {
+            mUpdatedBookListDto.add(bookDto);
+        }
     }
 }
