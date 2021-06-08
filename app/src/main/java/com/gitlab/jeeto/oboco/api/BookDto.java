@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 public class BookDto implements Serializable {
     @Expose()
@@ -64,5 +65,16 @@ public class BookDto implements Serializable {
     }
     public void setPath(String path) {
         this.path = path;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BookDto that = (BookDto) o;
+        return Objects.equals(id, that.id) && Objects.equals(path, that.path);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, path);
     }
 }

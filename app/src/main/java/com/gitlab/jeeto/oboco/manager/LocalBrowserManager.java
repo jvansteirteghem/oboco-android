@@ -82,7 +82,6 @@ public class LocalBrowserManager extends BrowserManager {
     @Override
     public void load() {
         BookCollectionDto currentBookCollectionDto = new BookCollectionDto();
-        currentBookCollectionDto.setId(new Long(0));
         currentBookCollectionDto.setName(mCurrentBookCollectionFile.getName());
         currentBookCollectionDto.setPath(mCurrentBookCollectionFile.getAbsolutePath());
 
@@ -90,7 +89,6 @@ public class LocalBrowserManager extends BrowserManager {
             File parentFile = mCurrentBookCollectionFile.getParentFile();
 
             BookCollectionDto parentBookCollectionDto = new BookCollectionDto();
-            parentBookCollectionDto.setId(new Long(0));
             parentBookCollectionDto.setName(parentFile.getName());
             parentBookCollectionDto.setPath(parentFile.getAbsolutePath());
 
@@ -109,14 +107,12 @@ public class LocalBrowserManager extends BrowserManager {
 
                 if (file.isDirectory()) {
                     BookCollectionDto bookCollectionDto = new BookCollectionDto();
-                    bookCollectionDto.setId(new Long(index));
                     bookCollectionDto.setName(file.getName());
                     bookCollectionDto.setPath(file.getAbsolutePath());
 
                     bookCollectionListDto.add(bookCollectionDto);
                 } else if(file.isFile()) {
                     BookDto bookDto = new BookDto();
-                    bookDto.setId(new Long(index));
                     bookDto.setName(file.getName());
                     bookDto.setPath(file.getAbsolutePath());
 
@@ -161,7 +157,6 @@ public class LocalBrowserManager extends BrowserManager {
                             bookDto.setNumberOfPages(book.numberOfPages);
 
                             BookMarkDto bookMarkDto = new BookMarkDto();
-                            bookMarkDto.setId(new Long(0));
                             bookMarkDto.setPage(book.page);
 
                             bookDto.setBookMark(bookMarkDto);

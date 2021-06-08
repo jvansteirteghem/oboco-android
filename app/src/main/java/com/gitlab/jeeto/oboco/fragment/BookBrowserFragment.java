@@ -341,7 +341,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                     BookDto bookDto = mBookListDto.get(index);
 
                     for (BookDto updatedBookDto : updatedBookListDto) {
-                        if (bookDto.getId().equals(updatedBookDto.getId())) {
+                        if (bookDto.equals(updatedBookDto)) {
                             mBookListDto.set(index, updatedBookDto);
                         }
                     }

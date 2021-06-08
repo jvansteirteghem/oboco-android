@@ -694,7 +694,7 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
         int index = -1;
         for(int i = 0; i < mBookListDto.size(); i = i + 1) {
             BookDto bookDto = mBookListDto.get(i);
-            if(mBookDto.getId().equals(bookDto.getId())) {
+            if(mBookDto.equals(bookDto)) {
                 index = i;
                 break;
             }

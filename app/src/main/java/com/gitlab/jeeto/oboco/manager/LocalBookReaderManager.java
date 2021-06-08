@@ -106,14 +106,12 @@ public class LocalBookReaderManager extends BookReaderManager {
                     File previousBookFile = bookFileList.get(index - 1);
 
                     BookDto previousBookDto = new BookDto();
-                    previousBookDto.setId(new Long(index - 1));
                     previousBookDto.setName(previousBookFile.getName());
                     previousBookDto.setNumberOfPages(0);
                     previousBookDto.setPath(previousBookFile.getAbsolutePath());
 
                     bookListDto.add(previousBookDto);
                 }
-                bookDto.setId(new Long(index));
                 bookDto.setName(bookFile.getName());
                 bookDto.setNumberOfPages(mBookReader.getNumberOfPages());
                 bookDto.setPath(bookFile.getAbsolutePath());
@@ -123,7 +121,6 @@ public class LocalBookReaderManager extends BookReaderManager {
                     File nextBookFile = bookFileList.get(index + 1);
 
                     BookDto nextBookDto = new BookDto();
-                    nextBookDto.setId(new Long(index + 1));
                     nextBookDto.setName(nextBookFile.getName());
                     nextBookDto.setNumberOfPages(0);
                     nextBookDto.setPath(nextBookFile.getAbsolutePath());
@@ -151,7 +148,6 @@ public class LocalBookReaderManager extends BookReaderManager {
                     Book book = bookList.get(0);
 
                     BookMarkDto bookMarkDto = new BookMarkDto();
-                    bookMarkDto.setId(new Long(0));
                     bookMarkDto.setPage(book.page);
 
                     bookDto.setBookMark(bookMarkDto);
@@ -196,7 +192,6 @@ public class LocalBookReaderManager extends BookReaderManager {
                         @Override
                         public void onComplete() {
                             BookMarkDto bookMarkDto = new BookMarkDto();
-                            bookMarkDto.setId(new Long(0));
                             bookMarkDto.setPage(bookPage);
 
                             mBookReaderFragment.onAddBookMark(bookMarkDto);
@@ -226,7 +221,6 @@ public class LocalBookReaderManager extends BookReaderManager {
                         @Override
                         public void onComplete() {
                             BookMarkDto bookMarkDto = new BookMarkDto();
-                            bookMarkDto.setId(new Long(0));
                             bookMarkDto.setPage(bookPage);
 
                             mBookReaderFragment.onAddBookMark(bookMarkDto);

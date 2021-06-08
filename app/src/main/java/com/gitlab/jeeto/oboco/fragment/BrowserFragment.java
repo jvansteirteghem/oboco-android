@@ -185,7 +185,7 @@ public class BrowserFragment extends Fragment implements AdapterView.OnItemClick
                     BookDto bookDto = bookListDto.get(index);
 
                     for (BookDto updatedBookDto : updatedBookListDto) {
-                        if (bookDto.getId().equals(updatedBookDto.getId())) {
+                        if (bookDto.equals(updatedBookDto)) {
                             bookListDto.set(index, updatedBookDto);
                         }
                     }

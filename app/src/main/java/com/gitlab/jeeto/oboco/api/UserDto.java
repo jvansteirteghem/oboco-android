@@ -5,6 +5,7 @@ import com.google.gson.annotations.Expose;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class UserDto implements Serializable {
     @Expose()
@@ -49,5 +50,16 @@ public class UserDto implements Serializable {
     }
     public void setUpdateDate(Date updateDate) {
         this.updateDate = updateDate;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserDto that = (UserDto) o;
+        return Objects.equals(id, that.id);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

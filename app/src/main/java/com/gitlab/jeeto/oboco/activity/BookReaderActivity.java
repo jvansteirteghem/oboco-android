@@ -106,7 +106,7 @@ public class BookReaderActivity extends AppCompatActivity implements OnErrorList
 
         while(index < mUpdatedBookListDto.size()) {
             BookDto updatedBookDto = mUpdatedBookListDto.get(index);
-            if(updatedBookDto.getId().equals(bookDto.getId())) {
+            if(updatedBookDto.equals(bookDto)) {
                 mUpdatedBookListDto.set(index, bookDto);
 
                 break;

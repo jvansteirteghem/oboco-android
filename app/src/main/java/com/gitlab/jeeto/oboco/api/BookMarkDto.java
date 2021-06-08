@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 public class BookMarkDto implements Serializable {
     @Expose()
@@ -40,5 +41,16 @@ public class BookMarkDto implements Serializable {
     }
     public void setBook(BookDto book) {
         this.book = book;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BookMarkDto that = (BookMarkDto) o;
+        return Objects.equals(id, that.id);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
