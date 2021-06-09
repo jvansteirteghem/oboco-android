@@ -36,7 +36,7 @@ public interface ApplicationApi {
 
     @Headers("Content-Type: application/json")
     @GET("/api/v1/bookCollections/{bookCollectionId}/books/{bookId}/NEIGHBOURHOOD")
-    public Single<PageableListDto<BookDto>> getBooks(@Path("bookCollectionId") Long bookCollectionId, @Path("bookId") Long id, @Query("graph") String graph);
+    public Single<LinkableDto<BookDto>> getBooks(@Path("bookCollectionId") Long bookCollectionId, @Path("bookId") Long id, @Query("graph") String graph);
 
     @Headers("Content-Type: application/json")
     @GET("/api/v1/bookCollections/{bookCollectionId}/books")

@@ -196,20 +196,20 @@ public class ApplicationService extends Service {
         return single;
     }
 
-    public Single<PageableListDto<BookDto>> getBooks(Long bookCollectionId, Long id, String graph) {
-        Single<PageableListDto<BookDto>> single = new Single<PageableListDto<BookDto>>() {
+    public Single<LinkableDto<BookDto>> getBooks(Long bookCollectionId, Long id, String graph) {
+        Single<LinkableDto<BookDto>> single = new Single<LinkableDto<BookDto>>() {
             @Override
-            protected void subscribeActual(SingleObserver<? super PageableListDto<BookDto>> observer) {
-                Single<PageableListDto<BookDto>> retrofitSingle = retrofitApplicationApi.getBooks(bookCollectionId, id, graph);
-                retrofitSingle.subscribe(new SingleObserver<PageableListDto<BookDto>>() {
+            protected void subscribeActual(SingleObserver<? super LinkableDto<BookDto>> observer) {
+                Single<LinkableDto<BookDto>> retrofitSingle = retrofitApplicationApi.getBooks(bookCollectionId, id, graph);
+                retrofitSingle.subscribe(new SingleObserver<LinkableDto<BookDto>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
 
                     }
 
                     @Override
-                    public void onSuccess(PageableListDto<BookDto> bookPageableList) {
-                        observer.onSuccess(bookPageableList);
+                    public void onSuccess(LinkableDto<BookDto> bookLinkable) {
+                        observer.onSuccess(bookLinkable);
                     }
 
                     @Override

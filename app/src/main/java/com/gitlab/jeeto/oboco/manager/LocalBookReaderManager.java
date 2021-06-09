@@ -7,6 +7,7 @@ import androidx.room.Room;
 
 import com.gitlab.jeeto.oboco.api.BookDto;
 import com.gitlab.jeeto.oboco.api.BookMarkDto;
+import com.gitlab.jeeto.oboco.api.LinkableDto;
 import com.gitlab.jeeto.oboco.common.NaturalOrderComparator;
 import com.gitlab.jeeto.oboco.database.AppDatabase;
 import com.gitlab.jeeto.oboco.database.Book;
@@ -80,7 +81,7 @@ public class LocalBookReaderManager extends BookReaderManager {
     @Override
     public void load() {
         BookDto bookDto = new BookDto();;
-        List<BookDto> bookListDto = new ArrayList<BookDto>();
+        LinkableDto<BookDto> bookLinkableDto = new LinkableDto<BookDto>();
 
         File[] files = mBookFile.getParentFile().listFiles();
         List<File> bookFileList = new ArrayList<File>();
@@ -110,13 +111,13 @@ public class LocalBookReaderManager extends BookReaderManager {
                     previousBookDto.setNumberOfPages(0);
                     previousBookDto.setPath(previousBookFile.getAbsolutePath());
 
-                    bookListDto.add(previousBookDto);
+                    bookLinkableDto.setPreviousElement(previousBookDto);
                 }
                 bookDto.setName(bookFile.getName());
                 bookDto.setNumberOfPages(mBookReader.getNumberOfPages());
                 bookDto.setPath(bookFile.getAbsolutePath());
 
-                bookListDto.add(bookDto);
+                bookLinkableDto.setElement(bookDto);
                 if(index + 1 < bookFileList.size()) {
                     File nextBookFile = bookFileList.get(index + 1);
 
@@ -125,7 +126,7 @@ public class LocalBookReaderManager extends BookReaderManager {
                     nextBookDto.setNumberOfPages(0);
                     nextBookDto.setPath(nextBookFile.getAbsolutePath());
 
-                    bookListDto.add(nextBookDto);
+                    bookLinkableDto.setNextElement(nextBookDto);
                 }
                 break;
             }
@@ -153,7 +154,7 @@ public class LocalBookReaderManager extends BookReaderManager {
                     bookDto.setBookMark(bookMarkDto);
                 }
 
-                mBookReaderFragment.onLoad(bookDto, bookListDto);
+                mBookReaderFragment.onLoad(bookDto, bookLinkableDto);
             }
 
             @Override

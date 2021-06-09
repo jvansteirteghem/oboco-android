@@ -9,6 +9,7 @@ import com.gitlab.jeeto.oboco.api.ApplicationService;
 import com.gitlab.jeeto.oboco.api.AuthenticationManager;
 import com.gitlab.jeeto.oboco.api.BookDto;
 import com.gitlab.jeeto.oboco.api.BookMarkDto;
+import com.gitlab.jeeto.oboco.api.LinkableDto;
 import com.gitlab.jeeto.oboco.api.PageableListDto;
 import com.gitlab.jeeto.oboco.fragment.BookReaderFragment;
 import com.squareup.picasso.Picasso;
@@ -92,20 +93,18 @@ public class RemoteBookReaderManager extends BookReaderManager {
             @Override
             public void onSuccess(BookDto bookDto) {
                 if(bookDto != null) {
-                    Single<PageableListDto<BookDto>> single = mApplicationService.getBooks(bookDto.getBookCollection().getId(), bookDto.getId(), "()");
+                    Single<LinkableDto<BookDto>> single = mApplicationService.getBooks(bookDto.getBookCollection().getId(), bookDto.getId(), "()");
                     single = single.observeOn(AndroidSchedulers.mainThread());
                     single = single.subscribeOn(Schedulers.io());
-                    single.subscribe(new SingleObserver<PageableListDto<BookDto>>() {
+                    single.subscribe(new SingleObserver<LinkableDto<BookDto>>() {
                         @Override
                         public void onSubscribe(Disposable d) {
 
                         }
 
                         @Override
-                        public void onSuccess(PageableListDto<BookDto> bookPageableListDto) {
-                            List<BookDto> bookList = bookPageableListDto.getElements();
-
-                            mBookReaderFragment.onLoad(bookDto, bookList);
+                        public void onSuccess(LinkableDto<BookDto> bookLinkableDto) {
+                            mBookReaderFragment.onLoad(bookDto, bookLinkableDto);
                         }
 
                         @Override

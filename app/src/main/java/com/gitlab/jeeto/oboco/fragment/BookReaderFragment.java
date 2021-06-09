@@ -41,6 +41,7 @@ import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.BookReaderActivity;
 import com.gitlab.jeeto.oboco.api.BookDto;
 import com.gitlab.jeeto.oboco.api.BookMarkDto;
+import com.gitlab.jeeto.oboco.api.LinkableDto;
 import com.gitlab.jeeto.oboco.api.OnErrorListener;
 import com.gitlab.jeeto.oboco.manager.LocalBookReaderManager;
 import com.gitlab.jeeto.oboco.manager.BookReaderManager;
@@ -81,7 +82,7 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
 
     private BookReaderManager.Mode mMode;
     private BookDto mBookDto;
-    private List<BookDto> mBookListDto;
+    private LinkableDto<BookDto> mBookLinkableDto;
 
     static {
         RESOURCE_VIEW_MODE = new HashMap<Integer, Constants.PageViewMode>();
@@ -165,9 +166,9 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                 .build();
     }
 
-    public void onLoad(BookDto bookDto, List<BookDto> bookListDto) {
+    public void onLoad(BookDto bookDto, LinkableDto<BookDto> bookLinkableDto) {
         mBookDto = bookDto;
-        mBookListDto = bookListDto;
+        mBookLinkableDto = bookLinkableDto;
 
         mViewPager.getAdapter().notifyDataSetChanged();
 
@@ -690,36 +691,22 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
         return mIsFullscreen;
     }
 
-    private int getBookListIndex() {
-        int index = -1;
-        for(int i = 0; i < mBookListDto.size(); i = i + 1) {
-            BookDto bookDto = mBookListDto.get(i);
-            if(mBookDto.equals(bookDto)) {
-                index = i;
-                break;
-            }
-        }
-        return index;
-    }
-
     private void hitBeginning() {
-        if (mBookDto != null) {
-            int newIndex = getBookListIndex() - 1;
-            if(newIndex >= 0) {
-                BookDto newBookDto = mBookListDto.get(newIndex);
+        if (mBookLinkableDto != null) {
+            BookDto previousBookDto = mBookLinkableDto.getPreviousElement();
 
-                confirmSwitch(newBookDto, R.string.switch_prev_comic);
+            if(previousBookDto != null) {
+                confirmSwitch(previousBookDto, R.string.switch_prev_comic);
             }
         }
     }
 
     private void hitEnding() {
-        if (mBookDto != null) {
-            int newIndex = getBookListIndex() + 1;
-            if(newIndex < mBookListDto.size()) {
-                BookDto newBookDto = mBookListDto.get(newIndex);
+        if (mBookLinkableDto != null) {
+            BookDto nextBookDto = mBookLinkableDto.getNextElement();
 
-                confirmSwitch(newBookDto, R.string.switch_next_comic);
+            if(nextBookDto != null) {
+                confirmSwitch(nextBookDto, R.string.switch_next_comic);
             }
         }
     }
