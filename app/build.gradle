@@ -24,8 +24,8 @@ android {
         minSdkVersion 21
         targetSdkVersion 29
 
-        versionName "1.2.0"
-        versionCode 10200
+        versionName "1.2.1-SNAPSHOT"
+        versionCode 10201
     }
 
     buildTypes {
