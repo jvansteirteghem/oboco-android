@@ -33,7 +33,7 @@ import com.gitlab.jeeto.oboco.manager.LocalBrowserManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BrowserFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
+public class BrowserFragment extends Fragment implements AdapterView.OnItemClickListener {
     private ListView mListView;
     private TextView mFileTextView;
 
@@ -92,7 +92,6 @@ public class BrowserFragment extends Fragment implements AdapterView.OnItemClick
         mListView = (ListView) view.findViewById(R.id.browser_listview);
         mListView.setAdapter(new BrowserAdapter());
         mListView.setOnItemClickListener(this);
-        mListView.setOnItemLongClickListener(this);
 
         mBrowserManager.load();
 
@@ -198,59 +197,9 @@ public class BrowserFragment extends Fragment implements AdapterView.OnItemClick
         }
     }
 
-    @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        Object object = mObjectList.get(position);
-
-        if(object instanceof BookCollectionDto) {
-            BookCollectionDto bookCollectionDto = (BookCollectionDto) object;
-
-            if(!(position == 0 && mCurrentBookCollectionDto.getParentBookCollection() != null)) {
-                AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
-                        .setTitle("Would you like to delete the books?")
-                        .setMessage(bookCollectionDto.getName())
-                        .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                mBrowserManager.deleteBookCollection(bookCollectionDto);
-                            }
-                        })
-                        .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // do nothing
-                            }
-                        })
-                        .create();
-                dialog.show();
-            }
-        } else {
-            BookDto bookDto = (BookDto) object;
-
-            AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
-                    .setTitle("Would you like to delete the book?")
-                    .setMessage(bookDto.getName())
-                    .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            mBrowserManager.deleteBook(bookDto);
-                        }
-                    })
-                    .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // do nothing
-                        }
-                    })
-                    .create();
-            dialog.show();
-        }
-
-        return true;
-    }
-
     private void setIcon(View convertView, Object object) {
         ImageView view = (ImageView) convertView.findViewById(R.id.browser_row_icon);
+
         int colorRes = R.color.circle_grey;
         if (object instanceof BookCollectionDto) {
             view.setImageResource(R.drawable.ic_folder_white_24dp);
@@ -299,9 +248,13 @@ public class BrowserFragment extends Fragment implements AdapterView.OnItemClick
             Object object = mObjectList.get(position);
 
             TextView textView = (TextView) convertView.findViewById(R.id.browser_row_text);
+            ImageView imageView = (ImageView) convertView.findViewById(R.id.browser_row_delete_icon);
 
             if(position == 0 && mCurrentBookCollectionDto.getParentBookCollection() != null) {
                 textView.setText("..");
+
+                imageView.setImageResource(android.R.color.transparent);
+                imageView.setOnClickListener(null);
             } else {
                 if(object instanceof BookCollectionDto) {
                     BookCollectionDto bookCollectionDto = (BookCollectionDto) object;
@@ -312,6 +265,57 @@ public class BrowserFragment extends Fragment implements AdapterView.OnItemClick
 
                     textView.setText(bookDto.getName());
                 }
+
+                imageView.setImageResource(R.drawable.outline_clear_black_24);
+                imageView.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        Object object = mObjectList.get(position);
+
+                        if(object instanceof BookCollectionDto) {
+                            BookCollectionDto bookCollectionDto = (BookCollectionDto) object;
+
+                            if(!(position == 0 && mCurrentBookCollectionDto.getParentBookCollection() != null)) {
+                                AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
+                                        .setTitle("Would you like to delete the books?")
+                                        .setMessage(bookCollectionDto.getName())
+                                        .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                mBrowserManager.deleteBookCollection(bookCollectionDto);
+                                            }
+                                        })
+                                        .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                // do nothing
+                                            }
+                                        })
+                                        .create();
+                                dialog.show();
+                            }
+                        } else {
+                            BookDto bookDto = (BookDto) object;
+
+                            AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
+                                    .setTitle("Would you like to delete the book?")
+                                    .setMessage(bookDto.getName())
+                                    .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            mBrowserManager.deleteBook(bookDto);
+                                        }
+                                    })
+                                    .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            // do nothing
+                                        }
+                                    })
+                                    .create();
+                            dialog.show();
+                        }
+                    }
+                });
             }
 
             setIcon(convertView, object);

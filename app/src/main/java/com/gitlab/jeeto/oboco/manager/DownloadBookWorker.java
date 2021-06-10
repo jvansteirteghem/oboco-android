@@ -173,7 +173,7 @@ public class DownloadBookWorker extends Worker {
                 .setOngoing(true)
                 // Add the cancel action to the notification which can
                 // be used to cancel the worker
-                .addAction(android.R.drawable.ic_delete, "Stop", intent);
+                .addAction(R.drawable.outline_clear_black_24, "Stop", intent);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannel(notification, CHANNEL_ID);

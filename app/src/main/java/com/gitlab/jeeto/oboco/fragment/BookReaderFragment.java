@@ -43,10 +43,10 @@ import com.gitlab.jeeto.oboco.api.BookDto;
 import com.gitlab.jeeto.oboco.api.BookMarkDto;
 import com.gitlab.jeeto.oboco.api.LinkableDto;
 import com.gitlab.jeeto.oboco.api.OnErrorListener;
-import com.gitlab.jeeto.oboco.manager.LocalBookReaderManager;
-import com.gitlab.jeeto.oboco.manager.BookReaderManager;
-import com.gitlab.jeeto.oboco.manager.RemoteBookReaderManager;
 import com.gitlab.jeeto.oboco.common.Utils;
+import com.gitlab.jeeto.oboco.manager.BookReaderManager;
+import com.gitlab.jeeto.oboco.manager.LocalBookReaderManager;
+import com.gitlab.jeeto.oboco.manager.RemoteBookReaderManager;
 import com.gitlab.jeeto.oboco.view.BookViewPager;
 import com.gitlab.jeeto.oboco.view.PageImageView;
 import com.squareup.picasso.MemoryPolicy;
@@ -55,7 +55,6 @@ import com.squareup.picasso.Target;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.List;
 
 public class BookReaderFragment extends Fragment implements View.OnTouchListener {
     public static final String STATE_FULLSCREEN = "STATE_FULLSCREEN";
@@ -185,8 +184,6 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
 
             updateSeekBar();
 
-            setCurrentPage(mCurrentPage);
-
             if (mBookDto.getBookMark() != null && mBookDto.getBookMark().getPage() != mCurrentPage) {
                 AlertDialog dialog = new AlertDialog.Builder(fragmentActivity, R.style.AppCompatAlertDialogStyle)
                         .setTitle("Would you like to switch to the bookmarked page?")
@@ -200,11 +197,13 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                         .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                // do nothing
+                                setCurrentPage(mCurrentPage);
                             }
                         })
                         .create();
                 dialog.show();
+            } else {
+                setCurrentPage(mCurrentPage);
             }
         }
     }
@@ -427,9 +426,7 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
 
         mPageNavTextView.setText(navPage);
 
-        if(page > 1) {
-            mBookReaderManager.addBookMark(getCurrentPage());
-        }
+        mBookReaderManager.addBookMark(getCurrentPage());
     }
 
     private class BookReaderPagerAdapter extends PagerAdapter {
