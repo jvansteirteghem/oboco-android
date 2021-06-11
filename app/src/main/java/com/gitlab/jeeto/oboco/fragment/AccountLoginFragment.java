@@ -3,7 +3,6 @@ package com.gitlab.jeeto.oboco.fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,22 +56,22 @@ public class AccountLoginFragment extends Fragment {
         String name = preferences.getString("name", "");
         String password = preferences.getString("password", "");
 
-        EditText etBaseUrl = (EditText) getActivity().findViewById(R.id.et_baseUrl);
+        EditText etBaseUrl = (EditText) getActivity().findViewById(R.id.account_login_et_baseUrl);
         etBaseUrl.setText(baseUrl);
 
-        EditText etName = (EditText) getActivity().findViewById(R.id.et_name);
+        EditText etName = (EditText) getActivity().findViewById(R.id.account_login_et_name);
         etName.setText(name);
 
-        EditText etPassword = (EditText) getActivity().findViewById(R.id.et_password);
+        EditText etPassword = (EditText) getActivity().findViewById(R.id.account_login_et_password);
         etPassword.setText(password);
 
-        CheckBox cbShowPassword = (CheckBox) getActivity().findViewById(R.id.cb_show_password);
+        CheckBox cbShowPassword = (CheckBox) getActivity().findViewById(R.id.account_login_cb_show_password);
         cbShowPassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked) {
                     // show password
-                    etPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                    etPassword.setTransformationMethod(null);
                 } else {
                     // hide password
                     etPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
@@ -80,7 +79,7 @@ public class AccountLoginFragment extends Fragment {
             }
         });
 
-        Button btnLogin = (Button) getActivity().findViewById(R.id.btn_login);
+        Button btnLogin = (Button) getActivity().findViewById(R.id.account_login_btn_login);
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -121,7 +120,9 @@ public class AccountLoginFragment extends Fragment {
                     public void onError(Throwable e) {
                         btnLogin.setEnabled(true);
 
-                        mOnErrorListener.onError(e);
+                        if(mOnErrorListener != null) {
+                            mOnErrorListener.onError(e);
+                        }
                     }
                 });
             }

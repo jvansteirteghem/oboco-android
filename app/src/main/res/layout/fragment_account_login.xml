@@ -10,7 +10,7 @@
         tools:context=".AccountLoginFragment">
 
         <EditText
-            android:id="@+id/et_baseUrl"
+            android:id="@+id/account_login_et_baseUrl"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:hint="baseUrl: http://address:port"
@@ -19,11 +19,11 @@
             android:padding="15dp"
             android:inputType="text"
             android:text=""
-            android:layout_above="@id/et_name"
+            android:layout_above="@id/account_login_et_name"
             android:textSize="15sp" />
 
         <EditText
-            android:id="@+id/et_name"
+            android:id="@+id/account_login_et_name"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:hint="name"
@@ -32,11 +32,11 @@
             android:padding="15dp"
             android:inputType="text"
             android:text=""
-            android:layout_above="@id/et_password"
+            android:layout_above="@id/account_login_et_password"
             android:textSize="15sp" />
 
         <EditText
-            android:id="@+id/et_password"
+            android:id="@+id/account_login_et_password"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:hint="password"
@@ -50,10 +50,10 @@
             android:textSize="15sp" />
 
         <CheckBox
-            android:id="@+id/cb_show_password"
+            android:id="@+id/account_login_cb_show_password"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/et_password"
+            android:layout_below="@id/account_login_et_password"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginTop="10dp"
@@ -61,10 +61,10 @@
             android:text="show password" />
 
         <Button
-            android:id="@+id/btn_login"
+            android:id="@+id/account_login_btn_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/cb_show_password"
+            android:layout_below="@id/account_login_cb_show_password"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginTop="15dp"

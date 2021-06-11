@@ -15,6 +15,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -43,6 +47,8 @@ public class BrowserFragment extends Fragment implements AdapterView.OnItemClick
     private BookCollectionDto mCurrentBookCollectionDto;
     private List<Object> mObjectList;
 
+    private ActivityResultLauncher<Intent> mBookReaderActivityResultLauncher;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +59,38 @@ public class BrowserFragment extends Fragment implements AdapterView.OnItemClick
         mObjectList = new ArrayList<Object>();
 
         getActivity().setTitle(R.string.menu_browser);
+
+        mBookReaderActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @SuppressWarnings("unchecked")
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if(result.getResultCode() == Activity.RESULT_OK) {
+                            List<BookDto> updatedBookListDto = (List<BookDto>) result.getData().getSerializableExtra("updatedBookList");
+
+                            if(updatedBookListDto.size() != 0) {
+                                List<BookDto> bookListDto = mCurrentBookCollectionDto.getBooks();
+
+                                int index = 0;
+
+                                while (index < bookListDto.size()) {
+                                    BookDto bookDto = bookListDto.get(index);
+
+                                    for (BookDto updatedBookDto : updatedBookListDto) {
+                                        if (bookDto.equals(updatedBookDto)) {
+                                            bookListDto.set(index, updatedBookDto);
+                                        }
+                                    }
+
+                                    index = index + 1;
+                                }
+
+                                onLoad(mCurrentBookCollectionDto);
+                            }
+                        }
+                    }
+                });
     }
 
     @Override
@@ -77,7 +115,9 @@ public class BrowserFragment extends Fragment implements AdapterView.OnItemClick
     }
 
     public void onError(Throwable e) {
-        mOnErrorListener.onError(e);
+        if(mOnErrorListener != null) {
+            mOnErrorListener.onError(e);
+        }
     }
 
     @Override
@@ -163,37 +203,7 @@ public class BrowserFragment extends Fragment implements AdapterView.OnItemClick
             Intent intent = new Intent(getActivity(), BookReaderActivity.class);
             intent.putExtra(BookReaderManager.PARAM_MODE, BookReaderManager.Mode.MODE_LOCAL);
             intent.putExtra(LocalBookReaderManager.PARAM_BOOK_PATH, bookDto.getPath());
-            startActivityForResult(intent, 1);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if(requestCode == 1 && resultCode == Activity.RESULT_OK) {
-            List<BookDto> updatedBookListDto = (List<BookDto>) data.getSerializableExtra("updatedBookList");
-
-            if(updatedBookListDto.size() != 0) {
-                List<BookDto> bookListDto = mCurrentBookCollectionDto.getBooks();
-
-                int index = 0;
-
-                while (index < bookListDto.size()) {
-                    BookDto bookDto = bookListDto.get(index);
-
-                    for (BookDto updatedBookDto : updatedBookListDto) {
-                        if (bookDto.equals(updatedBookDto)) {
-                            bookListDto.set(index, updatedBookDto);
-                        }
-                    }
-
-                    index = index + 1;
-                }
-
-                onLoad(mCurrentBookCollectionDto);
-            }
+            mBookReaderActivityResultLauncher.launch(intent);
         }
     }
 

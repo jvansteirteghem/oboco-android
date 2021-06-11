@@ -267,21 +267,30 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
     @Override
     public void onLogin() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
-        navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser).setVisible(true);
+
+        MenuItem menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser);
+        menuItem.setVisible(true);
 
         setFragment(new BookCollectionBrowserFragment());
 
-        navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser).setChecked(true);
+        menuItem.setChecked(true);
+
+        mCurrentNavItem = menuItem.getItemId();
     }
 
     @Override
     public void onLogout() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
-        navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser).setVisible(false);
+
+        MenuItem menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser);
+        menuItem.setVisible(false);
 
         setFragment(new AccountLoginFragment());
 
-        navigationView.getMenu().findItem(R.id.drawer_menu_account).setChecked(true);
+        menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_account);
+        menuItem.setChecked(true);
+
+        mCurrentNavItem = menuItem.getItemId();
     }
 
     @Override

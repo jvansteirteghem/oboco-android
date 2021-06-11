@@ -10,20 +10,20 @@
         tools:context=".AccountLogoutFragment">
 
         <Button
-            android:id="@+id/btn_logout"
+            android:id="@+id/account_logout_btn_logout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@id/et_password"
+            android:layout_above="@id/account_logout_et_password"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginTop="15dp"
             android:text="log out"/>
 
         <EditText
-            android:id="@+id/et_password"
+            android:id="@+id/account_logout_et_password"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_above="@id/et_update_password"
+            android:layout_above="@id/account_logout_et_update_password"
             android:hint="password"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
@@ -34,7 +34,7 @@
             android:textSize="15sp" />
 
         <EditText
-            android:id="@+id/et_update_password"
+            android:id="@+id/account_logout_et_update_password"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_centerInParent="true"
@@ -48,10 +48,10 @@
             android:textSize="15sp" />
 
         <CheckBox
-            android:id="@+id/cb_show_password"
+            android:id="@+id/account_logout_cb_show_password"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/et_update_password"
+            android:layout_below="@id/account_logout_et_update_password"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginTop="10dp"
@@ -59,10 +59,10 @@
             android:text="show password" />
 
         <Button
-            android:id="@+id/btn_update_password"
+            android:id="@+id/account_logout_btn_update_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/cb_show_password"
+            android:layout_below="@id/account_logout_cb_show_password"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginTop="15dp"

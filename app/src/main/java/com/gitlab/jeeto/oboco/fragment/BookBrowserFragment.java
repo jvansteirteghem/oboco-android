@@ -16,6 +16,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -71,6 +75,8 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
 
     private OnErrorListener mOnErrorListener;
 
+    private ActivityResultLauncher<Intent> mBookReaderActivityResultLauncher;
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -88,7 +94,9 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
     public void onError(Throwable e) {
         mRefreshView.setRefreshing(false);
 
-        mOnErrorListener.onError(e);
+        if(mOnErrorListener != null) {
+            mOnErrorListener.onError(e);
+        }
     }
 
     public static BookBrowserFragment create(Long bookCollectionId) {
@@ -122,6 +130,36 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                 //.loggingEnabled(true)
                 //.indicatorsEnabled(true)
                 .build();
+
+        mBookReaderActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @SuppressWarnings("unchecked")
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if(result.getResultCode() == Activity.RESULT_OK) {
+                            List<BookDto> updatedBookListDto = (List<BookDto>) result.getData().getSerializableExtra("updatedBookList");
+
+                            if(updatedBookListDto.size() != 0) {
+                                int index = 0;
+
+                                while (index < mBookListDto.size()) {
+                                    BookDto bookDto = mBookListDto.get(index);
+
+                                    for (BookDto updatedBookDto : updatedBookListDto) {
+                                        if (bookDto.equals(updatedBookDto)) {
+                                            mBookListDto.set(index, updatedBookDto);
+                                        }
+                                    }
+
+                                    index = index + 1;
+                                }
+
+                                mBookListView.getAdapter().notifyDataSetChanged();
+                            }
+                        }
+                    }
+                });
     }
 
     @Override
@@ -326,39 +364,11 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if(requestCode == 1 && resultCode == Activity.RESULT_OK) {
-            List<BookDto> updatedBookListDto = (List<BookDto>) data.getSerializableExtra("updatedBookList");
-
-            if(updatedBookListDto.size() != 0) {
-                int index = 0;
-
-                while (index < mBookListDto.size()) {
-                    BookDto bookDto = mBookListDto.get(index);
-
-                    for (BookDto updatedBookDto : updatedBookListDto) {
-                        if (bookDto.equals(updatedBookDto)) {
-                            mBookListDto.set(index, updatedBookDto);
-                        }
-                    }
-
-                    index = index + 1;
-                }
-
-                mBookListView.getAdapter().notifyDataSetChanged();
-            }
-        }
-    }
-
     public void openBook(BookDto bookDto) {
         Intent intent = new Intent(getActivity(), BookReaderActivity.class);
         intent.putExtra(BookReaderManager.PARAM_MODE, BookReaderManager.Mode.MODE_REMOTE);
         intent.putExtra(RemoteBookReaderManager.PARAM_BOOK_ID, bookDto.getId());
-        startActivityForResult(intent, 1);
+        mBookReaderActivityResultLauncher.launch(intent);
     }
 
     private BookDto getBookAtPosition(int position) {

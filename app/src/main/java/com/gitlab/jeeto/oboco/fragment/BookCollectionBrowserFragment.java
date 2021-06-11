@@ -82,7 +82,9 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
     public void onError(Throwable e) {
         mRefreshView.setRefreshing(false);
 
-        mOnErrorListener.onError(e);
+        if(mOnErrorListener != null) {
+            mOnErrorListener.onError(e);
+        }
     }
 
     @Override

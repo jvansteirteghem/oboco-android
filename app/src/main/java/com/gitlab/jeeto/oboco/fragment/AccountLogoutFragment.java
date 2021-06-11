@@ -3,7 +3,6 @@ package com.gitlab.jeeto.oboco.fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -62,7 +61,9 @@ public class AccountLogoutFragment extends Fragment {
         mAuthenticationManagerDisposable = observable.subscribe(new Consumer<Throwable>() {
             @Override
             public void accept(Throwable e) throws Exception {
-                mOnErrorListener.onError(e);
+                if(mOnErrorListener != null) {
+                    mOnErrorListener.onError(e);
+                }
             }
         });
 
@@ -80,7 +81,7 @@ public class AccountLogoutFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Button btnLogout = (Button) getActivity().findViewById(R.id.btn_logout);
+        Button btnLogout = (Button) getActivity().findViewById(R.id.account_logout_btn_logout);
 
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,24 +106,26 @@ public class AccountLogoutFragment extends Fragment {
                     public void onError(Throwable e) {
                         btnLogout.setEnabled(true);
 
-                        mOnErrorListener.onError(e);
+                        if(mOnErrorListener != null) {
+                            mOnErrorListener.onError(e);
+                        }
                     }
                 });
             }
         });
 
-        EditText etPassword = (EditText) getActivity().findViewById(R.id.et_password);
-        EditText etUpdatePassword = (EditText) getActivity().findViewById(R.id.et_update_password);
-        CheckBox cbShowPassword = (CheckBox) getActivity().findViewById(R.id.cb_show_password);
-        Button btnUpdatePassword = (Button) getActivity().findViewById(R.id.btn_update_password);
+        EditText etPassword = (EditText) getActivity().findViewById(R.id.account_logout_et_password);
+        EditText etUpdatePassword = (EditText) getActivity().findViewById(R.id.account_logout_et_update_password);
+        CheckBox cbShowPassword = (CheckBox) getActivity().findViewById(R.id.account_logout_cb_show_password);
+        Button btnUpdatePassword = (Button) getActivity().findViewById(R.id.account_logout_btn_update_password);
 
         cbShowPassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked) {
                     // show password
-                    etPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                    etUpdatePassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                    etPassword.setTransformationMethod(null);
+                    etUpdatePassword.setTransformationMethod(null);
                 } else {
                     // hide password
                     etPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
@@ -167,7 +170,9 @@ public class AccountLogoutFragment extends Fragment {
 
                             @Override
                             public void onError(Throwable e) {
-                                mOnErrorListener.onError(e);
+                                if(mOnErrorListener != null) {
+                                    mOnErrorListener.onError(e);
+                                }
                             }
                         });
                     }
@@ -176,7 +181,9 @@ public class AccountLogoutFragment extends Fragment {
                     public void onError(Throwable e) {
                         btnUpdatePassword.setEnabled(true);
 
-                        mOnErrorListener.onError(e);
+                        if(mOnErrorListener != null) {
+                            mOnErrorListener.onError(e);
+                        }
                     }
                 });
             }

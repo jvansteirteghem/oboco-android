@@ -11,6 +11,7 @@ import android.os.Environment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+
 import androidx.core.app.NotificationCompat;
 import androidx.work.Data;
 import androidx.work.ForegroundInfo;
@@ -185,21 +186,22 @@ public class DownloadBookCollectionWorker extends Worker {
         PendingIntent intent = WorkManager.getInstance(context)
                 .createCancelPendingIntent(getId());
 
-        NotificationCompat.Builder notification = new NotificationCompat.Builder(context, CHANNEL_ID)
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setTicker("Download book collection")
                 .setContentTitle("Download book collection")
                 .setContentText(info)
                 .setSmallIcon(R.drawable.notification_action_background)
                 .setOngoing(true)
+                .setSilent(true)
                 // Add the cancel action to the notification which can
                 // be used to cancel the worker
                 .addAction(R.drawable.outline_clear_black_24, "Stop", intent);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createChannel(notification, CHANNEL_ID);
+            createChannel(notificationBuilder, CHANNEL_ID);
         }
 
-        return new ForegroundInfo(NOTIFICATION_ID, notification.build());
+        return new ForegroundInfo(NOTIFICATION_ID, notificationBuilder.build());
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -208,7 +210,7 @@ public class DownloadBookCollectionWorker extends Worker {
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        notificationBuilder.setDefaults(Notification.DEFAULT_VIBRATE);
+        notificationBuilder.setDefaults(Notification.DEFAULT_ALL);
 
         NotificationChannel channel = new NotificationChannel(id, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
         channel.setDescription(CHANNEL_DESCRIPTION);

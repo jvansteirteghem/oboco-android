@@ -127,7 +127,9 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
     }
 
     public void onError(Throwable e) {
-        mOnErrorListener.onError(e);
+        if(mOnErrorListener != null) {
+            mOnErrorListener.onError(e);
+        }
     }
 
     public void onAddBookMark(BookMarkDto bookMarkDto) {
