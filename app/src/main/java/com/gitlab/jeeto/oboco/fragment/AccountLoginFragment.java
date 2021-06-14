@@ -1,7 +1,6 @@
 package com.gitlab.jeeto.oboco.fragment;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
@@ -12,128 +11,96 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.gitlab.jeeto.oboco.R;
-import com.gitlab.jeeto.oboco.api.AuthenticationManager;
 import com.gitlab.jeeto.oboco.api.OnErrorListener;
-
-import io.reactivex.Completable;
-import io.reactivex.CompletableObserver;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
+import com.gitlab.jeeto.oboco.manager.AccountLoginManager;
+import com.gitlab.jeeto.oboco.manager.RemoteAccountLoginManager;
 
 public class AccountLoginFragment extends Fragment {
-    private OnLoginListener mOnLoginListener;
+    private EditText mBaseUrlEditText;
+    private EditText mNameEditText;
+    private EditText mPasswordEditText;
+    private CheckBox mShowPasswordCheckBox;
+    private Button mLoginButton;
+
+    private OnAccountLoginListener mOnAccountLoginListener;
     private OnErrorListener mOnErrorListener;
 
+    private AccountLoginManager mAccountLoginManager;
+
+    public interface OnAccountLoginListener {
+        void onLogin();
+    }
+
     public AccountLoginFragment() {
-        // Required empty public constructor
+
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mAccountLoginManager = new RemoteAccountLoginManager(this);
+        mAccountLoginManager.create(savedInstanceState);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_account_login, container, false);
+    public void onDestroy() {
+        mAccountLoginManager.destroy();
+
+        super.onDestroy();
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        final View view = inflater.inflate(R.layout.fragment_account_login, container, false);
 
-        SharedPreferences preferences = getContext().getSharedPreferences("application", Context.MODE_PRIVATE);
+        mBaseUrlEditText = (EditText) view.findViewById(R.id.account_login_et_baseUrl);
+        mNameEditText = (EditText) view.findViewById(R.id.account_login_et_name);
+        mPasswordEditText = (EditText) view.findViewById(R.id.account_login_et_password);
+        mShowPasswordCheckBox = (CheckBox) view.findViewById(R.id.account_login_cb_show_password);
+        mLoginButton = (Button) view.findViewById(R.id.account_login_btn_login);
 
-        String baseUrl = preferences.getString("baseUrl", "");
-        String name = preferences.getString("name", "");
-        String password = preferences.getString("password", "");
-
-        EditText etBaseUrl = (EditText) getActivity().findViewById(R.id.account_login_et_baseUrl);
-        etBaseUrl.setText(baseUrl);
-
-        EditText etName = (EditText) getActivity().findViewById(R.id.account_login_et_name);
-        etName.setText(name);
-
-        EditText etPassword = (EditText) getActivity().findViewById(R.id.account_login_et_password);
-        etPassword.setText(password);
-
-        CheckBox cbShowPassword = (CheckBox) getActivity().findViewById(R.id.account_login_cb_show_password);
-        cbShowPassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mShowPasswordCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked) {
                     // show password
-                    etPassword.setTransformationMethod(null);
+                    mPasswordEditText.setTransformationMethod(null);
                 } else {
                     // hide password
-                    etPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                    mPasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
                 }
             }
         });
 
-        Button btnLogin = (Button) getActivity().findViewById(R.id.account_login_btn_login);
-        btnLogin.setOnClickListener(new View.OnClickListener() {
+        mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String baseUrl = etBaseUrl.getText().toString();
+                String baseUrl = mBaseUrlEditText.getText().toString();
                 baseUrl = baseUrl.replaceAll("\\/+$", "");
 
-                String name = etName.getText().toString();
-                String password = etPassword.getText().toString();
+                String name = mNameEditText.getText().toString();
+                String password = mPasswordEditText.getText().toString();
 
-                SharedPreferences preferences = getContext().getSharedPreferences("application", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putString("baseUrl", baseUrl);
-                editor.putString("name", name);
-                editor.putString("password", "");
-                editor.putString("accessToken", "");
-                editor.putString("refreshToken", "");
-                editor.commit();
+                mLoginButton.setEnabled(false);
 
-                AuthenticationManager authenticationManager = new AuthenticationManager(getContext());
-
-                Completable completable = authenticationManager.login(name, password);
-                completable = completable.observeOn(AndroidSchedulers.mainThread());
-                completable = completable.subscribeOn(Schedulers.io());
-                completable.subscribe(new CompletableObserver() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        btnLogin.setEnabled(false);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        btnLogin.setEnabled(true);
-
-                        mOnLoginListener.onLogin();
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        btnLogin.setEnabled(true);
-
-                        if(mOnErrorListener != null) {
-                            mOnErrorListener.onError(e);
-                        }
-                    }
-                });
+                mAccountLoginManager.login(baseUrl, name, password);
             }
         });
+
+        mAccountLoginManager.load();
+
+        return view;
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnLoginListener) {
-            mOnLoginListener = (OnLoginListener) context;
+        if (context instanceof OnAccountLoginListener) {
+            mOnAccountLoginListener = (OnAccountLoginListener) context;
         }
         if(context instanceof OnErrorListener) {
             mOnErrorListener = (OnErrorListener) context;
@@ -143,16 +110,29 @@ public class AccountLoginFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mOnLoginListener = null;
+        mOnAccountLoginListener = null;
         mOnErrorListener = null;
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onError(Throwable e) {
+        mLoginButton.setEnabled(true);
+
+        if(mOnErrorListener != null) {
+            mOnErrorListener.onError(e);
+        }
     }
 
-    public interface OnLoginListener {
-        void onLogin();
+    public void onLoad(String baseUrl, String name) {
+        mBaseUrlEditText.setText(baseUrl);
+        mNameEditText.setText(name);
+        mPasswordEditText.setText("");
+    }
+
+    public void onLogin() {
+        mLoginButton.setEnabled(true);
+
+        if(mOnAccountLoginListener != null) {
+            mOnAccountLoginListener.onLogin();
+        }
     }
 }

@@ -30,7 +30,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 
 
-public class MainActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener, AccountLoginFragment.OnLoginListener, AccountLogoutFragment.OnLogoutListener, OnErrorListener {
+public class MainActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener, AccountLoginFragment.OnAccountLoginListener, AccountLogoutFragment.OnAccountLogoutListener, OnErrorListener {
     private final static String STATE_CURRENT_MENU_ITEM = "STATE_CURRENT_MENU_ITEM";
 
     private DrawerLayout mDrawerLayout;

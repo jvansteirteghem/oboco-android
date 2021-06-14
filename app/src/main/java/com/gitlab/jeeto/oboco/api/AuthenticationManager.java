@@ -11,18 +11,13 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.PublishSubject;
 
 public class AuthenticationManager {
-    private Context context;
     private SharedPreferences sp;
-    private AuthenticationService authenticationService;
     private PublishSubject<Throwable> subject = PublishSubject.create();
 
     public AuthenticationManager(Context context) {
         super();
 
         sp = context.getSharedPreferences("application", Context.MODE_PRIVATE);
-        String baseUrl = sp.getString("baseUrl", "");
-
-        authenticationService = new AuthenticationService(baseUrl);
     }
 
     public PublishSubject<Throwable> getErrors() {
@@ -41,6 +36,10 @@ public class AuthenticationManager {
         Completable completable = new Completable() {
             @Override
             protected void subscribeActual(CompletableObserver observer) {
+                String baseUrl = sp.getString("baseUrl", "");
+
+                AuthenticationService authenticationService = new AuthenticationService(baseUrl);
+
                 UserNamePasswordDto userNamePassword = new UserNamePasswordDto();
                 userNamePassword.setName(name);
                 userNamePassword.setPassword(password);
@@ -78,6 +77,10 @@ public class AuthenticationManager {
         Completable completable = new Completable() {
             @Override
             protected void subscribeActual(CompletableObserver observer) {
+                String baseUrl = sp.getString("baseUrl", "");
+
+                AuthenticationService authenticationService = new AuthenticationService(baseUrl);
+
                 UserTokenDto userToken = new UserTokenDto();
                 userToken.setToken(getRefreshToken());
 
