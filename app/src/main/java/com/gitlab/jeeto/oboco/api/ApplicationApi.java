@@ -35,7 +35,7 @@ public interface ApplicationApi {
     public Single<BookCollectionDto> getBookCollection(@Path("id") Long id, @Query("graph") String graph);
 
     @Headers("Content-Type: application/json")
-    @GET("/api/v1/bookCollections/{bookCollectionId}/books/{bookId}/NEIGHBOURHOOD")
+    @GET("/api/v1/bookCollections/{bookCollectionId}/books/{bookId}/books")
     public Single<LinkableDto<BookDto>> getBooks(@Path("bookCollectionId") Long bookCollectionId, @Path("bookId") Long id, @Query("graph") String graph);
 
     @Headers("Content-Type: application/json")
@@ -49,10 +49,6 @@ public interface ApplicationApi {
     @Headers("Content-Type: application/json")
     @GET("/api/v1/bookMarks")
     public Single<PageableListDto<BookMarkDto>> getBookMarks(@Query("page") Integer page, @Query("pageSize") Integer pageSize, @Query("graph") String graph);
-
-    @Headers("Content-Type: application/json")
-    @GET("/api/v1/bookMarks/LAST")
-    public Single<BookMarkDto> getLastBookMark(@Query("graph") String graph);
 
     @Headers("Content-Type: application/json")
     @GET("/api/v1/books/{bookId}/bookMark")

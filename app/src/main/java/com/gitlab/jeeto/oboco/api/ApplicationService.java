@@ -308,33 +308,6 @@ public class ApplicationService extends Service {
         return single;
     }
 
-    public Single<BookMarkDto> getLastBookMark(String graph) {
-        Single<BookMarkDto> single = new Single<BookMarkDto>() {
-            @Override
-            protected void subscribeActual(SingleObserver<? super BookMarkDto> observer) {
-                Single<BookMarkDto> retrofitSingle = retrofitApplicationApi.getLastBookMark(graph);
-                retrofitSingle.subscribe(new SingleObserver<BookMarkDto>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onSuccess(BookMarkDto bookMark) {
-                        observer.onSuccess(bookMark);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        observer.onError(getThrowable(e));
-                    }
-                });
-            }
-        };
-
-        return single;
-    }
-
     public Single<BookMarkDto> getBookMark(Long bookId, String graph) {
         Single<BookMarkDto> single = new Single<BookMarkDto>() {
             @Override

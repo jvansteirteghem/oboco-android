@@ -104,7 +104,7 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
                 if(bookCollectionDto != null) {
                     mBookCollectionId = bookCollectionDto.getId();
 
-                    Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollections(mBookCollectionId, bookCollectionName, page, pageSize, "(bookCollections,books)");
+                    Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollections(mBookCollectionId, bookCollectionName, page, pageSize, "()");
                     single = single.observeOn(AndroidSchedulers.mainThread());
                     single = single.subscribeOn(Schedulers.io());
                     single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
@@ -134,7 +134,7 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
     }
 
     public void loadBookCollectionPageableList(String bookCollectionName, int page, int pageSize) {
-        Single<PageableListDto<BookCollectionDto>> single = mApplicationService.getBookCollections(mBookCollectionId, bookCollectionName, page, pageSize, "(bookCollections,books)");
+        Single<PageableListDto<BookCollectionDto>> single = mApplicationService.getBookCollections(mBookCollectionId, bookCollectionName, page, pageSize, "()");
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
         single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
