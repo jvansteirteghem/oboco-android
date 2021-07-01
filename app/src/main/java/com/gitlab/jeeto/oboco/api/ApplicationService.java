@@ -103,18 +103,6 @@ public class ApplicationService extends Service {
         return single;
     }
 
-    public Single<PageableListDto<BookCollectionDto>> getBookCollections(Integer page, Integer pageSize, String graph) {
-        return getBookCollections(null, null, page, pageSize, graph);
-    }
-
-    public Single<PageableListDto<BookCollectionDto>> getBookCollections(String name, Integer page, Integer pageSize, String graph) {
-        return getBookCollections(null, name, page, pageSize, graph);
-    }
-
-    public Single<PageableListDto<BookCollectionDto>> getBookCollections(Long parentBookCollectionId, Integer page, Integer pageSize, String graph) {
-        return getBookCollections(parentBookCollectionId, null, page, pageSize, graph);
-    }
-
     public Single<PageableListDto<BookCollectionDto>> getBookCollections(Long parentBookCollectionId, String name, Integer page, Integer pageSize, String graph) {
         Single<PageableListDto<BookCollectionDto>> single = new Single<PageableListDto<BookCollectionDto>>() {
             @Override
@@ -511,6 +499,33 @@ public class ApplicationService extends Service {
                     @Override
                     public void onSuccess(ResponseBody responseBody) {
                         observer.onSuccess(responseBody);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        observer.onError(getThrowable(e));
+                    }
+                });
+            }
+        };
+
+        return single;
+    }
+
+    public Single<PageableListDto<BookCollectionDto>> getLatestBookCollections(String name, Integer page, Integer pageSize, String graph) {
+        Single<PageableListDto<BookCollectionDto>> single = new Single<PageableListDto<BookCollectionDto>>() {
+            @Override
+            protected void subscribeActual(SingleObserver<? super PageableListDto<BookCollectionDto>> observer) {
+                Single<PageableListDto<BookCollectionDto>> retrofitSingle = retrofitApplicationApi.getLatestBookCollections(name, page, pageSize, graph);
+                retrofitSingle.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(PageableListDto<BookCollectionDto> bookCollectionPageableList) {
+                        observer.onSuccess(bookCollectionPageableList);
                     }
 
                     @Override

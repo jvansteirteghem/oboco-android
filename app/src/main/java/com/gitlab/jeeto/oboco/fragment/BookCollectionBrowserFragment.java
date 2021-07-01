@@ -38,6 +38,7 @@ import com.gitlab.jeeto.oboco.common.Utils;
 import com.gitlab.jeeto.oboco.manager.BookCollectionBrowserManager;
 import com.gitlab.jeeto.oboco.manager.DownloadBookCollectionWorker;
 import com.gitlab.jeeto.oboco.manager.RemoteBookCollectionBrowserManager;
+import com.gitlab.jeeto.oboco.manager.RemoteLatestBookCollectionBrowserManager;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -64,6 +65,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
     private int mNextPage = 0;
 
     private BookCollectionBrowserManager mBookCollectionBrowserManager;
+    private BookCollectionBrowserManager.Mode mMode;
 
     @Override
     public void onAttach(Context context) {
@@ -118,7 +120,16 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
     public static BookCollectionBrowserFragment create(Long bookCollectionId) {
         BookCollectionBrowserFragment fragment = new BookCollectionBrowserFragment();
         Bundle args = new Bundle();
+        args.putSerializable(BookCollectionBrowserManager.PARAM_MODE, BookCollectionBrowserManager.Mode.MODE_REMOTE);
         args.putLong(RemoteBookCollectionBrowserManager.PARAM_BOOK_COLLECTION_ID, bookCollectionId);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static BookCollectionBrowserFragment create() {
+        BookCollectionBrowserFragment fragment = new BookCollectionBrowserFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(BookCollectionBrowserManager.PARAM_MODE, BookCollectionBrowserManager.Mode.MODE_REMOTE_LATEST);
         fragment.setArguments(args);
         return fragment;
     }
@@ -131,7 +142,14 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
 
         mBookCollectionListDto = new ArrayList<BookCollectionDto>();
 
-        mBookCollectionBrowserManager = new RemoteBookCollectionBrowserManager(this);
+        Bundle bundle = getArguments();
+        mMode = (BookCollectionBrowserManager.Mode) bundle.getSerializable(BookCollectionBrowserManager.PARAM_MODE);
+
+        if(mMode == BookCollectionBrowserManager.Mode.MODE_REMOTE) {
+            mBookCollectionBrowserManager = new RemoteBookCollectionBrowserManager(this);
+        } else if(mMode == BookCollectionBrowserManager.Mode.MODE_REMOTE_LATEST) {
+            mBookCollectionBrowserManager = new RemoteLatestBookCollectionBrowserManager(this);
+        }
         mBookCollectionBrowserManager.create(savedInstanceState);
 
         mPicasso = new Picasso.Builder(getActivity())

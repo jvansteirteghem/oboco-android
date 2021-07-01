@@ -7,6 +7,11 @@ import com.gitlab.jeeto.oboco.api.BookCollectionDto;
 import com.squareup.picasso.RequestHandler;
 
 public abstract class BookCollectionBrowserManager extends RequestHandler {
+    public static final String PARAM_MODE = "PARAM_MODE";
+    public enum Mode {
+        MODE_REMOTE,
+        MODE_REMOTE_LATEST;
+    }
     public abstract void create(Bundle savedInstanceState);
     public abstract void destroy();
     public abstract void saveInstanceState(Bundle outState);

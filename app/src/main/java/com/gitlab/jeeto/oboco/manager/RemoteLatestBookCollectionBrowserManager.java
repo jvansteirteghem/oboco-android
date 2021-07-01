@@ -12,7 +12,6 @@ import com.gitlab.jeeto.oboco.api.PageableListDto;
 import com.gitlab.jeeto.oboco.fragment.BookCollectionBrowserFragment;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Request;
-import com.squareup.picasso.RequestHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,11 +28,8 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 import okio.Okio;
 
-public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserManager {
-    public static final String PARAM_BOOK_COLLECTION_ID = "PARAM_BOOK_COLLECTION_ID";
-    public static final String STATE_CURRENT_BOOK_COLLECTION_ID = "STATE_CURRENT_BOOK_COLLECTION_ID";
+public class RemoteLatestBookCollectionBrowserManager extends BookCollectionBrowserManager {
     private BookCollectionBrowserFragment mBookCollectionBrowserFragment;
-    private Long mBookCollectionId;
 
     private String mBaseUrl;
 
@@ -41,22 +37,12 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
     private Disposable mAuthenticationManagerDisposable;
     private ApplicationService mApplicationService;
 
-    public RemoteBookCollectionBrowserManager(BookCollectionBrowserFragment bookCollectionBrowserFragment) {
+    public RemoteLatestBookCollectionBrowserManager(BookCollectionBrowserFragment bookCollectionBrowserFragment) {
         super();
         mBookCollectionBrowserFragment = bookCollectionBrowserFragment;
     }
 
     public void create(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            mBookCollectionId = savedInstanceState.getLong(STATE_CURRENT_BOOK_COLLECTION_ID);
-        } else {
-            if(mBookCollectionBrowserFragment.getArguments() != null) {
-                mBookCollectionId = mBookCollectionBrowserFragment.getArguments().getLong(PARAM_BOOK_COLLECTION_ID);
-            } else {
-                mBookCollectionId = -1L;
-            }
-        }
-
         SharedPreferences sp = mBookCollectionBrowserFragment.getContext().getSharedPreferences("application", Context.MODE_PRIVATE);
         mBaseUrl = sp.getString("baseUrl", "");
 
@@ -81,49 +67,25 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
 
     @Override
     public void saveInstanceState(Bundle outState) {
-        outState.putLong(STATE_CURRENT_BOOK_COLLECTION_ID, mBookCollectionId);
+
     }
 
     public void load(String bookCollectionName, int page, int pageSize) {
-        Single<BookCollectionDto> single;
-        if(mBookCollectionId == -1L) {
-            single = mApplicationService.getRootBookCollection("(parentBookCollection)");
-        } else {
-            single = mApplicationService.getBookCollection(mBookCollectionId, "(parentBookCollection)");
-        }
+        BookCollectionDto bookCollectionDto = new BookCollectionDto();
+        bookCollectionDto.setName("LATEST");
+
+        Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getLatestBookCollections(bookCollectionName, page, pageSize, "()");
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
-        single.subscribe(new SingleObserver<BookCollectionDto>() {
+        single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
             @Override
             public void onSubscribe(Disposable d) {
 
             }
 
             @Override
-            public void onSuccess(BookCollectionDto bookCollectionDto) {
-                if(bookCollectionDto != null) {
-                    mBookCollectionId = bookCollectionDto.getId();
-
-                    Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollections(mBookCollectionId, bookCollectionName, page, pageSize, "()");
-                    single = single.observeOn(AndroidSchedulers.mainThread());
-                    single = single.subscribeOn(Schedulers.io());
-                    single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
-                        @Override
-                        public void onSubscribe(Disposable d) {
-
-                        }
-
-                        @Override
-                        public void onSuccess(PageableListDto<BookCollectionDto> bookCollectionPageableListDto) {
-                            mBookCollectionBrowserFragment.onLoad(bookCollectionDto, bookCollectionPageableListDto);
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            mBookCollectionBrowserFragment.onError(e);
-                        }
-                    });
-                }
+            public void onSuccess(PageableListDto<BookCollectionDto> bookCollectionPageableListDto) {
+                mBookCollectionBrowserFragment.onLoad(bookCollectionDto, bookCollectionPageableListDto);
             }
 
             @Override
@@ -134,7 +96,7 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
     }
 
     public void loadBookCollectionPageableList(String bookCollectionName, int page, int pageSize) {
-        Single<PageableListDto<BookCollectionDto>> single = mApplicationService.getBookCollections(mBookCollectionId, bookCollectionName, page, pageSize, "()");
+        Single<PageableListDto<BookCollectionDto>> single = mApplicationService.getLatestBookCollections(bookCollectionName, page, pageSize, "()");
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
         single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
@@ -228,7 +190,7 @@ public class RemoteBookCollectionBrowserManager extends BookCollectionBrowserMan
 
             InputStream inputStream = responseBody.byteStream();
 
-            return new RequestHandler.Result(Okio.source(inputStream), Picasso.LoadedFrom.NETWORK);
+            return new Result(Okio.source(inputStream), Picasso.LoadedFrom.NETWORK);
         } else {
             throw new IOException("uri is invalid");
         }

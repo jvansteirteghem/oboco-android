@@ -84,4 +84,9 @@ public interface ApplicationApi {
     @Headers("Content-Type: application/zip")
     @GET("/api/v1/books/{bookId}.cbz")
     public Single<ResponseBody> downloadBook(@Path("bookId") Long bookId);
+
+    @Headers("Content-Type: application/json")
+    @GET("/api/v1/bookCollections/LATEST/bookCollections")
+    public Single<PageableListDto<BookCollectionDto>> getLatestBookCollections(@Query("name") String name, @Query("page") Integer page, @Query("pageSize") Integer pageSize, @Query("graph") String graph);
+
 }
