@@ -11,7 +11,7 @@ public class NaturalOrderComparator<T> implements Comparator<T> {
     protected final boolean skipSpaces;
 
     public NaturalOrderComparator() {
-        this(false, true);
+        this(true, true);
     }
 
     public NaturalOrderComparator(final boolean ignoreCase, final boolean skipSpaces) {
