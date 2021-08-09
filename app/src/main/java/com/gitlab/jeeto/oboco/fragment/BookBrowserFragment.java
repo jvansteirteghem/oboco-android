@@ -45,11 +45,14 @@ import com.gitlab.jeeto.oboco.common.Utils;
 import com.gitlab.jeeto.oboco.manager.BookBrowserManager;
 import com.gitlab.jeeto.oboco.manager.BookReaderManager;
 import com.gitlab.jeeto.oboco.manager.DownloadBookWorker;
+import com.gitlab.jeeto.oboco.manager.DownloadWork;
+import com.gitlab.jeeto.oboco.manager.DownloadWorkType;
 import com.gitlab.jeeto.oboco.manager.RemoteBookBrowserManager;
 import com.gitlab.jeeto.oboco.manager.RemoteBookReaderManager;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -549,6 +552,9 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                                             new OneTimeWorkRequest.Builder(DownloadBookWorker.class)
                                                     .setConstraints(constraints)
                                                     .addTag("download")
+                                                    .addTag("type:" + DownloadWorkType.BOOK.name())
+                                                    .addTag("name:" + selectedBookDto.getName())
+                                                    .addTag("createDate:" + new Date().getTime())
                                                     .setInputData(
                                                             new Data.Builder()
                                                                     .putLong("bookId",  selectedBookDto.getId())
@@ -557,7 +563,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                                                     .build();
 
                                     WorkManager
-                                            .getInstance(getContext())
+                                            .getInstance(getContext().getApplicationContext())
                                             .enqueue(downloadWorkRequest);
                                 }
                             })

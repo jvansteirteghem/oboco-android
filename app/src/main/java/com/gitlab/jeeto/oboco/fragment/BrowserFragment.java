@@ -39,7 +39,8 @@ import java.util.List;
 
 public class BrowserFragment extends Fragment implements AdapterView.OnItemClickListener {
     private ListView mListView;
-    private TextView mFileTextView;
+    private TextView mTitleTextView;
+    private TextView mSubtitleTextView;
 
     private BrowserManager mBrowserManager;
     private OnErrorListener mOnErrorListener;
@@ -127,7 +128,9 @@ public class BrowserFragment extends Fragment implements AdapterView.OnItemClick
         ViewGroup toolbar = (ViewGroup) getActivity().findViewById(R.id.toolbar);
         ViewGroup breadcrumbLayout = (ViewGroup) inflater.inflate(R.layout.browser_breadcrumb, toolbar, false);
         toolbar.addView(breadcrumbLayout);
-        mFileTextView = (TextView) breadcrumbLayout.findViewById(R.id.browser_breadcrumb_textview);
+        mTitleTextView = (TextView) breadcrumbLayout.findViewById(R.id.browser_breadcrumb_title_textview);
+        mTitleTextView.setText(R.string.menu_browser);
+        mSubtitleTextView = (TextView) breadcrumbLayout.findViewById(R.id.browser_breadcrumb_subtitle_textview);
 
         mListView = (ListView) view.findViewById(R.id.browser_listview);
         mListView.setAdapter(new BrowserAdapter());
@@ -174,7 +177,7 @@ public class BrowserFragment extends Fragment implements AdapterView.OnItemClick
             mListView.invalidateViews();
         }
 
-        mFileTextView.setText(mCurrentBookCollectionDto.getPath());
+        mSubtitleTextView.setText(mCurrentBookCollectionDto.getPath());
     }
 
     public void onDeleteBook(BookDto bookDto) {

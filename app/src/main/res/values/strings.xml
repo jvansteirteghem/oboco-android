@@ -26,6 +26,7 @@
 
     <string name="menu_library">Browse..</string>
     <string name="menu_library_latest">Browse latest..</string>
+    <string name="menu_download_manager">Download Manager</string>
     <string name="menu_browser">Downloads</string>
     <string name="menu_account" translatable="false">Account</string>
     <string name="menu_about">About</string>

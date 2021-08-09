@@ -6,13 +6,22 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.startup.AppInitializer;
+
 import com.gitlab.jeeto.oboco.api.ProblemException;
+import com.gitlab.jeeto.oboco.manager.DownloadWorkManagerInitializer;
 
 import java.io.IOException;
 
-
 public class MainApplication extends Application {
     private static final String TAG = "MainApplication";
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        AppInitializer.getInstance(getApplicationContext())
+                .initializeComponent(DownloadWorkManagerInitializer.class);
+    }
 
     public static void handleError(Context context, Throwable e) {
         String message;

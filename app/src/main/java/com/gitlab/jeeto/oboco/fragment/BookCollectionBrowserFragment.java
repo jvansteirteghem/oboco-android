@@ -37,11 +37,13 @@ import com.gitlab.jeeto.oboco.api.PageableListDto;
 import com.gitlab.jeeto.oboco.common.Utils;
 import com.gitlab.jeeto.oboco.manager.BookCollectionBrowserManager;
 import com.gitlab.jeeto.oboco.manager.DownloadBookCollectionWorker;
+import com.gitlab.jeeto.oboco.manager.DownloadWorkType;
 import com.gitlab.jeeto.oboco.manager.RemoteBookCollectionBrowserManager;
 import com.gitlab.jeeto.oboco.manager.RemoteLatestBookCollectionBrowserManager;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class BookCollectionBrowserFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, SearchView.OnQueryTextListener {
@@ -497,6 +499,9 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                                                 new OneTimeWorkRequest.Builder(DownloadBookCollectionWorker.class)
                                                         .setConstraints(constraints)
                                                         .addTag("download")
+                                                        .addTag("type:" + DownloadWorkType.BOOK_COLLECTION.name())
+                                                        .addTag("name:" + selectedBookCollectionDto.getName())
+                                                        .addTag("createDate:" + new Date().getTime())
                                                         .setInputData(
                                                                 new Data.Builder()
                                                                         .putLong("bookCollectionId",  selectedBookCollectionDto.getId())
@@ -505,7 +510,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                                                         .build();
 
                                         WorkManager
-                                                .getInstance(getContext())
+                                                .getInstance(getContext().getApplicationContext())
                                                 .enqueue(downloadWorkRequest);
                                     }
                                 })
