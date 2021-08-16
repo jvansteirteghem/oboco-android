@@ -11,7 +11,7 @@ import com.gitlab.jeeto.oboco.api.BookMarkDto;
 import com.gitlab.jeeto.oboco.common.NaturalOrderComparator;
 import com.gitlab.jeeto.oboco.database.AppDatabase;
 import com.gitlab.jeeto.oboco.database.Book;
-import com.gitlab.jeeto.oboco.fragment.BrowserFragment;
+import com.gitlab.jeeto.oboco.fragment.DownloadBrowserFragment;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -26,24 +26,24 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class LocalBrowserManager extends BrowserManager {
+public class DownloadBrowserManager extends BrowserManager {
     public final static String PARAM_BOOK_COLLECTION_PATH = "PARAM_BOOK_COLLECTION_PATH";
     public final static String STATE_CURRENT_BOOK_COLLECTION_PATH = "STATE_CURRENT_BOOK_COLLECTION_PATH";
-    private BrowserFragment mBrowserFragment;
+    private DownloadBrowserFragment mDownloadBrowserFragment;
 
     private File mRootBookCollectionFile;
     private File mCurrentBookCollectionFile;
 
     private AppDatabase mAppDatabase;
 
-    public LocalBrowserManager(BrowserFragment fragment) {
+    public DownloadBrowserManager(DownloadBrowserFragment fragment) {
         super();
-        mBrowserFragment = fragment;
+        mDownloadBrowserFragment = fragment;
     }
 
     @Override
     public void create(Bundle savedInstanceState) {
-        mRootBookCollectionFile = mBrowserFragment.getContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+        mRootBookCollectionFile = mDownloadBrowserFragment.getContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
 
         if (savedInstanceState != null) {
             String bookCollectionPath = savedInstanceState.getString(STATE_CURRENT_BOOK_COLLECTION_PATH);
@@ -51,21 +51,26 @@ public class LocalBrowserManager extends BrowserManager {
             mCurrentBookCollectionFile = new File(bookCollectionPath);
         }
         else {
-            if(mBrowserFragment.getArguments() != null) {
-                String bookCollectionPath = mBrowserFragment.getArguments().getString(PARAM_BOOK_COLLECTION_PATH);
+            if(mDownloadBrowserFragment.getArguments() != null) {
+                String bookCollectionPath = mDownloadBrowserFragment.getArguments().getString(PARAM_BOOK_COLLECTION_PATH);
 
                 mCurrentBookCollectionFile = new File(bookCollectionPath);
             } else {
-                mCurrentBookCollectionFile = mBrowserFragment.getContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+                mCurrentBookCollectionFile = mDownloadBrowserFragment.getContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
             }
         }
 
-        mAppDatabase = Room.databaseBuilder(mBrowserFragment.getActivity().getApplicationContext(), AppDatabase.class, "database").build();
+        mAppDatabase = Room.databaseBuilder(mDownloadBrowserFragment.getActivity().getApplicationContext(), AppDatabase.class, "database").build();
     }
 
     @Override
     public void destroy() {
-
+        if(mAppDatabase != null) {
+            if(mAppDatabase.isOpen()) {
+                mAppDatabase.close();
+            }
+            mAppDatabase = null;
+        }
     }
 
     @Override
@@ -166,12 +171,12 @@ public class LocalBrowserManager extends BrowserManager {
                     }
                 }
 
-                mBrowserFragment.onLoad(currentBookCollectionDto);
+                mDownloadBrowserFragment.onLoad(currentBookCollectionDto);
             }
 
             @Override
             public void onError(Throwable e) {
-                mBrowserFragment.onError(e);
+                mDownloadBrowserFragment.onError(e);
             }
         });
     }
@@ -202,19 +207,19 @@ public class LocalBrowserManager extends BrowserManager {
 
                     @Override
                     public void onComplete() {
-                        mBrowserFragment.onDeleteBook(bookDto);
+                        mDownloadBrowserFragment.onDeleteBook(bookDto);
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        mBrowserFragment.onError(e);
+                        mDownloadBrowserFragment.onError(e);
                     }
                 });
             }
 
             @Override
             public void onError(Throwable e) {
-                mBrowserFragment.onError(e);
+                mDownloadBrowserFragment.onError(e);
             }
         });
     }
@@ -248,19 +253,19 @@ public class LocalBrowserManager extends BrowserManager {
 
                     @Override
                     public void onComplete() {
-                        mBrowserFragment.onDeleteBookCollection(bookCollectionDto);
+                        mDownloadBrowserFragment.onDeleteBookCollection(bookCollectionDto);
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        mBrowserFragment.onError(e);
+                        mDownloadBrowserFragment.onError(e);
                     }
                 });
             }
 
             @Override
             public void onError(Throwable e) {
-                mBrowserFragment.onError(e);
+                mDownloadBrowserFragment.onError(e);
             }
         });
     }

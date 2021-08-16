@@ -32,17 +32,17 @@ import com.gitlab.jeeto.oboco.api.OnErrorListener;
 import com.gitlab.jeeto.oboco.manager.BookReaderManager;
 import com.gitlab.jeeto.oboco.manager.BrowserManager;
 import com.gitlab.jeeto.oboco.manager.LocalBookReaderManager;
-import com.gitlab.jeeto.oboco.manager.LocalBrowserManager;
+import com.gitlab.jeeto.oboco.manager.DownloadBrowserManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BrowserFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class DownloadBrowserFragment extends Fragment implements AdapterView.OnItemClickListener {
     private ListView mListView;
     private TextView mTitleTextView;
     private TextView mSubtitleTextView;
 
-    private BrowserManager mBrowserManager;
+    private BrowserManager mDownloadBrowserManager;
     private OnErrorListener mOnErrorListener;
 
     private BookCollectionDto mCurrentBookCollectionDto;
@@ -54,12 +54,12 @@ public class BrowserFragment extends Fragment implements AdapterView.OnItemClick
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mBrowserManager = new LocalBrowserManager(this);
-        mBrowserManager.create(savedInstanceState);
+        mDownloadBrowserManager = new DownloadBrowserManager(this);
+        mDownloadBrowserManager.create(savedInstanceState);
 
         mObjectList = new ArrayList<Object>();
 
-        getActivity().setTitle(R.string.menu_browser);
+        getActivity().setTitle(R.string.menu_download_browser);
 
         mBookReaderActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -96,7 +96,7 @@ public class BrowserFragment extends Fragment implements AdapterView.OnItemClick
 
     @Override
     public void onDestroy() {
-        mBrowserManager.destroy();
+        mDownloadBrowserManager.destroy();
 
         super.onDestroy();
     }
@@ -129,21 +129,21 @@ public class BrowserFragment extends Fragment implements AdapterView.OnItemClick
         ViewGroup breadcrumbLayout = (ViewGroup) inflater.inflate(R.layout.browser_breadcrumb, toolbar, false);
         toolbar.addView(breadcrumbLayout);
         mTitleTextView = (TextView) breadcrumbLayout.findViewById(R.id.browser_breadcrumb_title_textview);
-        mTitleTextView.setText(R.string.menu_browser);
+        mTitleTextView.setText(R.string.menu_download_browser);
         mSubtitleTextView = (TextView) breadcrumbLayout.findViewById(R.id.browser_breadcrumb_subtitle_textview);
 
         mListView = (ListView) view.findViewById(R.id.browser_listview);
         mListView.setAdapter(new BrowserAdapter());
         mListView.setOnItemClickListener(this);
 
-        mBrowserManager.load();
+        mDownloadBrowserManager.load();
 
         return view;
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        mBrowserManager.saveInstanceState(outState);
+        mDownloadBrowserManager.saveInstanceState(outState);
 
         super.onSaveInstanceState(outState);
     }
@@ -199,7 +199,7 @@ public class BrowserFragment extends Fragment implements AdapterView.OnItemClick
         if (object instanceof BookCollectionDto) {
             BookCollectionDto bookCollectionDto = (BookCollectionDto) object;
 
-            mBrowserManager.load(bookCollectionDto);
+            mDownloadBrowserManager.load(bookCollectionDto);
         } else {
             BookDto bookDto = (BookDto) object;
 
@@ -225,9 +225,9 @@ public class BrowserFragment extends Fragment implements AdapterView.OnItemClick
 
             if(bookMarkDto != null) {
                 if(bookMarkDto.getPage() > 1 && bookMarkDto.getPage() < bookDto.getNumberOfPages()) {
-                    colorRes = R.color.circle_green;
+                    colorRes = R.color.circle_blue;
                 } else if(bookMarkDto.getPage() == bookDto.getNumberOfPages()) {
-                    colorRes = R.color.circle_red;
+                    colorRes = R.color.circle_green;
                 }
             }
         }
@@ -294,7 +294,7 @@ public class BrowserFragment extends Fragment implements AdapterView.OnItemClick
                                         .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
-                                                mBrowserManager.deleteBookCollection(bookCollectionDto);
+                                                mDownloadBrowserManager.deleteBookCollection(bookCollectionDto);
                                             }
                                         })
                                         .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
@@ -315,7 +315,7 @@ public class BrowserFragment extends Fragment implements AdapterView.OnItemClick
                                     .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
-                                            mBrowserManager.deleteBook(bookDto);
+                                            mDownloadBrowserManager.deleteBook(bookDto);
                                         }
                                     })
                                     .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {

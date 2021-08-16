@@ -24,9 +24,9 @@ import com.gitlab.jeeto.oboco.common.Utils;
 import com.gitlab.jeeto.oboco.fragment.AboutFragment;
 import com.gitlab.jeeto.oboco.fragment.AccountLoginFragment;
 import com.gitlab.jeeto.oboco.fragment.AccountLogoutFragment;
-import com.gitlab.jeeto.oboco.fragment.BrowserFragment;
+import com.gitlab.jeeto.oboco.fragment.DownloadBrowserFragment;
 import com.gitlab.jeeto.oboco.fragment.BookCollectionBrowserFragment;
-import com.gitlab.jeeto.oboco.fragment.DownloadManagerFragment;
+import com.gitlab.jeeto.oboco.fragment.DownloadManagerBrowserFragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 
@@ -229,11 +229,11 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                     case R.id.drawer_menu_latest_book_collection_browser:
                         setFragment(BookCollectionBrowserFragment.create());
                         break;
-                    case R.id.drawer_menu_download_manager:
-                        setFragment(new DownloadManagerFragment());
+                    case R.id.drawer_menu_download_browser:
+                        setFragment(new DownloadBrowserFragment());
                         break;
-                    case R.id.drawer_menu_browser:
-                        setFragment(new BrowserFragment());
+                    case R.id.drawer_menu_download_manager_browser:
+                        setFragment(new DownloadManagerBrowserFragment());
                         break;
                     case R.id.drawer_menu_about:
                         setTitle(R.string.menu_about);

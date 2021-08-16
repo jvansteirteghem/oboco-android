@@ -24,12 +24,17 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
 
-    <string name="menu_library">Browse..</string>
-    <string name="menu_library_latest">Browse latest..</string>
-    <string name="menu_download_manager">Download Manager</string>
-    <string name="menu_browser">Downloads</string>
+    <string name="menu_library">All book collections</string>
+    <string name="menu_library_latest">Latest book collections</string>
+    <string name="menu_download_browser">Downloads</string>
+    <string name="menu_download_manager_browser">Downloads manager</string>
     <string name="menu_account" translatable="false">Account</string>
     <string name="menu_about">About</string>
+
+    <plurals name="number_of_downloads">
+        <item quantity="one">%d download</item>
+        <item quantity="other">%d downloads</item>
+    </plurals>
 
     <string name="library_header_recent">Recent</string>
     <string name="library_header_all">All</string>
@@ -46,8 +51,8 @@
 
     <string name="switch_action_positive">Yes</string>
     <string name="switch_action_negative">No</string>
-    <string name="switch_next_comic">Would you like to switch to the next comic?</string>
-    <string name="switch_prev_comic">Would you like to switch to the previous comic?</string>
+    <string name="switch_next_comic">Would you like to switch to the next book?</string>
+    <string name="switch_prev_comic">Would you like to switch to the previous book?</string>
 
     <string name="library_empty">There are no book collections in this book collection.</string>
     <string name="librarybrowser_empty">There are no books in this book collection.</string>

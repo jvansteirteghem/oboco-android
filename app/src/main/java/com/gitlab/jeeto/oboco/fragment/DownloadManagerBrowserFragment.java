@@ -2,6 +2,7 @@ package com.gitlab.jeeto.oboco.fragment;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -31,13 +32,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class DownloadManagerFragment extends Fragment {
+public class DownloadManagerBrowserFragment extends Fragment {
     private ListView mListView;
     private TextView mTitleTextView;
+    private TextView mSubtitleTextView;
 
     private OnErrorListener mOnErrorListener;
 
-    private BookCollectionDto mCurrentBookCollectionDto;
     private List<DownloadWork> mDownloadWorkList;
 
     private WorkManager mWorkManager;
@@ -50,7 +51,7 @@ public class DownloadManagerFragment extends Fragment {
 
         mDownloadWorkList = new ArrayList<DownloadWork>();
 
-        getActivity().setTitle(R.string.menu_download_manager);
+        getActivity().setTitle(R.string.menu_download_manager_browser);
     }
 
     @Override
@@ -86,7 +87,8 @@ public class DownloadManagerFragment extends Fragment {
         ViewGroup breadcrumbLayout = (ViewGroup) inflater.inflate(R.layout.browser_breadcrumb, toolbar, false);
         toolbar.addView(breadcrumbLayout);
         mTitleTextView = (TextView) breadcrumbLayout.findViewById(R.id.browser_breadcrumb_title_textview);
-        mTitleTextView.setText(R.string.menu_download_manager);
+        mTitleTextView.setText(R.string.menu_download_manager_browser);
+        mSubtitleTextView = (TextView) breadcrumbLayout.findViewById(R.id.browser_breadcrumb_subtitle_textview);
 
         mListView = (ListView) view.findViewById(R.id.browser_listview);
         mListView.setAdapter(new BrowserAdapter());
@@ -110,6 +112,12 @@ public class DownloadManagerFragment extends Fragment {
                 if (mListView != null) {
                     mListView.invalidateViews();
                 }
+
+                Integer numberOfDownloads = mDownloadWorkList.size();
+
+                String numberOfDownloadsText = getResources().getQuantityString(R.plurals.number_of_downloads, numberOfDownloads, numberOfDownloads);
+
+                mSubtitleTextView.setText(numberOfDownloadsText);
             }
         });
 
@@ -144,8 +152,12 @@ public class DownloadManagerFragment extends Fragment {
 
         if(downloadWork.getState().equals(WorkInfo.State.SUCCEEDED)) {
             colorRes = R.color.circle_green;
-        } else if(downloadWork.getState().equals(WorkInfo.State.FAILED) || downloadWork.getState().equals(WorkInfo.State.CANCELLED)) {
+        } else if(downloadWork.getState().equals(WorkInfo.State.FAILED)) {
             colorRes = R.color.circle_red;
+        } else if(downloadWork.getState().equals(WorkInfo.State.CANCELLED)) {
+            colorRes = R.color.circle_yellow;
+        } else if(downloadWork.getState().equals(WorkInfo.State.RUNNING)) {
+            colorRes = R.color.circle_blue;
         }
 
         GradientDrawable shape = (GradientDrawable) view.getBackground();

@@ -11,12 +11,12 @@
         <item android:id="@+id/drawer_menu_latest_book_collection_browser"
             android:icon="@drawable/ic_folder_grey600_24dp"
             android:title="@string/menu_library_latest"/>
-        <item android:id="@+id/drawer_menu_download_manager"
+        <item android:id="@+id/drawer_menu_download_browser"
             android:icon="@drawable/ic_folder_grey600_24dp"
-            android:title="@string/menu_download_manager"/>
-        <item android:id="@+id/drawer_menu_browser"
+            android:title="@string/menu_download_browser"/>
+        <item android:id="@+id/drawer_menu_download_manager_browser"
             android:icon="@drawable/ic_folder_grey600_24dp"
-            android:title="@string/menu_browser"/>
+            android:title="@string/menu_download_manager_browser"/>
         <item android:id="@+id/drawer_menu_about"
               android:icon="@drawable/ic_info_grey600_24dp"
               android:title="@string/menu_about"/>
