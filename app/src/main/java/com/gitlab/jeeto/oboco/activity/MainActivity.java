@@ -19,7 +19,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.gitlab.jeeto.oboco.MainApplication;
 import com.gitlab.jeeto.oboco.R;
-import com.gitlab.jeeto.oboco.api.OnErrorListener;
+import com.gitlab.jeeto.oboco.client.OnErrorListener;
 import com.gitlab.jeeto.oboco.common.Utils;
 import com.gitlab.jeeto.oboco.fragment.AboutFragment;
 import com.gitlab.jeeto.oboco.fragment.AccountLoginFragment;

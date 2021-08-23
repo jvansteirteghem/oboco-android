@@ -2,7 +2,6 @@ package com.gitlab.jeeto.oboco.fragment;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,10 +19,12 @@ import androidx.lifecycle.Observer;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkQuery;
+import androidx.work.WorkRequest;
 
 import com.gitlab.jeeto.oboco.R;
-import com.gitlab.jeeto.oboco.api.BookCollectionDto;
-import com.gitlab.jeeto.oboco.api.OnErrorListener;
+import com.gitlab.jeeto.oboco.client.OnErrorListener;
+import com.gitlab.jeeto.oboco.manager.DownloadBookCollectionWorker;
+import com.gitlab.jeeto.oboco.manager.DownloadBookWorker;
 import com.gitlab.jeeto.oboco.manager.DownloadWork;
 import com.gitlab.jeeto.oboco.manager.DownloadWorkType;
 
@@ -191,20 +192,55 @@ public class DownloadManagerBrowserFragment extends Fragment {
             TextView textView = (TextView) convertView.findViewById(R.id.browser_row_text);
             ImageView imageView = (ImageView) convertView.findViewById(R.id.browser_row_delete_icon);
 
-            textView.setText(downloadWork.getName());
+            textView.setText(downloadWork.getDownloadName());
 
-            if(downloadWork.getState().equals(WorkInfo.State.SUCCEEDED) || downloadWork.getState().equals(WorkInfo.State.FAILED) || downloadWork.getState().equals(WorkInfo.State.CANCELLED)) {
+            if(downloadWork.getState().equals(WorkInfo.State.SUCCEEDED)) {
                 imageView.setImageResource(android.R.color.transparent);
                 imageView.setOnClickListener(null);
+            } else if(downloadWork.getState().equals(WorkInfo.State.FAILED) || downloadWork.getState().equals(WorkInfo.State.CANCELLED)) {
+                imageView.setImageResource(R.drawable.outline_add_black_24);
+                imageView.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        DownloadWork downloadWork = mDownloadWorkList.get(position);
+
+                        AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
+                                .setTitle("Would you like to start the download?")
+                                .setMessage(downloadWork.getDownloadName())
+                                .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        WorkRequest downloadWorkRequest;
+
+                                        if(downloadWork.getType().equals(DownloadWorkType.BOOK)) {
+                                            downloadWorkRequest = DownloadBookWorker.createDownloadWorkRequest(downloadWork.getDownloadId(), downloadWork.getDownloadName());
+                                        } else {
+                                            downloadWorkRequest = DownloadBookCollectionWorker.createDownloadWorkRequest(downloadWork.getDownloadId(), downloadWork.getDownloadName());
+                                        }
+
+                                        WorkManager
+                                                .getInstance(getContext().getApplicationContext())
+                                                .enqueue(downloadWorkRequest);
+                                    }
+                                })
+                                .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // do nothing
+                                    }
+                                })
+                                .create();
+                        dialog.show();
+                    }
+                });
             } else {
-                imageView.setImageResource(R.drawable.outline_clear_black_24);
+                imageView.setImageResource(R.drawable.outline_remove_black_24);
                 imageView.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         DownloadWork downloadWork = mDownloadWorkList.get(position);
 
                         AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
                                 .setTitle("Would you like to stop the download?")
-                                .setMessage(downloadWork.getName())
+                                .setMessage(downloadWork.getDownloadName())
                                 .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {

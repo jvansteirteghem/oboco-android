@@ -5,12 +5,11 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 
-import com.gitlab.jeeto.oboco.api.ApplicationService;
-import com.gitlab.jeeto.oboco.api.AuthenticationManager;
-import com.gitlab.jeeto.oboco.api.BookDto;
-import com.gitlab.jeeto.oboco.api.BookMarkDto;
-import com.gitlab.jeeto.oboco.api.LinkableDto;
-import com.gitlab.jeeto.oboco.api.PageableListDto;
+import com.gitlab.jeeto.oboco.client.ApplicationService;
+import com.gitlab.jeeto.oboco.client.AuthenticationManager;
+import com.gitlab.jeeto.oboco.client.BookDto;
+import com.gitlab.jeeto.oboco.client.BookMarkDto;
+import com.gitlab.jeeto.oboco.client.LinkableDto;
 import com.gitlab.jeeto.oboco.fragment.BookReaderFragment;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Request;
@@ -18,7 +17,6 @@ import com.squareup.picasso.RequestHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;

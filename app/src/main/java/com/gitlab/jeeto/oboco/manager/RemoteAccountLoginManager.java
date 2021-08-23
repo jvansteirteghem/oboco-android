@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
-import com.gitlab.jeeto.oboco.api.AuthenticationManager;
+import com.gitlab.jeeto.oboco.client.AuthenticationManager;
 import com.gitlab.jeeto.oboco.fragment.AccountLoginFragment;
 
 import io.reactivex.Completable;

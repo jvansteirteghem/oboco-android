@@ -31,9 +31,9 @@ import androidx.work.WorkRequest;
 import com.gitlab.jeeto.oboco.Constants;
 import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.MainActivity;
-import com.gitlab.jeeto.oboco.api.BookCollectionDto;
-import com.gitlab.jeeto.oboco.api.OnErrorListener;
-import com.gitlab.jeeto.oboco.api.PageableListDto;
+import com.gitlab.jeeto.oboco.client.BookCollectionDto;
+import com.gitlab.jeeto.oboco.client.OnErrorListener;
+import com.gitlab.jeeto.oboco.client.PageableListDto;
 import com.gitlab.jeeto.oboco.common.Utils;
 import com.gitlab.jeeto.oboco.manager.BookCollectionBrowserManager;
 import com.gitlab.jeeto.oboco.manager.DownloadBookCollectionWorker;
@@ -485,29 +485,12 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                         String message = selectedBookCollectionDto.getName();
 
                         AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
-                                .setTitle("Would you like to download the books?")
+                                .setTitle("Would you like to download the book collection?")
                                 .setMessage(message)
                                 .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        Constraints constraints = new Constraints.Builder()
-                                                .setRequiredNetworkType(NetworkType.CONNECTED)
-                                                .setRequiresStorageNotLow(true)
-                                                .build();
-
-                                        WorkRequest downloadWorkRequest =
-                                                new OneTimeWorkRequest.Builder(DownloadBookCollectionWorker.class)
-                                                        .setConstraints(constraints)
-                                                        .addTag("download")
-                                                        .addTag("type:" + DownloadWorkType.BOOK_COLLECTION.name())
-                                                        .addTag("name:" + selectedBookCollectionDto.getName())
-                                                        .addTag("createDate:" + new Date().getTime())
-                                                        .setInputData(
-                                                                new Data.Builder()
-                                                                        .putLong("bookCollectionId",  selectedBookCollectionDto.getId())
-                                                                        .build()
-                                                        )
-                                                        .build();
+                                        WorkRequest downloadWorkRequest = DownloadBookCollectionWorker.createDownloadWorkRequest(selectedBookCollectionDto.getId(), selectedBookCollectionDto.getName());
 
                                         WorkManager
                                                 .getInstance(getContext().getApplicationContext())

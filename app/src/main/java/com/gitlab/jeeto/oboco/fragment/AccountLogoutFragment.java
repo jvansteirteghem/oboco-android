@@ -14,7 +14,7 @@ import android.widget.EditText;
 import androidx.fragment.app.Fragment;
 
 import com.gitlab.jeeto.oboco.R;
-import com.gitlab.jeeto.oboco.api.OnErrorListener;
+import com.gitlab.jeeto.oboco.client.OnErrorListener;
 import com.gitlab.jeeto.oboco.manager.AccountLogoutManager;
 import com.gitlab.jeeto.oboco.manager.RemoteAccountLogoutManager;
 

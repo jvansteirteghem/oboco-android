@@ -5,10 +5,10 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 
-import com.gitlab.jeeto.oboco.api.ApplicationService;
-import com.gitlab.jeeto.oboco.api.AuthenticationManager;
-import com.gitlab.jeeto.oboco.api.BookCollectionDto;
-import com.gitlab.jeeto.oboco.api.PageableListDto;
+import com.gitlab.jeeto.oboco.client.ApplicationService;
+import com.gitlab.jeeto.oboco.client.AuthenticationManager;
+import com.gitlab.jeeto.oboco.client.BookCollectionDto;
+import com.gitlab.jeeto.oboco.client.PageableListDto;
 import com.gitlab.jeeto.oboco.fragment.BookCollectionBrowserFragment;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Request;

@@ -25,10 +25,10 @@ import androidx.fragment.app.Fragment;
 
 import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.BookReaderActivity;
-import com.gitlab.jeeto.oboco.api.BookCollectionDto;
-import com.gitlab.jeeto.oboco.api.BookDto;
-import com.gitlab.jeeto.oboco.api.BookMarkDto;
-import com.gitlab.jeeto.oboco.api.OnErrorListener;
+import com.gitlab.jeeto.oboco.client.BookCollectionDto;
+import com.gitlab.jeeto.oboco.client.BookDto;
+import com.gitlab.jeeto.oboco.client.BookMarkDto;
+import com.gitlab.jeeto.oboco.client.OnErrorListener;
 import com.gitlab.jeeto.oboco.manager.BookReaderManager;
 import com.gitlab.jeeto.oboco.manager.BrowserManager;
 import com.gitlab.jeeto.oboco.manager.LocalBookReaderManager;
@@ -279,7 +279,7 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
                     textView.setText(bookDto.getName());
                 }
 
-                imageView.setImageResource(R.drawable.outline_clear_black_24);
+                imageView.setImageResource(R.drawable.outline_remove_black_24);
                 imageView.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         Object object = mObjectList.get(position);
@@ -289,7 +289,7 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
 
                             if(!(position == 0 && mCurrentBookCollectionDto.getParentBookCollection() != null)) {
                                 AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
-                                        .setTitle("Would you like to delete the books?")
+                                        .setTitle("Would you like to delete the book collection?")
                                         .setMessage(bookCollectionDto.getName())
                                         .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
                                             @Override

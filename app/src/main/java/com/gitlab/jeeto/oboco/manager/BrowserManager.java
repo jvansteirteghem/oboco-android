@@ -2,8 +2,8 @@ package com.gitlab.jeeto.oboco.manager;
 
 import android.os.Bundle;
 
-import com.gitlab.jeeto.oboco.api.BookCollectionDto;
-import com.gitlab.jeeto.oboco.api.BookDto;
+import com.gitlab.jeeto.oboco.client.BookCollectionDto;
+import com.gitlab.jeeto.oboco.client.BookDto;
 
 public abstract class BrowserManager {
     public abstract void create(Bundle savedInstanceState);

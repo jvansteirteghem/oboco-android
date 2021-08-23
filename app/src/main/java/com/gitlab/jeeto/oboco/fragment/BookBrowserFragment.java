@@ -36,16 +36,15 @@ import androidx.work.WorkRequest;
 import com.gitlab.jeeto.oboco.Constants;
 import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.BookReaderActivity;
-import com.gitlab.jeeto.oboco.api.BookCollectionDto;
-import com.gitlab.jeeto.oboco.api.BookDto;
-import com.gitlab.jeeto.oboco.api.BookMarkDto;
-import com.gitlab.jeeto.oboco.api.OnErrorListener;
-import com.gitlab.jeeto.oboco.api.PageableListDto;
+import com.gitlab.jeeto.oboco.client.BookCollectionDto;
+import com.gitlab.jeeto.oboco.client.BookDto;
+import com.gitlab.jeeto.oboco.client.BookMarkDto;
+import com.gitlab.jeeto.oboco.client.OnErrorListener;
+import com.gitlab.jeeto.oboco.client.PageableListDto;
 import com.gitlab.jeeto.oboco.common.Utils;
 import com.gitlab.jeeto.oboco.manager.BookBrowserManager;
 import com.gitlab.jeeto.oboco.manager.BookReaderManager;
 import com.gitlab.jeeto.oboco.manager.DownloadBookWorker;
-import com.gitlab.jeeto.oboco.manager.DownloadWork;
 import com.gitlab.jeeto.oboco.manager.DownloadWorkType;
 import com.gitlab.jeeto.oboco.manager.RemoteBookBrowserManager;
 import com.gitlab.jeeto.oboco.manager.RemoteBookReaderManager;
@@ -543,24 +542,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                             .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    Constraints constraints = new Constraints.Builder()
-                                            .setRequiredNetworkType(NetworkType.CONNECTED)
-                                            .setRequiresStorageNotLow(true)
-                                            .build();
-
-                                    WorkRequest downloadWorkRequest =
-                                            new OneTimeWorkRequest.Builder(DownloadBookWorker.class)
-                                                    .setConstraints(constraints)
-                                                    .addTag("download")
-                                                    .addTag("type:" + DownloadWorkType.BOOK.name())
-                                                    .addTag("name:" + selectedBookDto.getName())
-                                                    .addTag("createDate:" + new Date().getTime())
-                                                    .setInputData(
-                                                            new Data.Builder()
-                                                                    .putLong("bookId",  selectedBookDto.getId())
-                                                                    .build()
-                                                    )
-                                                    .build();
+                                    WorkRequest downloadWorkRequest = DownloadBookWorker.createDownloadWorkRequest(selectedBookDto.getId(), selectedBookDto.getName());
 
                                     WorkManager
                                             .getInstance(getContext().getApplicationContext())

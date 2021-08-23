@@ -9,8 +9,9 @@ import java.util.UUID;
 public class DownloadWork implements Comparable<DownloadWork> {
     private WorkInfo mWorkInfo;
     private DownloadWorkType mType;
-    private String mName;
     private Date mCreateDate;
+    private Long mDownloadId;
+    private String mDownloadName;
 
     public DownloadWork(WorkInfo workInfo) {
         mWorkInfo = workInfo;
@@ -22,15 +23,21 @@ public class DownloadWork implements Comparable<DownloadWork> {
 
                 mType = DownloadWorkType.valueOf(type);
             } else {
-                if(tag.startsWith("name:")) {
-                    String name = tag.substring(5);
+                if(tag.startsWith("createDate:")) {
+                    String createDate = tag.substring(11);
 
-                    mName = name;
+                    mCreateDate = new Date(Long.valueOf(createDate));
                 } else {
-                    if(tag.startsWith("createDate:")) {
-                        String createDate = tag.substring(11);
+                    if(tag.startsWith("downloadId:")) {
+                        String downloadId = tag.substring(11);
 
-                        mCreateDate = new Date(Long.valueOf(createDate));
+                        mDownloadId = Long.valueOf(downloadId);
+                    } else {
+                        if(tag.startsWith("downloadName:")) {
+                            String downloadName = tag.substring(13);
+
+                            mDownloadName = downloadName;
+                        }
                     }
                 }
             }
@@ -40,20 +47,24 @@ public class DownloadWork implements Comparable<DownloadWork> {
         return mWorkInfo.getId();
     }
 
-    public DownloadWorkType getType() {
-        return mType;
+    public WorkInfo.State getState() {
+        return mWorkInfo.getState();
     }
 
-    public String getName() {
-        return mName;
+    public DownloadWorkType getType() {
+        return mType;
     }
 
     public Date getCreateDate() {
         return mCreateDate;
     }
 
-    public WorkInfo.State getState() {
-        return mWorkInfo.getState();
+    public Long getDownloadId() {
+        return mDownloadId;
+    }
+
+    public String getDownloadName() {
+        return mDownloadName;
     }
 
     @Override

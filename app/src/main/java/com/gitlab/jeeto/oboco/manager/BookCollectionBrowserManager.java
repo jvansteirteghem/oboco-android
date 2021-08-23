@@ -3,7 +3,7 @@ package com.gitlab.jeeto.oboco.manager;
 import android.net.Uri;
 import android.os.Bundle;
 
-import com.gitlab.jeeto.oboco.api.BookCollectionDto;
+import com.gitlab.jeeto.oboco.client.BookCollectionDto;
 import com.squareup.picasso.RequestHandler;
 
 public abstract class BookCollectionBrowserManager extends RequestHandler {

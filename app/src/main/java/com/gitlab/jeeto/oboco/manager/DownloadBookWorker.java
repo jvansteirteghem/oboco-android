@@ -12,16 +12,20 @@ import android.os.Environment;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
+import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ForegroundInfo;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.gitlab.jeeto.oboco.R;
-import com.gitlab.jeeto.oboco.api.ApplicationService;
-import com.gitlab.jeeto.oboco.api.AuthenticationManager;
-import com.gitlab.jeeto.oboco.api.BookDto;
+import com.gitlab.jeeto.oboco.client.ApplicationService;
+import com.gitlab.jeeto.oboco.client.AuthenticationManager;
+import com.gitlab.jeeto.oboco.client.BookDto;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -39,6 +43,29 @@ public class DownloadBookWorker extends Worker {
     private final static String CHANNEL_DESCRIPTION = "download";
     private final static int NOTIFICATION_ID = (int) System.currentTimeMillis();
     private NotificationManager notificationManager;
+
+    public static WorkRequest createDownloadWorkRequest(Long downloadId, String downloadName) {
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresStorageNotLow(true)
+                .build();
+
+        WorkRequest downloadWorkRequest =
+                new OneTimeWorkRequest.Builder(DownloadBookWorker.class)
+                        .setConstraints(constraints)
+                        .addTag("download")
+                        .addTag("type:" + DownloadWorkType.BOOK.name())
+                        .addTag("createDate:" + new Date().getTime())
+                        .addTag("downloadId:" + downloadId)
+                        .addTag("downloadName:" + downloadName)
+                        .setInputData(
+                                new Data.Builder()
+                                        .putLong("bookId", downloadId)
+                                        .build()
+                        )
+                        .build();
+        return downloadWorkRequest;
+    }
 
     public DownloadBookWorker(
             @NonNull Context context,
@@ -174,7 +201,7 @@ public class DownloadBookWorker extends Worker {
                 .setSilent(true)
                 // Add the cancel action to the notification which can
                 // be used to cancel the worker
-                .addAction(R.drawable.outline_clear_black_24, "Stop", intent);
+                .addAction(R.drawable.outline_remove_black_24, "Stop", intent);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannel(notificationBuilder, CHANNEL_ID);

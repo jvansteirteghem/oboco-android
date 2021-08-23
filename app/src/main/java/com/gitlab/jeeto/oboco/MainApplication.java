@@ -8,7 +8,7 @@ import android.widget.Toast;
 
 import androidx.startup.AppInitializer;
 
-import com.gitlab.jeeto.oboco.api.ProblemException;
+import com.gitlab.jeeto.oboco.client.ProblemException;
 import com.gitlab.jeeto.oboco.manager.DownloadWorkManagerInitializer;
 
 import java.io.IOException;

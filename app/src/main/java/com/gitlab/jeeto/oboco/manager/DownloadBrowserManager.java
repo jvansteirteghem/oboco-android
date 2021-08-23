@@ -5,9 +5,9 @@ import android.os.Environment;
 
 import androidx.room.Room;
 
-import com.gitlab.jeeto.oboco.api.BookCollectionDto;
-import com.gitlab.jeeto.oboco.api.BookDto;
-import com.gitlab.jeeto.oboco.api.BookMarkDto;
+import com.gitlab.jeeto.oboco.client.BookCollectionDto;
+import com.gitlab.jeeto.oboco.client.BookDto;
+import com.gitlab.jeeto.oboco.client.BookMarkDto;
 import com.gitlab.jeeto.oboco.common.NaturalOrderComparator;
 import com.gitlab.jeeto.oboco.database.AppDatabase;
 import com.gitlab.jeeto.oboco.database.Book;
