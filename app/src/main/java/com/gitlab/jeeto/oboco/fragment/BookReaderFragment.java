@@ -58,6 +58,8 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 public class BookReaderFragment extends Fragment implements View.OnTouchListener {
+    public static final String STATE_CURRENT_BOOK_PAGE = "STATE_CURRENT_BOOK_PAGE";
+
     private BookViewPager mViewPager;
     private LinearLayout mPageNavLayout;
     private SeekBar mPageSeekBar;
@@ -327,6 +329,10 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
             }
         });
 
+        if (savedInstanceState != null) {
+            mCurrentPage = savedInstanceState.getInt(STATE_CURRENT_BOOK_PAGE);
+        }
+
         return view;
     }
 
@@ -357,6 +363,8 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
+        outState.putInt(STATE_CURRENT_BOOK_PAGE, mCurrentPage);
 
         mBookReaderManager.saveInstanceState(outState);
     }
