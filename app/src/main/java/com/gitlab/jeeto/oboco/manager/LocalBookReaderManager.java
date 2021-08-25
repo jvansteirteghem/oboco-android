@@ -66,6 +66,13 @@ public class LocalBookReaderManager extends BookReaderManager {
 
     @Override
     public void destroy() {
+        if(mAppDatabase != null) {
+            if(mAppDatabase.isOpen()) {
+                mAppDatabase.close();
+            }
+            mAppDatabase = null;
+        }
+
         try {
             mBookReader.destroy();
         } catch(Exception e) {
