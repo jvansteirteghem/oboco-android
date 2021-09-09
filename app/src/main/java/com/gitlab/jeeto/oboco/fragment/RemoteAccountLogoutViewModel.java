@@ -1,14 +1,15 @@
-package com.gitlab.jeeto.oboco.manager;
+package com.gitlab.jeeto.oboco.fragment;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.gitlab.jeeto.oboco.client.ApplicationService;
 import com.gitlab.jeeto.oboco.client.AuthenticationManager;
 import com.gitlab.jeeto.oboco.client.UserDto;
 import com.gitlab.jeeto.oboco.client.UserPasswordDto;
-import com.gitlab.jeeto.oboco.fragment.AccountLogoutFragment;
 
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
@@ -20,56 +21,59 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
-public class RemoteAccountLogoutManager extends AccountLogoutManager {
-    private AccountLogoutFragment mAccountLogoutFragment;
-
-    private SharedPreferences mSharedPreferences;
+public class RemoteAccountLogoutViewModel extends AccountLogoutViewModel {
+    private static final String TAG = "AccountLogout";
+    private String mBaseUrl;
 
     private AuthenticationManager mAuthenticationManager;
     private Disposable mAuthenticationManagerDisposable;
     private ApplicationService mApplicationService;
 
-    public RemoteAccountLogoutManager(AccountLogoutFragment fragment) {
-        mAccountLogoutFragment = fragment;
-    }
+    public RemoteAccountLogoutViewModel(Application application, Bundle arguments) {
+        super(application, arguments);
 
-    @Override
-    public void create(Bundle savedInstanceState) {
-        mSharedPreferences = mAccountLogoutFragment.getContext().getSharedPreferences("application", Context.MODE_PRIVATE);
+        SharedPreferences sp = getApplication().getSharedPreferences("application", Context.MODE_PRIVATE);
+        mBaseUrl = sp.getString("baseUrl", "");
 
-        String baseUrl = mSharedPreferences.getString("baseUrl", "");
-
-        mAuthenticationManager = new AuthenticationManager(mAccountLogoutFragment.getContext());
+        mAuthenticationManager = new AuthenticationManager(getApplication().getApplicationContext());
         Observable<Throwable> observable = mAuthenticationManager.getErrors();
         observable = observable.observeOn(AndroidSchedulers.mainThread());
         observable = observable.subscribeOn(Schedulers.io());
         mAuthenticationManagerDisposable = observable.subscribe(new Consumer<Throwable>() {
             @Override
             public void accept(Throwable e) throws Exception {
-                mAccountLogoutFragment.onError(e);
+                Log.v(TAG, "Error.", e);
+
+                mMessageObservable.setValue(toMessage(e));
+                mShowMessageObservable.setValue(true);
             }
         });
 
-        mApplicationService = new ApplicationService(mAccountLogoutFragment.getContext(), baseUrl, mAuthenticationManager);
+        mApplicationService = new ApplicationService(getApplication().getApplicationContext(), mBaseUrl, mAuthenticationManager);
+
+        load();
     }
 
     @Override
-    public void destroy() {
+    protected void onCleared() {
         mAuthenticationManagerDisposable.dispose();
     }
 
     @Override
-    public void saveInstanceState(Bundle outState) {
-
-    }
-
-    @Override
     public void load() {
-        mAccountLogoutFragment.onLoad();
+        mPasswordObservable.setValue("");
+
+        mUpdatePasswordObservable.setValue("");
+
+        mShowPasswordObservable.setValue(false);
+
+        mIsEnabledObservable.setValue(true);
     }
 
     @Override
     public void logout() {
+        mIsEnabledObservable.setValue(false);
+
         Completable completable = mAuthenticationManager.logout();
         completable = completable.observeOn(AndroidSchedulers.mainThread());
         completable = completable.subscribeOn(Schedulers.io());
@@ -81,21 +85,33 @@ public class RemoteAccountLogoutManager extends AccountLogoutManager {
 
             @Override
             public void onComplete() {
-                mAccountLogoutFragment.onLogout();
+                mMessageObservable.setValue("You are logged out.");
+                mShowMessageObservable.setValue(true);
+
+                mIsEnabledObservable.setValue(true);
+
+                mNavigateToAccountLoginViewObservable.setValue(true);
             }
 
             @Override
             public void onError(Throwable e) {
-                mAccountLogoutFragment.onError(e);
+                Log.v(TAG, "Error.", e);
+
+                mMessageObservable.setValue(toMessage(e));
+                mShowMessageObservable.setValue(true);
+
+                mIsEnabledObservable.setValue(true);
             }
         });
     }
 
     @Override
-    public void updatePassword(String password, String updatePassword) {
+    public void updatePassword() {
+        mIsEnabledObservable.setValue(false);
+
         UserPasswordDto userPasswordDto = new UserPasswordDto();
-        userPasswordDto.setPassword(password);
-        userPasswordDto.setUpdatePassword(updatePassword);
+        userPasswordDto.setPassword(mPasswordObservable.getValue());
+        userPasswordDto.setUpdatePassword(mUpdatePasswordObservable.getValue());
 
         Single<UserDto> single = mApplicationService.updateAuthenticatedUserPassword(userPasswordDto);
         single = single.observeOn(AndroidSchedulers.mainThread());
@@ -108,12 +124,28 @@ public class RemoteAccountLogoutManager extends AccountLogoutManager {
 
             @Override
             public void onSuccess(UserDto userDto) {
-                mAccountLogoutFragment.onUpdatePassword();
+                mMessageObservable.setValue("Your password is updated.");
+                mShowMessageObservable.setValue(true);
+
+                mPasswordObservable.setValue("");
+
+                mUpdatePasswordObservable.setValue("");
+
+                mShowPasswordObservable.setValue(false);
+
+                mIsEnabledObservable.setValue(true);
+
+                mNavigateToAccountLoginViewObservable.setValue(true);
             }
 
             @Override
             public void onError(Throwable e) {
-                mAccountLogoutFragment.onError(e);
+                Log.v(TAG, "Error.", e);
+
+                mMessageObservable.setValue(toMessage(e));
+                mShowMessageObservable.setValue(true);
+
+                mIsEnabledObservable.setValue(true);
             }
         });
     }

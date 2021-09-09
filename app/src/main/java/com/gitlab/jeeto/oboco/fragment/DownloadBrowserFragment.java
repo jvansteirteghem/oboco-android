@@ -1,7 +1,6 @@
 package com.gitlab.jeeto.oboco.fragment;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
@@ -14,6 +13,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -22,17 +22,15 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.BookReaderActivity;
 import com.gitlab.jeeto.oboco.client.BookCollectionDto;
 import com.gitlab.jeeto.oboco.client.BookDto;
 import com.gitlab.jeeto.oboco.client.BookMarkDto;
-import com.gitlab.jeeto.oboco.client.OnErrorListener;
-import com.gitlab.jeeto.oboco.manager.BookReaderManager;
-import com.gitlab.jeeto.oboco.manager.BrowserManager;
-import com.gitlab.jeeto.oboco.manager.LocalBookReaderManager;
-import com.gitlab.jeeto.oboco.manager.DownloadBrowserManager;
+import com.gitlab.jeeto.oboco.common.BaseViewModelProviderFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,20 +40,20 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
     private TextView mTitleTextView;
     private TextView mSubtitleTextView;
 
-    private BrowserManager mDownloadBrowserManager;
-    private OnErrorListener mOnErrorListener;
-
-    private BookCollectionDto mCurrentBookCollectionDto;
     private List<Object> mObjectList;
 
     private ActivityResultLauncher<Intent> mBookReaderActivityResultLauncher;
+
+    private DownloadBrowserViewModel mViewModel;
+
+    private AlertDialog mDeleteSelectedBookCollectionDialog;
+    private AlertDialog mDeleteSelectedBookDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mDownloadBrowserManager = new DownloadBrowserManager(this);
-        mDownloadBrowserManager.create(savedInstanceState);
+        mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(DownloadBrowserViewModel.class);
 
         mObjectList = new ArrayList<Object>();
 
@@ -71,7 +69,9 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
                             List<BookDto> updatedBookListDto = (List<BookDto>) result.getData().getSerializableExtra("updatedBookList");
 
                             if(updatedBookListDto.size() != 0) {
-                                List<BookDto> bookListDto = mCurrentBookCollectionDto.getBooks();
+                                BookCollectionDto currentBookCollectionDto = mViewModel.getCurrentBookCollection();
+
+                                List<BookDto> bookListDto = currentBookCollectionDto.getBooks();
 
                                 int index = 0;
 
@@ -87,7 +87,7 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
                                     index = index + 1;
                                 }
 
-                                onLoad(mCurrentBookCollectionDto);
+                                mViewModel.setCurrentBookCollection(currentBookCollectionDto);
                             }
                         }
                     }
@@ -96,29 +96,7 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
 
     @Override
     public void onDestroy() {
-        mDownloadBrowserManager.destroy();
-
         super.onDestroy();
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnErrorListener) {
-            mOnErrorListener = (OnErrorListener) context;
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mOnErrorListener = null;
-    }
-
-    public void onError(Throwable e) {
-        if(mOnErrorListener != null) {
-            mOnErrorListener.onError(e);
-        }
     }
 
     @Override
@@ -136,16 +114,122 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
         mListView.setAdapter(new BrowserAdapter());
         mListView.setOnItemClickListener(this);
 
-        mDownloadBrowserManager.load();
+        mViewModel.getCurrentBookCollectionObservable().observe(getViewLifecycleOwner(), new Observer<BookCollectionDto>() {
+            @Override
+            public void onChanged(BookCollectionDto currentBookCollectionDto) {
+                mObjectList = new ArrayList<Object>();
+
+                if(currentBookCollectionDto.getParentBookCollection() != null) {
+                    mObjectList.add(currentBookCollectionDto.getParentBookCollection());
+                }
+
+                for(BookCollectionDto bookCollectionDto: currentBookCollectionDto.getBookCollections()) {
+                    mObjectList.add(bookCollectionDto);
+                }
+
+                for(BookDto bookDto: currentBookCollectionDto.getBooks()) {
+                    mObjectList.add(bookDto);
+                }
+
+                if (mListView != null) {
+                    mListView.invalidateViews();
+                }
+
+                mSubtitleTextView.setText(currentBookCollectionDto.getPath());
+            }
+        });
+        mViewModel.getShowDeleteSelectedBookCollectionDialogObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean showDeleteSelectedBookCollectionDialog) {
+                if(showDeleteSelectedBookCollectionDialog) {
+                    if (mDeleteSelectedBookCollectionDialog == null) {
+                        mDeleteSelectedBookCollectionDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
+                                .setTitle("Would you like to delete the book collection?")
+                                .setMessage(mViewModel.getSelectedBookCollection().getName())
+                                .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        mViewModel.deleteSelectedBookCollection();
+                                        mViewModel.setShowDeleteSelectedBookCollectionDialog(false);
+
+                                        mDeleteSelectedBookCollectionDialog = null;
+                                    }
+                                })
+                                .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        mViewModel.setShowDeleteSelectedBookCollectionDialog(false);
+
+                                        mDeleteSelectedBookCollectionDialog = null;
+                                    }
+                                })
+                                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                    @Override
+                                    public void onCancel(DialogInterface dialog) {
+                                        mViewModel.setShowDeleteSelectedBookCollectionDialog(false);
+
+                                        mDeleteSelectedBookCollectionDialog = null;
+                                    }
+                                })
+                                .create();
+                        mDeleteSelectedBookCollectionDialog.show();
+                    }
+                }
+            }
+        });
+        mViewModel.getShowDeleteSelectedBookDialogObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean showDeleteSelectedBookDialog) {
+                if(showDeleteSelectedBookDialog) {
+                    if(mDeleteSelectedBookCollectionDialog == null) {
+                        mDeleteSelectedBookDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
+                                .setTitle("Would you like to delete the book?")
+                                .setMessage(mViewModel.getSelectedBook().getName())
+                                .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        mViewModel.deleteSelectedBook();
+                                        mViewModel.setShowDeleteSelectedBookDialog(false);
+
+                                        mDeleteSelectedBookDialog = null;
+                                    }
+                                })
+                                .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        mViewModel.setShowDeleteSelectedBookDialog(false);
+
+                                        mDeleteSelectedBookDialog = null;
+                                    }
+                                })
+                                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                    @Override
+                                    public void onCancel(DialogInterface dialog) {
+                                        mViewModel.setShowDeleteSelectedBookDialog(false);
+
+                                        mDeleteSelectedBookDialog = null;
+                                    }
+                                })
+                                .create();
+                        mDeleteSelectedBookDialog.show();
+                    }
+                }
+
+            }
+        });
+        mViewModel.getShowMessageObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean showMessage) {
+                if(showMessage) {
+                    mViewModel.setShowMessage(false);
+
+                    Toast toast = Toast.makeText(getContext(), mViewModel.getMessage(), Toast.LENGTH_LONG);
+                    toast.show();
+                }
+            }
+        });
 
         return view;
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        mDownloadBrowserManager.saveInstanceState(outState);
-
-        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -153,43 +237,18 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
         ViewGroup toolbar = (ViewGroup) getActivity().findViewById(R.id.toolbar);
         ViewGroup breadcrumb = (ViewGroup) toolbar.findViewById(R.id.browser_breadcrumb_layout);
         toolbar.removeView(breadcrumb);
+
+        if(mDeleteSelectedBookCollectionDialog != null) {
+            mDeleteSelectedBookCollectionDialog.dismiss();
+            mDeleteSelectedBookCollectionDialog = null;
+        }
+
+        if(mDeleteSelectedBookDialog != null) {
+            mDeleteSelectedBookDialog.dismiss();
+            mDeleteSelectedBookDialog = null;
+        }
+
         super.onDestroyView();
-    }
-
-    public void onLoad(BookCollectionDto currentBookCollectionDto) {
-        mCurrentBookCollectionDto = currentBookCollectionDto;
-
-        mObjectList = new ArrayList<Object>();
-
-        if(mCurrentBookCollectionDto.getParentBookCollection() != null) {
-            mObjectList.add(mCurrentBookCollectionDto.getParentBookCollection());
-        }
-
-        for(BookCollectionDto bookCollectionDto: mCurrentBookCollectionDto.getBookCollections()) {
-            mObjectList.add(bookCollectionDto);
-        }
-
-        for(BookDto bookDto: mCurrentBookCollectionDto.getBooks()) {
-            mObjectList.add(bookDto);
-        }
-
-        if (mListView != null) {
-            mListView.invalidateViews();
-        }
-
-        mSubtitleTextView.setText(mCurrentBookCollectionDto.getPath());
-    }
-
-    public void onDeleteBook(BookDto bookDto) {
-        mCurrentBookCollectionDto.getBooks().remove(bookDto);
-
-        onLoad(mCurrentBookCollectionDto);
-    }
-
-    public void onDeleteBookCollection(BookCollectionDto bookCollectionDto) {
-        mCurrentBookCollectionDto.getBookCollections().remove(bookCollectionDto);
-
-        onLoad(mCurrentBookCollectionDto);
     }
 
     @Override
@@ -199,13 +258,13 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
         if (object instanceof BookCollectionDto) {
             BookCollectionDto bookCollectionDto = (BookCollectionDto) object;
 
-            mDownloadBrowserManager.load(bookCollectionDto);
+            mViewModel.loadBookCollection(bookCollectionDto);
         } else {
             BookDto bookDto = (BookDto) object;
 
             Intent intent = new Intent(getActivity(), BookReaderActivity.class);
-            intent.putExtra(BookReaderManager.PARAM_MODE, BookReaderManager.Mode.MODE_LOCAL);
-            intent.putExtra(LocalBookReaderManager.PARAM_BOOK_PATH, bookDto.getPath());
+            intent.putExtra(BookReaderViewModel.PARAM_MODE, BookReaderViewModel.Mode.MODE_LOCAL);
+            intent.putExtra(BookReaderViewModel.PARAM_BOOK_PATH, bookDto.getPath());
             mBookReaderActivityResultLauncher.launch(intent);
         }
     }
@@ -263,7 +322,7 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
             TextView textView = (TextView) convertView.findViewById(R.id.browser_row_text);
             ImageView imageView = (ImageView) convertView.findViewById(R.id.browser_row_delete_icon);
 
-            if(position == 0 && mCurrentBookCollectionDto.getParentBookCollection() != null) {
+            if(position == 0 && mViewModel.getCurrentBookCollection().getParentBookCollection() != null) {
                 textView.setText("..");
 
                 imageView.setImageResource(android.R.color.transparent);
@@ -287,45 +346,15 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
                         if(object instanceof BookCollectionDto) {
                             BookCollectionDto bookCollectionDto = (BookCollectionDto) object;
 
-                            if(!(position == 0 && mCurrentBookCollectionDto.getParentBookCollection() != null)) {
-                                AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
-                                        .setTitle("Would you like to delete the book collection?")
-                                        .setMessage(bookCollectionDto.getName())
-                                        .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                mDownloadBrowserManager.deleteBookCollection(bookCollectionDto);
-                                            }
-                                        })
-                                        .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                // do nothing
-                                            }
-                                        })
-                                        .create();
-                                dialog.show();
+                            if(!(position == 0 && mViewModel.getCurrentBookCollection().getParentBookCollection() != null)) {
+                                mViewModel.setSelectedBookCollection(bookCollectionDto);
+                                mViewModel.setShowDeleteSelectedBookCollectionDialog(true);
                             }
                         } else {
                             BookDto bookDto = (BookDto) object;
 
-                            AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
-                                    .setTitle("Would you like to delete the book?")
-                                    .setMessage(bookDto.getName())
-                                    .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            mDownloadBrowserManager.deleteBook(bookDto);
-                                        }
-                                    })
-                                    .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            // do nothing
-                                        }
-                                    })
-                                    .create();
-                            dialog.show();
+                            mViewModel.setSelectedBook(bookDto);
+                            mViewModel.setShowDeleteSelectedBookDialog(true);
                         }
                     }
                 });

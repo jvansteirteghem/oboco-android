@@ -1,6 +1,6 @@
-package com.gitlab.jeeto.oboco.manager;
+package com.gitlab.jeeto.oboco.fragment;
 
-import android.net.Uri;
+import android.app.Application;
 import android.os.Bundle;
 
 import androidx.room.Room;
@@ -11,16 +11,10 @@ import com.gitlab.jeeto.oboco.client.LinkableDto;
 import com.gitlab.jeeto.oboco.common.NaturalOrderComparator;
 import com.gitlab.jeeto.oboco.database.AppDatabase;
 import com.gitlab.jeeto.oboco.database.Book;
-import com.gitlab.jeeto.oboco.fragment.BookReaderFragment;
 import com.gitlab.jeeto.oboco.reader.BookReader;
 import com.gitlab.jeeto.oboco.reader.ZipBookReader;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Request;
-import com.squareup.picasso.RequestHandler;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,40 +26,36 @@ import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import okio.Okio;
 
-public class LocalBookReaderManager extends BookReaderManager {
-    public static final String PARAM_BOOK_PATH = "PARAM_BOOK_PATH";
-    private BookReaderFragment mBookReaderFragment;
+public class LocalBookReaderViewModel extends BookReaderViewModel {
+    private String mBookPath;
+
     private BookReader mBookReader;
     private File mBookFile;
     private AppDatabase mAppDatabase;
 
-    public LocalBookReaderManager(BookReaderFragment bookReaderFragment) {
-        super();
-        mBookReaderFragment = bookReaderFragment;
-    }
+    public LocalBookReaderViewModel(Application application, Bundle arguments) {
+        super(application, arguments);
 
-    @Override
-    public void create(Bundle savedInstanceState) {
-        Bundle bundle = mBookReaderFragment.getArguments();
+        mBookPath = getArguments().getString(BookReaderViewModel.PARAM_BOOK_PATH);
 
-        String bookPath = bundle.getString(LocalBookReaderManager.PARAM_BOOK_PATH);
-
-        mBookFile = new File(bookPath);
+        mBookFile = new File(mBookPath);
 
         try {
             mBookReader = new ZipBookReader(mBookFile);
             mBookReader.create();
         } catch(Exception e) {
-            mBookReaderFragment.onError(e);
+            mMessageObservable.setValue(toMessage(e));
+            mShowMessageObservable.setValue(true);
         }
 
-        mAppDatabase = Room.databaseBuilder(mBookReaderFragment.getActivity().getApplicationContext(), AppDatabase.class, "database").build();
+        mAppDatabase = Room.databaseBuilder(getApplication().getApplicationContext(), AppDatabase.class, "database").build();
+
+        load();
     }
 
     @Override
-    public void destroy() {
+    protected void onCleared() {
         if(mAppDatabase != null) {
             if(mAppDatabase.isOpen()) {
                 mAppDatabase.close();
@@ -76,18 +66,21 @@ public class LocalBookReaderManager extends BookReaderManager {
         try {
             mBookReader.destroy();
         } catch(Exception e) {
-            mBookReaderFragment.onError(e);
+            mMessageObservable.setValue(toMessage(e));
+            mShowMessageObservable.setValue(true);
         }
     }
 
     @Override
-    public void saveInstanceState(Bundle outState) {
-
+    public BookReaderRequestHandler getRequestHandler() {
+        return new LocalBookReaderRequestHandler(mBookReader);
     }
 
     @Override
     public void load() {
-        BookDto bookDto = new BookDto();;
+        mIsFullscreenObservable.setValue(true);
+
+        BookDto bookDto = new BookDto();
         LinkableDto<BookDto> bookLinkableDto = new LinkableDto<BookDto>();
 
         File[] files = mBookFile.getParentFile().listFiles();
@@ -159,20 +152,32 @@ public class LocalBookReaderManager extends BookReaderManager {
                     bookMarkDto.setPage(book.page);
 
                     bookDto.setBookMark(bookMarkDto);
+
+                    mSelectedBookPageObservable.setValue(bookMarkDto.getPage());
+                } else {
+                    mSelectedBookPageObservable.setValue(1);
                 }
 
-                mBookReaderFragment.onLoad(bookDto, bookLinkableDto);
+                mBookObservable.setValue(bookDto);
+                mBookLinkableObservable.setValue(bookLinkableDto);
             }
 
             @Override
             public void onError(Throwable e) {
-                mBookReaderFragment.onError(e);
+                mMessageObservable.setValue(toMessage(e));
+                mShowMessageObservable.setValue(true);
             }
         });
     }
 
     @Override
-    public void addBookMark(int bookPage) {
+    public void addBookMark() {
+        BookMarkDto bookMarkDto = new BookMarkDto();
+        bookMarkDto.setPage(mSelectedBookPageObservable.getValue());
+
+        BookDto bookDto = mBookObservable.getValue();
+        bookDto.setBookMark(bookMarkDto);
+
         Single<List<Book>> single = mAppDatabase.bookDao().findByPath(mBookFile.getAbsolutePath());
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
@@ -186,7 +191,7 @@ public class LocalBookReaderManager extends BookReaderManager {
             public void onSuccess(List<Book> bookList) {
                 if(bookList.size() == 1) {
                     Book book = bookList.get(0);
-                    book.page = bookPage;
+                    book.page = bookMarkDto.getPage();
 
                     Completable completable = mAppDatabase.bookDao().update(book);
                     completable = completable.observeOn(AndroidSchedulers.mainThread());
@@ -199,22 +204,20 @@ public class LocalBookReaderManager extends BookReaderManager {
 
                         @Override
                         public void onComplete() {
-                            BookMarkDto bookMarkDto = new BookMarkDto();
-                            bookMarkDto.setPage(bookPage);
-
-                            mBookReaderFragment.onAddBookMark(bookMarkDto);
+                            mBookMarkObservable.setValue(bookMarkDto);
                         }
 
                         @Override
                         public void onError(Throwable e) {
-                            mBookReaderFragment.onError(e);
+                            mMessageObservable.setValue(toMessage(e));
+                            mShowMessageObservable.setValue(true);
                         }
                     });
                 } else {
                     Book book = new Book();
                     book.path = mBookFile.getAbsolutePath();
                     book.bookCollectionPath = mBookFile.getParentFile().getAbsolutePath();
-                    book.page = bookPage;
+                    book.page = bookMarkDto.getPage();
                     book.numberOfPages = mBookReader.getNumberOfPages();
 
                     Completable completable = mAppDatabase.bookDao().create(book);
@@ -228,15 +231,13 @@ public class LocalBookReaderManager extends BookReaderManager {
 
                         @Override
                         public void onComplete() {
-                            BookMarkDto bookMarkDto = new BookMarkDto();
-                            bookMarkDto.setPage(bookPage);
-
-                            mBookReaderFragment.onAddBookMark(bookMarkDto);
+                            mBookMarkObservable.setValue(bookMarkDto);
                         }
 
                         @Override
                         public void onError(Throwable e) {
-                            mBookReaderFragment.onError(e);
+                            mMessageObservable.setValue(toMessage(e));
+                            mShowMessageObservable.setValue(true);
                         }
                     });
                 }
@@ -244,35 +245,9 @@ public class LocalBookReaderManager extends BookReaderManager {
 
             @Override
             public void onError(Throwable e) {
-                mBookReaderFragment.onError(e);
+                mMessageObservable.setValue(toMessage(e));
+                mShowMessageObservable.setValue(true);
             }
         });
-    }
-
-    public Uri getBookPageUri(int bookPage) {
-        return new Uri.Builder()
-                .scheme("bookReaderManager")
-                .authority("")
-                .path("/bookPage")
-                .appendQueryParameter("bookPage", Integer.toString(bookPage))
-                .build();
-    }
-
-    @Override
-    public boolean canHandleRequest(Request request) {
-        return request.uri.getScheme().equals("bookReaderManager");
-    }
-
-    @Override
-    public Result load(Request request, int networkPolicy) throws IOException {
-        if(request.uri.getPath().equals("/bookPage")) {
-            Integer bookPage = Integer.parseInt(request.uri.getQueryParameter("bookPage"));
-
-            InputStream inputStream = mBookReader.getPage(bookPage);
-
-            return new RequestHandler.Result(Okio.source(inputStream), Picasso.LoadedFrom.DISK);
-        } else {
-            throw new IOException("uri is invalid");
-        }
     }
 }

@@ -108,6 +108,20 @@ public class AuthenticationManager {
 
                     @Override
                     public void onError(Throwable e) {
+                        if(e instanceof ProblemException) {
+                            ProblemException pe = (ProblemException) e;
+
+                            if(pe.getProblem().getStatusCode() == 401) {
+                                mWorkManager.cancelAllWorkByTag("download");
+                                mWorkManager.pruneWork();
+
+                                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                                editor.putString("accessToken", "");
+                                editor.putString("refreshToken", "");
+                                editor.commit();
+                            }
+                        }
+
                         mThrowablePublishSubject.onNext(e);
 
                         observer.onError(e);

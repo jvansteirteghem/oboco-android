@@ -17,21 +17,18 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import com.gitlab.jeeto.oboco.MainApplication;
 import com.gitlab.jeeto.oboco.R;
-import com.gitlab.jeeto.oboco.client.OnErrorListener;
 import com.gitlab.jeeto.oboco.common.Utils;
 import com.gitlab.jeeto.oboco.fragment.AboutFragment;
 import com.gitlab.jeeto.oboco.fragment.AccountLoginFragment;
 import com.gitlab.jeeto.oboco.fragment.AccountLogoutFragment;
-import com.gitlab.jeeto.oboco.fragment.DownloadBrowserFragment;
 import com.gitlab.jeeto.oboco.fragment.BookCollectionBrowserFragment;
+import com.gitlab.jeeto.oboco.fragment.DownloadBrowserFragment;
 import com.gitlab.jeeto.oboco.fragment.DownloadManagerBrowserFragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 
-
-public class MainActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener, AccountLoginFragment.OnAccountLoginListener, AccountLogoutFragment.OnAccountLogoutListener, OnErrorListener {
+public class MainActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener {
     private final static String STATE_CURRENT_MENU_ITEM = "STATE_CURRENT_MENU_ITEM";
 
     private DrawerLayout mDrawerLayout;
@@ -273,8 +270,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         return super.onSupportNavigateUp();
     }
 
-    @Override
-    public void onLogin() {
+    public void navigateToAccountLogoutView() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
 
         MenuItem menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser);
@@ -282,16 +278,15 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_latest_book_collection_browser);
         menuItem.setVisible(true);
 
-        setFragment(BookCollectionBrowserFragment.create(-1L));
+        setFragment(new AccountLogoutFragment());
 
-        menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser);
+        menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_account);
         menuItem.setChecked(true);
 
         mCurrentNavItem = menuItem.getItemId();
     }
 
-    @Override
-    public void onLogout() {
+    public void navigateToAccountLoginView() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
 
         MenuItem menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser);
@@ -305,10 +300,5 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         menuItem.setChecked(true);
 
         mCurrentNavItem = menuItem.getItemId();
-    }
-
-    @Override
-    public void onError(Throwable e) {
-        MainApplication.handleError(this, e);
     }
 }

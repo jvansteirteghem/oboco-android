@@ -10,7 +10,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -20,20 +19,20 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
@@ -42,12 +41,9 @@ import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.BookReaderActivity;
 import com.gitlab.jeeto.oboco.client.BookDto;
 import com.gitlab.jeeto.oboco.client.BookMarkDto;
-import com.gitlab.jeeto.oboco.client.LinkableDto;
-import com.gitlab.jeeto.oboco.client.OnErrorListener;
+import com.gitlab.jeeto.oboco.common.BaseViewModel;
+import com.gitlab.jeeto.oboco.common.BaseViewModelProviderFactory;
 import com.gitlab.jeeto.oboco.common.Utils;
-import com.gitlab.jeeto.oboco.manager.BookReaderManager;
-import com.gitlab.jeeto.oboco.manager.LocalBookReaderManager;
-import com.gitlab.jeeto.oboco.manager.RemoteBookReaderManager;
 import com.gitlab.jeeto.oboco.view.BookViewPager;
 import com.gitlab.jeeto.oboco.view.PageImageView;
 import com.squareup.picasso.MemoryPolicy;
@@ -58,8 +54,6 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 public class BookReaderFragment extends Fragment implements View.OnTouchListener {
-    public static final String STATE_CURRENT_BOOK_PAGE = "STATE_CURRENT_BOOK_PAGE";
-
     private BookViewPager mViewPager;
     private LinearLayout mPageNavLayout;
     private SeekBar mPageSeekBar;
@@ -68,23 +62,18 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
     private GestureDetector mGestureDetector;
 
     private final static HashMap<Integer, Constants.PageViewMode> RESOURCE_VIEW_MODE;
-    private boolean mIsFullscreen;
-    private int mCurrentPage;
     private Constants.PageViewMode mPageViewMode;
     private boolean mIsLeftToRight;
 
     private Picasso mPicasso;
     private SparseArray<BookReaderTarget> mTargets = new SparseArray<>();
 
-    private BookReaderManager mBookReaderManager;
-    private OnErrorListener mOnErrorListener;
+    private BookReaderViewModel.Mode mMode;
 
-    private BookReaderManager.Mode mMode;
-    private BookDto mBookDto;
-    private LinkableDto<BookDto> mBookLinkableDto;
-
-    private Dialog mSwitchBookPageDialog;
     private Dialog mSwitchBookDialog;
+
+    private BookReaderViewModel mViewModel;
+    private BookReaderRequestHandler mRequestHandler;
 
     static {
         RESOURCE_VIEW_MODE = new HashMap<Integer, Constants.PageViewMode>();
@@ -96,8 +85,8 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
     public static BookReaderFragment create(Long bookId) {
         BookReaderFragment fragment = new BookReaderFragment();
         Bundle args = new Bundle();
-        args.putSerializable(BookReaderManager.PARAM_MODE, BookReaderManager.Mode.MODE_REMOTE);
-        args.putLong(RemoteBookReaderManager.PARAM_BOOK_ID, bookId);
+        args.putSerializable(BookReaderViewModel.PARAM_MODE, BookReaderViewModel.Mode.MODE_REMOTE);
+        args.putLong(BookReaderViewModel.PARAM_BOOK_ID, bookId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -105,8 +94,8 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
     public static BookReaderFragment create(String bookPath) {
         BookReaderFragment fragment = new BookReaderFragment();
         Bundle args = new Bundle();
-        args.putSerializable(BookReaderManager.PARAM_MODE, BookReaderManager.Mode.MODE_LOCAL);
-        args.putString(LocalBookReaderManager.PARAM_BOOK_PATH, bookPath);
+        args.putSerializable(BookReaderViewModel.PARAM_MODE, BookReaderViewModel.Mode.MODE_LOCAL);
+        args.putString(BookReaderViewModel.PARAM_BOOK_PATH, bookPath);
         fragment.setArguments(args);
         return fragment;
     }
@@ -116,133 +105,15 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnErrorListener) {
-            mOnErrorListener = (OnErrorListener) context;
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mOnErrorListener = null;
-    }
-
-    public void onError(Throwable e) {
-        if(mOnErrorListener != null) {
-            mOnErrorListener.onError(e);
-        }
-    }
-
-    public void onAddBookMark(BookMarkDto bookMarkDto) {
-        mBookDto.setBookMark(bookMarkDto);
-
-        ((BookReaderActivity) getActivity()).onAddBook(mBookDto);
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Bundle bundle = getArguments();
-        mMode = (BookReaderManager.Mode) bundle.getSerializable(BookReaderManager.PARAM_MODE);
+        mMode = (BookReaderViewModel.Mode) getArguments().getSerializable(BookReaderViewModel.PARAM_MODE);
 
-        if(mMode == BookReaderManager.Mode.MODE_REMOTE) {
-            mBookReaderManager = new RemoteBookReaderManager(this);
-        } else if(mMode == BookReaderManager.Mode.MODE_LOCAL) {
-            mBookReaderManager = new LocalBookReaderManager(this);
-        }
-        mBookReaderManager.create(savedInstanceState);
-
-        mCurrentPage = 1;
-
-        mPicasso = new Picasso.Builder(getActivity())
-                .addRequestHandler(mBookReaderManager)
-                .listener(new Picasso.Listener() {
-                    @Override
-                    public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
-                        onError(exception);
-                    }
-                })
-                //.loggingEnabled(true)
-                //.indicatorsEnabled(true)
-                .build();
-    }
-
-    public void onLoad(BookDto bookDto, LinkableDto<BookDto> bookLinkableDto) {
-        mBookDto = bookDto;
-        mBookLinkableDto = bookLinkableDto;
-
-        mViewPager.getAdapter().notifyDataSetChanged();
-
-        onLoad();
-    }
-
-    public void onLoad() {
-        FragmentActivity fragmentActivity = getActivity();
-
-        if(fragmentActivity != null) {
-            fragmentActivity.setTitle(mBookDto.getName());
-
-            mPageSeekBar.setMax(mBookDto.getNumberOfPages() - 1);
-
-            updateSeekBar();
-
-            if(mBookDto.getBookMark() != null && mBookDto.getBookMark().getPage() != mCurrentPage) {
-                if(mSwitchBookPageDialog == null) {
-                    setCurrentPage(mCurrentPage, false, true);
-
-                    if(isFullscreen()) {
-                        setFullscreen(false);
-                    }
-
-                    mSwitchBookPageDialog = new AlertDialog.Builder(fragmentActivity, R.style.AppCompatAlertDialogStyle)
-                            .setTitle("Would you like to switch to the bookmarked page?")
-                            .setMessage(mBookDto.getBookMark().getPage().toString())
-                            .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    setCurrentPage(mBookDto.getBookMark().getPage(), true, true);
-
-                                    if(!isFullscreen()) {
-                                        setFullscreen(true);
-                                    }
-
-                                    mSwitchBookPageDialog = null;
-                                }
-                            })
-                            .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    setCurrentPage(mCurrentPage, true, true);
-
-                                    if(!isFullscreen()) {
-                                        setFullscreen(true);
-                                    }
-
-                                    mSwitchBookPageDialog = null;
-                                }
-                            })
-                            .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                                @Override
-                                public void onCancel(DialogInterface dialog) {
-                                    setCurrentPage(mCurrentPage, true, true);
-
-                                    if(!isFullscreen()) {
-                                        setFullscreen(true);
-                                    }
-
-                                    mSwitchBookPageDialog = null;
-                                }
-                            })
-                            .create();
-
-                    mSwitchBookPageDialog.show();
-                }
-            } else {
-                setCurrentPage(mCurrentPage, true, true);
-            }
+        if(mMode == BookReaderViewModel.Mode.MODE_REMOTE) {
+            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteBookReaderViewModel.class);
+        } else if(mMode == BookReaderViewModel.Mode.MODE_LOCAL) {
+            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(LocalBookReaderViewModel.class);
         }
     }
 
@@ -275,8 +146,8 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                         page = mPageSeekBar.getMax() - progress + 1;
                     }
 
-                    if(page != mCurrentPage) {
-                        setCurrentPage(page, true, true);
+                    if(page != getCurrentPage()) {
+                        setCurrentPage(page, true);
                     }
                 }
             }
@@ -306,32 +177,180 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                     page = mViewPager.getAdapter().getCount() - position;
                 }
 
-                if(page != mCurrentPage) {
-                    setCurrentPage(page, true, true);
+                if(page != mViewModel.getSelectedBookPage()) {
+                    setCurrentPage(page, true);
                 }
             }
         });
         mViewPager.setOnSwipeOutListener(new BookViewPager.OnSwipeOutListener() {
             @Override
             public void onSwipeOutAtStart() {
-                if (mIsLeftToRight)
+                if (mIsLeftToRight) {
                     hitBeginning();
-                else
+                } else {
                     hitEnding();
+                }
             }
 
             @Override
             public void onSwipeOutAtEnd() {
-                if (mIsLeftToRight)
+                if (mIsLeftToRight) {
                     hitEnding();
-                else
+                } else {
                     hitBeginning();
+                }
+            }
+        });
+        mViewPager.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+            @Override
+            public void onSystemUiVisibilityChange(int visibility) {
+                if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                    if(mViewModel.getIsFullscreen()) {
+                        mViewModel.setIsFullscreen(true);
+                    }
+                }
             }
         });
 
-        if (savedInstanceState != null) {
-            mCurrentPage = savedInstanceState.getInt(STATE_CURRENT_BOOK_PAGE);
-        }
+        mViewModel.getBookObservable().observe(getViewLifecycleOwner(), new Observer<BookDto>() {
+            @Override
+            public void onChanged(BookDto bookDto) {
+                mViewPager.getAdapter().notifyDataSetChanged();
+
+                getActivity().setTitle(bookDto.getName());
+
+                mPageSeekBar.setMax(bookDto.getNumberOfPages() - 1);
+
+                updatePageSeekBar();
+
+                int page = mViewModel.getSelectedBookPage();
+
+                setCurrentPage(page, false);
+            }
+        });
+        mViewModel.getBookMarkObservable().observe(getViewLifecycleOwner(), new Observer<BookMarkDto>() {
+            @Override
+            public void onChanged(BookMarkDto bookMarkDto) {
+                ((BookReaderActivity) getActivity()).addUpdatedBook(mViewModel.getBook());
+            }
+        });
+        mViewModel.getShowSwitchSelectedBookDialogObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean showSwitchSelectedBookDialog) {
+                if(showSwitchSelectedBookDialog) {
+                    if(mSwitchBookDialog == null) {
+                        int titleResource = -1;
+                        if(mViewModel.getSelectedBook().equals(mViewModel.getBookLinkable().getPreviousElement())) {
+                            titleResource = R.string.switch_prev_comic;
+                        } else if(mViewModel.getSelectedBook().equals(mViewModel.getBookLinkable().getNextElement())) {
+                            titleResource = R.string.switch_next_comic;
+                        }
+
+                        mSwitchBookDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                                .setTitle(titleResource)
+                                .setMessage(mViewModel.getSelectedBook().getName())
+                                .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        BookReaderActivity activity = (BookReaderActivity) getActivity();
+                                        if (mMode == BookReaderViewModel.Mode.MODE_REMOTE) {
+                                            activity.setFragment(BookReaderFragment.create(mViewModel.getSelectedBook().getId()));
+                                        } else if (mMode == BookReaderViewModel.Mode.MODE_LOCAL) {
+                                            activity.setFragment(BookReaderFragment.create(mViewModel.getSelectedBook().getPath()));
+                                        }
+                                        mViewModel.setShowSwitchSelectedBookDialog(false);
+
+                                        mSwitchBookDialog = null;
+                                    }
+                                })
+                                .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        mViewModel.setShowSwitchSelectedBookDialog(false);
+
+                                        mSwitchBookDialog = null;
+                                    }
+                                })
+                                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                    @Override
+                                    public void onCancel(DialogInterface dialog) {
+                                        mViewModel.setShowSwitchSelectedBookDialog(false);
+
+                                        mSwitchBookDialog = null;
+                                    }
+                                })
+                                .create();
+
+                        mSwitchBookDialog.show();
+                    }
+                }
+            }
+        });
+        mViewModel.getIsFullscreenObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean isFullscreen) {
+                ActionBar actionBar = getActionBar();
+
+                if(isFullscreen) {
+                    if (actionBar != null) {
+                        actionBar.hide();
+                    }
+
+                    int flag =
+                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                    | View.SYSTEM_UI_FLAG_FULLSCREEN;
+                    if (Utils.isKitKatOrLater()) {
+                        flag |= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+                        flag |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+                        flag |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+                    }
+                    mViewPager.setSystemUiVisibility(flag);
+
+                    mPageNavLayout.setVisibility(View.INVISIBLE);
+                } else {
+                    if (actionBar != null) {
+                        actionBar.show();
+                    }
+
+                    int flag =
+                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+                    if (Utils.isKitKatOrLater()) {
+                        flag |= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+                    }
+                    mViewPager.setSystemUiVisibility(flag);
+
+                    mPageNavLayout.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        mViewModel.getShowMessageObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean showMessage) {
+                if(showMessage) {
+                    mViewModel.setShowMessage(false);
+
+                    Toast toast = Toast.makeText(getContext(), mViewModel.getMessage(), Toast.LENGTH_LONG);
+                    toast.show();
+                }
+            }
+        });
+
+        mRequestHandler = mViewModel.getRequestHandler();
+
+        mPicasso = new Picasso.Builder(getActivity())
+                .addRequestHandler(mRequestHandler)
+                .listener(new Picasso.Listener() {
+                    @Override
+                    public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
+                        mViewModel.setMessage(BaseViewModel.toMessage(exception));
+                        mViewModel.setShowMessage(true);
+                    }
+                })
+                //.loggingEnabled(true)
+                //.indicatorsEnabled(true)
+                .build();
 
         return view;
     }
@@ -354,49 +373,9 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
 
         if (mIsLeftToRight) {
             menu.findItem(R.id.reading_left_to_right).setChecked(true);
-        }
-        else {
+        } else {
             menu.findItem(R.id.reading_right_to_left).setChecked(true);
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putInt(STATE_CURRENT_BOOK_PAGE, mCurrentPage);
-
-        mBookReaderManager.saveInstanceState(outState);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        // if no dialog
-        if(mSwitchBookPageDialog == null && mSwitchBookDialog == null) {
-            if(!isFullscreen()) {
-                setFullscreen(true);
-            }
-        }
-
-        if(mBookDto == null) {
-            mBookReaderManager.load();
-        } else {
-            onLoad();
-        }
-    }
-
-    @Override
-    public void onPause() {
-        // if no dialog
-        if(mSwitchBookPageDialog == null && mSwitchBookDialog == null) {
-            if(isFullscreen()) {
-                setFullscreen(false);
-            }
-        }
-
-        super.onPause();
     }
 
     @Override
@@ -404,21 +383,22 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
         // https://github.com/square/picasso/issues/445
         //mPicasso.shutdown();
 
-        mBookReaderManager.destroy();
-
         super.onDestroy();
+    }
+
+    @Override
+    public void onDestroyView() {
+        if(mSwitchBookDialog != null) {
+            mSwitchBookDialog.dismiss();
+            mSwitchBookDialog = null;
+        }
+
+        super.onDestroyView();
     }
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         return mGestureDetector.onTouchEvent(event);
-    }
-
-    public int getCurrentPage() {
-        if (mIsLeftToRight)
-            return mViewPager.getCurrentItem() + 1;
-        else
-            return mViewPager.getAdapter().getCount() - mViewPager.getCurrentItem();
     }
 
     @Override
@@ -441,34 +421,40 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                 mIsLeftToRight = (item.getItemId() == R.id.reading_left_to_right);
                 editor.putBoolean(Constants.SETTINGS_READING_LEFT_TO_RIGHT, mIsLeftToRight);
                 editor.apply();
-                setCurrentPage(page, true, false);
+                setCurrentPage(page, false);
                 mViewPager.getAdapter().notifyDataSetChanged();
-                updateSeekBar();
+                updatePageSeekBar();
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void setCurrentPage(int page, boolean mark, boolean animated) {
-        mCurrentPage = page;
-
-        if (mIsLeftToRight) {
-            mViewPager.setCurrentItem(page - 1);
-            mPageSeekBar.setProgress(page - 1);
+    public int getCurrentPage() {
+        if(mIsLeftToRight) {
+            return mViewPager.getCurrentItem() + 1;
+        } else {
+            return mViewPager.getAdapter().getCount() - mViewPager.getCurrentItem();
         }
-        else {
+    }
+
+    private void setCurrentPage(int page, boolean animated) {
+        if(mIsLeftToRight) {
+            mViewPager.setCurrentItem(page - 1, animated);
+            mPageSeekBar.setProgress(page - 1);
+        } else {
             mViewPager.setCurrentItem(mViewPager.getAdapter().getCount() - page, animated);
             mPageSeekBar.setProgress(mViewPager.getAdapter().getCount() - page);
         }
 
         String navPage = new StringBuilder()
-                .append(page).append("/").append(mBookDto.getNumberOfPages())
+                .append(page).append("/").append(mViewModel.getBook().getNumberOfPages())
                 .toString();
 
         mPageNavTextView.setText(navPage);
 
-        if(mark) {
-            mBookReaderManager.addBookMark(getCurrentPage());
+        if(!mViewModel.getSelectedBookPage().equals(page)) {
+            mViewModel.setSelectedBookPage(page);
+            mViewModel.addBookMark();
         }
     }
 
@@ -480,10 +466,10 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
 
         @Override
         public int getCount() {
-            if(mBookDto == null) {
+            if(mViewModel.getBook() == null) {
                 return 0;
             } else {
-                return mBookDto.getNumberOfPages();
+                return mViewModel.getBook().getNumberOfPages();
             }
         }
 
@@ -500,8 +486,9 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
             View layout = inflater.inflate(R.layout.fragment_book_reader_page, container, false);
 
             PageImageView pageImageView = (PageImageView) layout.findViewById(R.id.pageImageView);
-            if (mPageViewMode == Constants.PageViewMode.ASPECT_FILL)
+            if (mPageViewMode == Constants.PageViewMode.ASPECT_FILL) {
                 pageImageView.setTranslateToRightEdge(!mIsLeftToRight);
+            }
             pageImageView.setViewMode(mPageViewMode);
             pageImageView.setOnTouchListener(BookReaderFragment.this);
 
@@ -539,12 +526,11 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
         int page;
         if (mIsLeftToRight) {
             page = t.position + 1;
-        }
-        else {
+        } else {
             page = mViewPager.getAdapter().getCount() - t.position;
         }
 
-        Uri uri = mBookReaderManager.getBookPageUri(page);
+        Uri uri = mRequestHandler.getBookPageUri(page);
         mPicasso.load(uri)
                 .memoryPolicy(MemoryPolicy.NO_STORE)
                 .tag(getActivity())
@@ -573,8 +559,9 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
             View layout = mLayout.get();
-            if (layout == null)
+            if (layout == null) {
                 return;
+            }
 
             setVisibility(View.VISIBLE, View.GONE, View.GONE);
             ImageView iv = (ImageView) layout.findViewById(R.id.pageImageView);
@@ -584,8 +571,9 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
         @Override
         public void onBitmapFailed(Exception e, Drawable errorDrawable) {
             View layout = mLayout.get();
-            if (layout == null)
+            if (layout == null) {
                 return;
+            }
 
             setVisibility(View.GONE, View.GONE, View.VISIBLE);
 
@@ -601,8 +589,9 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
         @Override
         public void onClick(View v) {
             View layout = mLayout.get();
-            if (layout == null)
+            if (layout == null) {
                 return;
+            }
 
             setVisibility(View.GONE, View.VISIBLE, View.GONE);
             loadImage(this);
@@ -612,8 +601,8 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
     private class BookReaderTouchListener extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            if (!isFullscreen()) {
-                setFullscreen(true);
+            if(!mViewModel.getIsFullscreen()) {
+                mViewModel.setIsFullscreen(true);
                 return true;
             }
 
@@ -622,35 +611,37 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
             // tap left edge
             if (x < (float) mViewPager.getWidth() / 3) {
                 if (mIsLeftToRight) {
-                    if (getCurrentPage() == 1)
+                    if (getCurrentPage() == 1) {
                         hitBeginning();
-                    else
-                        setCurrentPage(getCurrentPage() - 1, true, true);
-                }
-                else {
-                    if (getCurrentPage() == mViewPager.getAdapter().getCount())
+                    } else {
+                        setCurrentPage(getCurrentPage() - 1, true);
+                    }
+                } else {
+                    if (getCurrentPage() == mViewPager.getAdapter().getCount()) {
                         hitEnding();
-                    else
-                        setCurrentPage(getCurrentPage() + 1, true, true);
+                    } else {
+                        setCurrentPage(getCurrentPage() + 1, true);
+                    }
                 }
             }
             // tap right edge
             else if (x > (float) mViewPager.getWidth() / 3 * 2) {
                 if (mIsLeftToRight) {
-                    if (getCurrentPage() == mViewPager.getAdapter().getCount())
+                    if (getCurrentPage() == mViewPager.getAdapter().getCount()) {
                         hitEnding();
-                    else
-                        setCurrentPage(getCurrentPage() + 1, true, true);
-                }
-                else {
-                    if (getCurrentPage() == 1)
+                    } else {
+                        setCurrentPage(getCurrentPage() + 1, true);
+                    }
+                } else {
+                    if (getCurrentPage() == 1) {
                         hitBeginning();
-                    else
-                        setCurrentPage(getCurrentPage() - 1, true, true);
+                    } else {
+                        setCurrentPage(getCurrentPage() - 1, true);
+                    }
                 }
+            } else {
+                mViewModel.setIsFullscreen(false);
             }
-            else
-                setFullscreen(false);
 
             return true;
         }
@@ -661,11 +652,11 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
             final View child = parentView.getChildAt(i);
             if (child instanceof ViewGroup) {
                 updatePageViews((ViewGroup)child);
-            }
-            else if (child instanceof PageImageView) {
+            } else if (child instanceof PageImageView) {
                 PageImageView view = (PageImageView) child;
-                if (mPageViewMode == Constants.PageViewMode.ASPECT_FILL)
+                if (mPageViewMode == Constants.PageViewMode.ASPECT_FILL) {
                     view.setTranslateToRightEdge(!mIsLeftToRight);
+                }
                 view.setViewMode(mPageViewMode);
             }
         }
@@ -675,137 +666,29 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
         return ((AppCompatActivity)getActivity()).getSupportActionBar();
     }
 
-    private boolean isFullscreen() {
-        return mIsFullscreen;
-    }
-
-    private void setFullscreen(boolean fullscreen) {
-        mIsFullscreen = fullscreen;
-
-        ActionBar actionBar = getActionBar();
-
-        if (fullscreen) {
-            if (actionBar != null) actionBar.hide();
-
-            int flag =
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN;
-            if (Utils.isKitKatOrLater()) {
-                flag |= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
-                flag |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-                flag |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-            }
-            mViewPager.setSystemUiVisibility(flag);
-
-            mPageNavLayout.setVisibility(View.INVISIBLE);
-        }
-        else {
-            if (actionBar != null) actionBar.show();
-
-            int flag =
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-            if (Utils.isKitKatOrLater()) {
-                flag |= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
-            }
-            mViewPager.setSystemUiVisibility(flag);
-
-            mPageNavLayout.setVisibility(View.VISIBLE);
-
-            // status bar & navigation bar background won't show in some cases
-            if (Utils.isLollipopOrLater()) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        FragmentActivity fragmentActivity = getActivity();
-                        if(fragmentActivity != null) {
-                            Window w = fragmentActivity.getWindow();
-                            w.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-                            w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-                        }
-                    }
-                }, 300);
-            }
-        }
-    }
-
     private void hitBeginning() {
-        if (mBookLinkableDto != null) {
-            BookDto previousBookDto = mBookLinkableDto.getPreviousElement();
+        if (mViewModel.getBookLinkable() != null) {
+            BookDto previousBookDto = mViewModel.getBookLinkable().getPreviousElement();
 
             if(previousBookDto != null) {
-                confirmSwitch(previousBookDto, R.string.switch_prev_comic);
+                mViewModel.setSelectedBook(previousBookDto);
+                mViewModel.setShowSwitchSelectedBookDialog(true);
             }
         }
     }
 
     private void hitEnding() {
-        if (mBookLinkableDto != null) {
-            BookDto nextBookDto = mBookLinkableDto.getNextElement();
+        if (mViewModel.getBookLinkable() != null) {
+            BookDto nextBookDto = mViewModel.getBookLinkable().getNextElement();
 
             if(nextBookDto != null) {
-                confirmSwitch(nextBookDto, R.string.switch_next_comic);
+                mViewModel.setSelectedBook(nextBookDto);
+                mViewModel.setShowSwitchSelectedBookDialog(true);
             }
         }
     }
 
-    private void confirmSwitch(BookDto newBookDto, int titleRes) {
-        if (newBookDto == null)
-            return;
-
-        if(mSwitchBookDialog == null) {
-            if (isFullscreen()) {
-                setFullscreen(false);
-            }
-
-            mSwitchBookDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                    .setTitle(titleRes)
-                    .setMessage(newBookDto.getName())
-                    .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            BookReaderActivity activity = (BookReaderActivity) getActivity();
-                            if (mMode == BookReaderManager.Mode.MODE_REMOTE) {
-                                activity.setFragment(BookReaderFragment.create(newBookDto.getId()));
-                            } else if (mMode == BookReaderManager.Mode.MODE_LOCAL) {
-                                activity.setFragment(BookReaderFragment.create(newBookDto.getPath()));
-                            }
-
-                            if (!isFullscreen()) {
-                                setFullscreen(true);
-                            }
-
-                            mSwitchBookDialog = null;
-                        }
-                    })
-                    .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (!isFullscreen()) {
-                                setFullscreen(true);
-                            }
-
-                            mSwitchBookDialog = null;
-                        }
-                    })
-                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                        @Override
-                        public void onCancel(DialogInterface dialog) {
-                            if (!isFullscreen()) {
-                                setFullscreen(true);
-                            }
-
-                            mSwitchBookDialog = null;
-                        }
-                    })
-                    .create();
-
-            mSwitchBookDialog.show();
-        }
-    }
-
-    private void updateSeekBar() {
+    private void updatePageSeekBar() {
         int seekRes = (mIsLeftToRight)
                 ? R.drawable.reader_nav_progress
                 : R.drawable.reader_nav_progress_inverse;

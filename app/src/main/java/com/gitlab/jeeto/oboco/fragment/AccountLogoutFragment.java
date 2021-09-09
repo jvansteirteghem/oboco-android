@@ -1,7 +1,8 @@
 package com.gitlab.jeeto.oboco.fragment;
 
-import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,46 +11,41 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.gitlab.jeeto.oboco.R;
-import com.gitlab.jeeto.oboco.client.OnErrorListener;
-import com.gitlab.jeeto.oboco.manager.AccountLogoutManager;
-import com.gitlab.jeeto.oboco.manager.RemoteAccountLogoutManager;
+import com.gitlab.jeeto.oboco.activity.MainActivity;
+import com.gitlab.jeeto.oboco.common.BaseViewModelProviderFactory;
 
 public class AccountLogoutFragment extends Fragment {
     private Button mLogoutButton;
     private EditText mPasswordEditText;
+    private String mPassword;
     private EditText mUpdatePasswordEditText;
+    private String mUpdatePassword;
     private CheckBox mShowPasswordCheckBox;
+    private Boolean mShowPassword;
     private Button mUpdatePasswordButton;
 
-    private OnAccountLogoutListener mOnAccountLogoutListener;
-    private OnErrorListener mOnErrorListener;
-
-    private AccountLogoutManager mAccountLogoutManager;
-
-    public interface OnAccountLogoutListener {
-        void onLogout();
-    }
+    private AccountLogoutViewModel mViewModel;
 
     public AccountLogoutFragment() {
-
+        super();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAccountLogoutManager = new RemoteAccountLogoutManager(this);
-        mAccountLogoutManager.create(savedInstanceState);
+        mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteAccountLogoutViewModel.class);
     }
 
     @Override
     public void onDestroy() {
-        mAccountLogoutManager.destroy();
-
         super.onDestroy();
     }
 
@@ -66,85 +62,128 @@ public class AccountLogoutFragment extends Fragment {
         mLogoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mLogoutButton.setEnabled(false);
-                mUpdatePasswordButton.setEnabled(false);
+                mViewModel.logout();
+            }
+        });
 
-                mAccountLogoutManager.logout();
+        mPasswordEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // do nothing
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // do nothing
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                mPassword = editable.toString();
+
+                mViewModel.setPassword(mPassword);
+            }
+        });
+
+        mUpdatePasswordEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // do nothing
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // do nothing
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                mUpdatePassword = editable.toString();
+
+                mViewModel.setUpdatePassword(mUpdatePassword);
             }
         });
 
         mShowPasswordCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-                    // show password
-                    mPasswordEditText.setTransformationMethod(null);
-                    mUpdatePasswordEditText.setTransformationMethod(null);
-                } else {
-                    // hide password
-                    mPasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                    mUpdatePasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                }
+                mShowPassword = isChecked;
+
+                mViewModel.setShowPassword(mShowPassword);
             }
         });
 
         mUpdatePasswordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mLogoutButton.setEnabled(false);
-                mUpdatePasswordButton.setEnabled(false);
-
-                String password = mPasswordEditText.getText().toString();
-                String updatePassword = mUpdatePasswordEditText.getText().toString();
-
-                mAccountLogoutManager.updatePassword(password, updatePassword);
+                mViewModel.updatePassword();
             }
         });
 
-        mAccountLogoutManager.load();
+        mViewModel.getPasswordObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String password) {
+                if(!(mPassword != null && mPassword.equals(password))) {
+                    mPassword = password;
+                    mPasswordEditText.setText(mPassword);
+                }
+            }
+        });
+        mViewModel.getUpdatePasswordObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String updatePassword) {
+                if(!(mUpdatePassword != null && mUpdatePassword.equals(updatePassword))) {
+                    mUpdatePassword = updatePassword;
+                    mUpdatePasswordEditText.setText(mUpdatePassword);
+                }
+            }
+        });
+        mViewModel.getShowPasswordObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean showPassword) {
+                if(showPassword) {
+                    mPasswordEditText.setTransformationMethod(null);
+                    mUpdatePasswordEditText.setTransformationMethod(null);
+                } else {
+                    mPasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                    mUpdatePasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                }
+
+                if(!(mShowPassword != null && mShowPassword.equals(showPassword))) {
+                    mShowPassword = showPassword;
+                    mShowPasswordCheckBox.setChecked(mShowPassword);
+                }
+            }
+        });
+        mViewModel.getIsEnabledObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean isEnabled) {
+                mLogoutButton.setEnabled(isEnabled);
+                mUpdatePasswordButton.setEnabled(isEnabled);
+            }
+        });
+        mViewModel.getShowMessageObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean showMessage) {
+                if(showMessage) {
+                    mViewModel.setShowMessage(false);
+
+                    Toast toast = Toast.makeText(getContext(), mViewModel.getMessage(), Toast.LENGTH_LONG);
+                    toast.show();
+                }
+            }
+        });
+        mViewModel.getNavigateToAccountLoginViewObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean navigateToAccountLoginView) {
+                if(navigateToAccountLoginView) {
+                    mViewModel.setNavigateToAccountLoginView(false);
+
+                    ((MainActivity) getActivity()).navigateToAccountLoginView();
+                }
+            }
+        });
 
         return view;
-    }
-
-    public void onLoad() {
-
-    }
-
-    public void onLogout() {
-        mLogoutButton.setEnabled(true);
-        mUpdatePasswordButton.setEnabled(true);
-
-        mOnAccountLogoutListener.onLogout();
-    }
-
-    public void onUpdatePassword() {
-        mAccountLogoutManager.logout();
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnAccountLogoutListener) {
-            mOnAccountLogoutListener = (OnAccountLogoutListener) context;
-        }
-        if (context instanceof OnErrorListener) {
-            mOnErrorListener = (OnErrorListener) context;
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mOnAccountLogoutListener = null;
-        mOnErrorListener = null;
-    }
-
-    public void onError(Throwable e) {
-        mLogoutButton.setEnabled(true);
-        mUpdatePasswordButton.setEnabled(true);
-
-        if(mOnErrorListener != null) {
-            mOnErrorListener.onError(e);
-        }
     }
 }

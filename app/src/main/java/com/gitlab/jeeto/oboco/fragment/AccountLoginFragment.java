@@ -1,7 +1,8 @@
 package com.gitlab.jeeto.oboco.fragment;
 
-import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,46 +11,42 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.gitlab.jeeto.oboco.R;
-import com.gitlab.jeeto.oboco.client.OnErrorListener;
-import com.gitlab.jeeto.oboco.manager.AccountLoginManager;
-import com.gitlab.jeeto.oboco.manager.RemoteAccountLoginManager;
+import com.gitlab.jeeto.oboco.activity.MainActivity;
+import com.gitlab.jeeto.oboco.common.BaseViewModelProviderFactory;
 
 public class AccountLoginFragment extends Fragment {
     private EditText mBaseUrlEditText;
+    private String mBaseUrl;
     private EditText mNameEditText;
+    private String mName;
     private EditText mPasswordEditText;
+    private String mPassword;
     private CheckBox mShowPasswordCheckBox;
+    private Boolean mShowPassword;
     private Button mLoginButton;
 
-    private OnAccountLoginListener mOnAccountLoginListener;
-    private OnErrorListener mOnErrorListener;
-
-    private AccountLoginManager mAccountLoginManager;
-
-    public interface OnAccountLoginListener {
-        void onLogin();
-    }
+    private AccountLoginViewModel mViewModel;
 
     public AccountLoginFragment() {
-
+        super();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAccountLoginManager = new RemoteAccountLoginManager(this);
-        mAccountLoginManager.create(savedInstanceState);
+        mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteAccountLoginViewModel.class);
     }
 
     @Override
     public void onDestroy() {
-        mAccountLoginManager.destroy();
-
         super.onDestroy();
     }
 
@@ -63,76 +60,149 @@ public class AccountLoginFragment extends Fragment {
         mShowPasswordCheckBox = (CheckBox) view.findViewById(R.id.account_login_cb_show_password);
         mLoginButton = (Button) view.findViewById(R.id.account_login_btn_login);
 
+        mBaseUrlEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // do nothing
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // do nothing
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                mBaseUrl = editable.toString();
+
+                mViewModel.setBaseUrl(mBaseUrl);
+            }
+        });
+
+        mNameEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // do nothing
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // do nothing
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                mName = editable.toString();
+
+                mViewModel.setName(mName);
+            }
+        });
+
+        mPasswordEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // do nothing
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // do nothing
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                mPassword = editable.toString();
+
+                mViewModel.setPassword(mPassword);
+            }
+        });
+
         mShowPasswordCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-                    // show password
-                    mPasswordEditText.setTransformationMethod(null);
-                } else {
-                    // hide password
-                    mPasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                }
+                mShowPassword = isChecked;
+
+                mViewModel.setShowPassword(mShowPassword);
             }
         });
 
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String baseUrl = mBaseUrlEditText.getText().toString();
-                baseUrl = baseUrl.replaceAll("\\/+$", "");
-
-                String name = mNameEditText.getText().toString();
-                String password = mPasswordEditText.getText().toString();
-
-                mLoginButton.setEnabled(false);
-
-                mAccountLoginManager.login(baseUrl, name, password);
+                mViewModel.login();
             }
         });
 
-        mAccountLoginManager.load();
+        mViewModel.getBaseUrlObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String baseUrl) {
+                if(!(mBaseUrl != null && mBaseUrl.equals(baseUrl))) {
+                    mBaseUrl = baseUrl;
+                    mBaseUrlEditText.setText(mBaseUrl);
+                }
+            }
+        });
+        mViewModel.getNameObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String name) {
+                if(!(mName != null && mName.equals(name))) {
+                    mName = name;
+                    mNameEditText.setText(mName);
+                }
+            }
+        });
+        mViewModel.getPasswordObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String password) {
+                if(!(mPassword != null && mPassword.equals(password))) {
+                    mPassword = password;
+                    mPasswordEditText.setText(mPassword);
+                }
+            }
+        });
+        mViewModel.getShowPasswordObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean showPassword) {
+                if(showPassword) {
+                    mPasswordEditText.setTransformationMethod(null);
+                } else {
+                    mPasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                }
+
+                if(!(mShowPassword != null && mShowPassword.equals(showPassword))) {
+                    mShowPassword = showPassword;
+                    mShowPasswordCheckBox.setChecked(mShowPassword);
+                }
+            }
+        });
+        mViewModel.getIsEnabledObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean isEnabled) {
+                mLoginButton.setEnabled(isEnabled);
+            }
+        });
+        mViewModel.getShowMessageObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean showMessage) {
+                if(showMessage) {
+                    mViewModel.setShowMessage(false);
+
+                    Toast toast = Toast.makeText(getContext(), mViewModel.getMessage(), Toast.LENGTH_LONG);
+                    toast.show();
+                }
+            }
+        });
+        mViewModel.getNavigateToAccountLogoutViewObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean navigateToAccountLogoutView) {
+                if(navigateToAccountLogoutView) {
+                    mViewModel.setNavigateToAccountLogoutView(false);
+
+                    ((MainActivity) getActivity()).navigateToAccountLogoutView();
+                }
+            }
+        });
 
         return view;
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnAccountLoginListener) {
-            mOnAccountLoginListener = (OnAccountLoginListener) context;
-        }
-        if(context instanceof OnErrorListener) {
-            mOnErrorListener = (OnErrorListener) context;
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mOnAccountLoginListener = null;
-        mOnErrorListener = null;
-    }
-
-    public void onError(Throwable e) {
-        mLoginButton.setEnabled(true);
-
-        if(mOnErrorListener != null) {
-            mOnErrorListener.onError(e);
-        }
-    }
-
-    public void onLoad(String baseUrl, String name) {
-        mBaseUrlEditText.setText(baseUrl);
-        mNameEditText.setText(name);
-        mPasswordEditText.setText("");
-    }
-
-    public void onLogin() {
-        mLoginButton.setEnabled(true);
-
-        if(mOnAccountLoginListener != null) {
-            mOnAccountLoginListener.onLogin();
-        }
     }
 }
