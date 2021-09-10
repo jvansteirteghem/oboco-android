@@ -4,6 +4,8 @@
         <item name="colorPrimaryDark">@color/darkest_semitransparent</item>
         <item name="android:textColor">@color/lightest</item>
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Dialog.Alert">
