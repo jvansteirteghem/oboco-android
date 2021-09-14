@@ -21,6 +21,8 @@ import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.MainActivity;
 import com.gitlab.jeeto.oboco.common.BaseViewModelProviderFactory;
 
+import java.util.Objects;
+
 public class AccountLogoutFragment extends Fragment {
     private Button mLogoutButton;
     private EditText mPasswordEditText;
@@ -123,7 +125,7 @@ public class AccountLogoutFragment extends Fragment {
         mViewModel.getPasswordObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String password) {
-                if(!(mPassword != null && mPassword.equals(password))) {
+                if(!Objects.equals(mPassword, password)) {
                     mPassword = password;
                     mPasswordEditText.setText(mPassword);
                 }
@@ -132,7 +134,7 @@ public class AccountLogoutFragment extends Fragment {
         mViewModel.getUpdatePasswordObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String updatePassword) {
-                if(!(mUpdatePassword != null && mUpdatePassword.equals(updatePassword))) {
+                if(!Objects.equals(mUpdatePassword, updatePassword)) {
                     mUpdatePassword = updatePassword;
                     mUpdatePasswordEditText.setText(mUpdatePassword);
                 }
@@ -149,7 +151,7 @@ public class AccountLogoutFragment extends Fragment {
                     mUpdatePasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
                 }
 
-                if(!(mShowPassword != null && mShowPassword.equals(showPassword))) {
+                if(!Objects.equals(mShowPassword, showPassword)) {
                     mShowPassword = showPassword;
                     mShowPasswordCheckBox.setChecked(mShowPassword);
                 }

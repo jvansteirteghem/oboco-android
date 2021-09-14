@@ -43,16 +43,17 @@ import com.gitlab.jeeto.oboco.manager.DownloadBookWorker;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.Objects;
 
 public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     final int ITEM_VIEW_TYPE_BOOK = 1;
-
-    private int mFilterRead = R.id.menu_book_browser_filter_all;
 
     private RecyclerView mBookListView;
     private View mEmptyView;
     private View mNotEmptyView;
     private SwipeRefreshLayout mRefreshView;
+    private Menu mMenu;
+    private String mBookMarkStatus;
 
     private Picasso mPicasso;
 
@@ -113,33 +114,6 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         }
 
         super.onDestroyView();
-    }
-
-    private String getBookMarkStatus() {
-        String bookMarkStatus = null;
-        if (mFilterRead != R.id.menu_book_browser_filter_all) {
-            if (mFilterRead == R.id.menu_book_browser_filter_read) {
-                bookMarkStatus = "READ";
-            } else if (mFilterRead == R.id.menu_book_browser_filter_unread) {
-                bookMarkStatus = "UNREAD";
-            } else if (mFilterRead == R.id.menu_book_browser_filter_reading) {
-                bookMarkStatus = "READING";
-            }
-        }
-        return bookMarkStatus;
-    }
-
-    private void setBookMarkStatus(String bookMarkStatus) {
-        mFilterRead = R.id.menu_book_browser_filter_all;
-        if(bookMarkStatus != null) {
-            if (bookMarkStatus.equals("READ")) {
-                mFilterRead = R.id.menu_book_browser_filter_read;
-            } else if (bookMarkStatus.equals("UNREAD")) {
-                mFilterRead = R.id.menu_book_browser_filter_unread;
-            } else if (bookMarkStatus.equals("READING")) {
-                mFilterRead = R.id.menu_book_browser_filter_reading;
-            }
-        }
     }
 
     @Override
@@ -213,12 +187,6 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                 }
 
                 mBookListView.getAdapter().notifyDataSetChanged();
-            }
-        });
-        mViewModel.getBookMarkStatusObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String bookMarkStatus) {
-                setBookMarkStatus(bookMarkStatus);
             }
         });
         mViewModel.getIsLoadingObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
@@ -354,38 +322,75 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
 
     @Override
     public void onRefresh() {
-        mViewModel.load();
+        mViewModel.loadBookList();
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
+
         inflater.inflate(R.menu.book_browser, menu);
 
-        MenuItem menuItem = menu.findItem(mFilterRead);
+        mMenu = menu;
+
+        MenuItem menuItem = mMenu.findItem(R.id.menu_book_browser_filter_all);
         menuItem.setChecked(true);
+
+        mBookMarkStatus = null;
+
+        mViewModel.getBookMarkStatusObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String bookMarkStatus) {
+                if(!Objects.equals(mBookMarkStatus, bookMarkStatus)) {
+                    mBookMarkStatus = bookMarkStatus;
+
+                    int menuItemId = R.id.menu_book_browser_filter_all;
+                    if(bookMarkStatus != null) {
+                        if (bookMarkStatus.equals("READ")) {
+                            menuItemId = R.id.menu_book_browser_filter_read;
+                        } else if (bookMarkStatus.equals("UNREAD")) {
+                            menuItemId = R.id.menu_book_browser_filter_unread;
+                        } else if (bookMarkStatus.equals("READING")) {
+                            menuItemId = R.id.menu_book_browser_filter_reading;
+                        }
+                    }
+                    MenuItem menuItem = mMenu.findItem(menuItemId);
+                    menuItem.setChecked(true);
+                }
+            }
+        });
 
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
             case R.id.menu_book_browser_filter_all:
             case R.id.menu_book_browser_filter_read:
             case R.id.menu_book_browser_filter_unread:
             case R.id.menu_book_browser_filter_reading:
-                item.setChecked(true);
-                mFilterRead = item.getItemId();
+                menuItem.setChecked(true);
 
-                String bookMarkStatus = getBookMarkStatus();
+                int menuItemId = menuItem.getItemId();
 
-                mViewModel.setBookMarkStatus(bookMarkStatus);
+                mBookMarkStatus = null;
+                if (menuItemId != R.id.menu_book_browser_filter_all) {
+                    if (menuItemId == R.id.menu_book_browser_filter_read) {
+                        mBookMarkStatus = "READ";
+                    } else if (menuItemId == R.id.menu_book_browser_filter_unread) {
+                        mBookMarkStatus = "UNREAD";
+                    } else if (menuItemId == R.id.menu_book_browser_filter_reading) {
+                        mBookMarkStatus = "READING";
+                    }
+                }
+
+                mViewModel.setBookMarkStatus(mBookMarkStatus);
                 mViewModel.loadBookList();
                 return true;
         }
 
-        return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(menuItem);
     }
 
     public void openBook(BookDto bookDto) {

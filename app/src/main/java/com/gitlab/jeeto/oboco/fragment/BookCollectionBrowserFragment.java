@@ -37,8 +37,9 @@ import com.gitlab.jeeto.oboco.manager.DownloadBookCollectionWorker;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.Objects;
 
-public class BookCollectionBrowserFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, SearchView.OnQueryTextListener {
+public class BookCollectionBrowserFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     final int ITEM_VIEW_TYPE_BOOK_COLLECTION = 1;
 
     private Picasso mPicasso;
@@ -46,8 +47,8 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
     private View mEmptyView;
     private View mNotEmptyView;
     private SwipeRefreshLayout mRefreshView;
-
-    private String mFilterSearch;
+    private SearchView mBookCollectionNameSearchView;
+    private String mBookCollectionName;
 
     private BookCollectionBrowserViewModel.Mode mMode;
 
@@ -60,21 +61,6 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
     @Override
     public void onDestroy() {
         super.onDestroy();
-    }
-
-    private String getBookCollectionName() {
-        String name = null;
-        if (mFilterSearch.length() > 0) {
-            name = mFilterSearch;
-        }
-        return name;
-    }
-
-    private void setBookCollectionName(String bookCollectionName) {
-        mFilterSearch = "";
-        if(bookCollectionName != null) {
-            mFilterSearch = bookCollectionName;
-        }
     }
 
     public static BookCollectionBrowserFragment create(Long bookCollectionId) {
@@ -107,13 +93,11 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         } else if(mMode == BookCollectionBrowserViewModel.Mode.MODE_REMOTE_LATEST) {
             mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteLatestBookCollectionBrowserViewModel.class);
         }
-
-        mFilterSearch = "";
     }
 
     @Override
     public void onRefresh() {
-        mViewModel.load();
+        mViewModel.loadBookCollectionList();
     }
 
     @Override
@@ -187,20 +171,6 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                 }
 
                 mBookCollectionListView.getAdapter().notifyDataSetChanged();
-            }
-        });
-        mViewModel.getBookCollectionNameObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String bookCollectionName) {
-                if(mViewModel.getBookCollection() != null) {
-                    if(bookCollectionName != null) {
-                        getActivity().setTitle(mViewModel.getBookCollection().getName() + ": " + bookCollectionName);
-                    } else {
-                        getActivity().setTitle(mViewModel.getBookCollection().getName());
-                    }
-                }
-
-                setBookCollectionName(bookCollectionName);
             }
         });
         mViewModel.getIsLoadingObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
@@ -316,6 +286,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                 }
             }
         });
+
         mRequestHandler = mViewModel.getRequestHandler();
 
         mPicasso = new Picasso.Builder(getActivity())
@@ -352,33 +323,56 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
+
         inflater.inflate(R.menu.book_collection_browser, menu);
 
-        MenuItem searchItem = menu.findItem(R.id.search);
+        MenuItem bookCollectionNameMenuItem = menu.findItem(R.id.search);
 
-        SearchView searchView = (SearchView) searchItem.getActionView();
-        searchView.setOnQueryTextListener(this);
-        searchView.setQuery(mFilterSearch, false);
+        mBookCollectionNameSearchView = (SearchView) bookCollectionNameMenuItem.getActionView();
+        mBookCollectionNameSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextChange(String queryText) {
+                if(queryText.equals("")) {
+                    mBookCollectionName = null;
+                } else {
+                    mBookCollectionName = queryText;
+                }
+
+                mViewModel.setBookCollectionName(mBookCollectionName);
+                mViewModel.loadBookCollectionList();
+
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextSubmit(String queryText) {
+                mBookCollectionNameSearchView.clearFocus();
+
+                return true;
+            }
+        });
+
+        mBookCollectionName = null;
+
+        mViewModel.getBookCollectionNameObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String bookCollectionName) {
+                if(!Objects.equals(mBookCollectionName, bookCollectionName)) {
+                    mBookCollectionName = bookCollectionName;
+
+                    String queryText;
+                    if(mBookCollectionName == null) {
+                        queryText = "";
+                    } else {
+                        queryText = mBookCollectionName;
+                    }
+
+                    mBookCollectionNameSearchView.setQuery(queryText, false);
+                }
+            }
+        });
 
         super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onQueryTextChange(String s) {
-        if(mFilterSearch.equals(s) == false) {
-            mFilterSearch = s;
-
-            String bookCollectionName = getBookCollectionName();
-
-            mViewModel.setBookCollectionName(bookCollectionName);
-            mViewModel.loadBookCollectionList();
-        }
-        return true;
-    }
-
-    @Override
-    public boolean onQueryTextSubmit(String s) {
-        return true;
     }
 
     private int calculateNumColumns() {

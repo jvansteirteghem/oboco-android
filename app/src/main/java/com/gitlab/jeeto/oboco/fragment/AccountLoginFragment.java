@@ -21,6 +21,8 @@ import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.MainActivity;
 import com.gitlab.jeeto.oboco.common.BaseViewModelProviderFactory;
 
+import java.util.Objects;
+
 public class AccountLoginFragment extends Fragment {
     private EditText mBaseUrlEditText;
     private String mBaseUrl;
@@ -136,7 +138,7 @@ public class AccountLoginFragment extends Fragment {
         mViewModel.getBaseUrlObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String baseUrl) {
-                if(!(mBaseUrl != null && mBaseUrl.equals(baseUrl))) {
+                if(!Objects.equals(mBaseUrl, baseUrl)) {
                     mBaseUrl = baseUrl;
                     mBaseUrlEditText.setText(mBaseUrl);
                 }
@@ -145,7 +147,7 @@ public class AccountLoginFragment extends Fragment {
         mViewModel.getNameObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String name) {
-                if(!(mName != null && mName.equals(name))) {
+                if(!Objects.equals(mName, name)) {
                     mName = name;
                     mNameEditText.setText(mName);
                 }
@@ -154,7 +156,7 @@ public class AccountLoginFragment extends Fragment {
         mViewModel.getPasswordObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String password) {
-                if(!(mPassword != null && mPassword.equals(password))) {
+                if(!Objects.equals(mPassword, password)) {
                     mPassword = password;
                     mPasswordEditText.setText(mPassword);
                 }
@@ -169,7 +171,7 @@ public class AccountLoginFragment extends Fragment {
                     mPasswordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
                 }
 
-                if(!(mShowPassword != null && mShowPassword.equals(showPassword))) {
+                if(!Objects.equals(mShowPassword, showPassword)) {
                     mShowPassword = showPassword;
                     mShowPasswordCheckBox.setChecked(mShowPassword);
                 }
