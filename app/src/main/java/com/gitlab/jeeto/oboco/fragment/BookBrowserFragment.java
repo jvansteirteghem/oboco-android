@@ -205,7 +205,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                 if(showMarkSelectedBookDialog) {
                     if (mMarkSelectedBookDialog == null) {
                         mMarkSelectedBookDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
-                                .setTitle("Would you like to mark the book as READ?")
+                                .setTitle("Would you like to mark the book as read?")
                                 .setMessage(mViewModel.getSelectedBook().getName())
                                 .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
                                     @Override
@@ -224,7 +224,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                                         mMarkSelectedBookDialog = null;
                                     }
                                 })
-                                .setNeutralButton("UNREAD", new DialogInterface.OnClickListener() {
+                                .setNeutralButton("Unread", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.removeBookMark();

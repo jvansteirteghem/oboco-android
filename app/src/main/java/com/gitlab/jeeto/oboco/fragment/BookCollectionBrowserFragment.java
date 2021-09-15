@@ -189,7 +189,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                 if(showMarkSelectedBookCollectionDialog) {
                     if(mMarkSelectedBookCollectionDialog == null) {
                         mMarkSelectedBookCollectionDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
-                                .setTitle("Would you like to mark the book collection as READ?")
+                                .setTitle("Would you like to mark the book collection as read?")
                                 .setMessage(mViewModel.getSelectedBookCollection().getName())
                                 .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
                                     @Override
@@ -208,7 +208,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                                         mMarkSelectedBookCollectionDialog = null;
                                     }
                                 })
-                                .setNeutralButton("UNREAD", new DialogInterface.OnClickListener() {
+                                .setNeutralButton("Unread", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.removeBookMark();
@@ -266,7 +266,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                                     public void onCancel(DialogInterface dialog) {
                                         mViewModel.setShowDownloadSelectedBookCollectionDialog(false);
 
-                                        mMarkSelectedBookCollectionDialog = null;
+                                        mDownloadSelectedBookCollectionDialog = null;
                                     }
                                 })
                                 .create();
