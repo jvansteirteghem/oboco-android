@@ -19,6 +19,6 @@ allprojects {
         //maven { url "http://dl.bintray.com/mobisystech/maven" }
         //maven { url 'http://maven.ghostscript.com/' }
         google()
-        jcenter()
+        //jcenter()
     }
 }
