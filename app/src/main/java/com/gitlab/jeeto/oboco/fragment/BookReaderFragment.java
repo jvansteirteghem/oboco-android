@@ -452,10 +452,8 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
 
         mPageNavTextView.setText(navPage);
 
-        if(!mViewModel.getSelectedBookPage().equals(page)) {
-            mViewModel.setSelectedBookPage(page);
-            mViewModel.addBookMark();
-        }
+        mViewModel.setSelectedBookPage(page);
+        mViewModel.addBookMark();
     }
 
     private class BookReaderPagerAdapter extends PagerAdapter {
