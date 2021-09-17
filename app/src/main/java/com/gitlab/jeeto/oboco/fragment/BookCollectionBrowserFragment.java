@@ -30,11 +30,9 @@ import com.gitlab.jeeto.oboco.Constants;
 import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.MainActivity;
 import com.gitlab.jeeto.oboco.client.BookCollectionDto;
-import com.gitlab.jeeto.oboco.common.BaseViewModel;
 import com.gitlab.jeeto.oboco.common.BaseViewModelProviderFactory;
 import com.gitlab.jeeto.oboco.common.Utils;
 import com.gitlab.jeeto.oboco.manager.DownloadBookCollectionWorker;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 import java.util.Objects;
@@ -42,7 +40,6 @@ import java.util.Objects;
 public class BookCollectionBrowserFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     final int ITEM_VIEW_TYPE_BOOK_COLLECTION = 1;
 
-    private Picasso mPicasso;
     private RecyclerView mBookCollectionListView;
     private View mEmptyView;
     private View mNotEmptyView;
@@ -53,7 +50,6 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
     private BookCollectionBrowserViewModel.Mode mMode;
 
     private BookCollectionBrowserViewModel mViewModel;
-    private BookCollectionBrowserRequestHandler mRequestHandler;
 
     private AlertDialog mMarkSelectedBookCollectionDialog;
     private AlertDialog mDownloadSelectedBookCollectionDialog;
@@ -287,21 +283,6 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
             }
         });
 
-        mRequestHandler = mViewModel.getRequestHandler();
-
-        mPicasso = new Picasso.Builder(getActivity())
-                .addRequestHandler(mRequestHandler)
-                .listener(new Picasso.Listener() {
-                    @Override
-                    public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
-                        mViewModel.setMessage(BaseViewModel.toMessage(exception));
-                        mViewModel.setShowMessage(true);
-                    }
-                })
-                //.loggingEnabled(true)
-                //.indicatorsEnabled(true)
-                .build();
-
         return view;
     }
 
@@ -514,8 +495,8 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
 
                 mBookCollectionImageView.setImageResource(android.R.color.transparent);
 
-                Uri uri = mRequestHandler.getBookCollectionPageUri(bookCollectionDto, "DEFAULT", Constants.COVER_THUMBNAIL_HEIGHT, Constants.COVER_THUMBNAIL_WIDTH);
-                mPicasso.load(uri)
+                Uri uri = mViewModel.getBookCollectionPageUri(bookCollectionDto, "DEFAULT", Constants.COVER_THUMBNAIL_HEIGHT, Constants.COVER_THUMBNAIL_WIDTH);
+                mViewModel.getPicasso().load(uri)
                         .tag(getActivity())
                         .into(mBookCollectionImageView);
 

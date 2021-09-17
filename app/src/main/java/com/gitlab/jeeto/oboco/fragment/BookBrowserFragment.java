@@ -36,11 +36,9 @@ import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.BookReaderActivity;
 import com.gitlab.jeeto.oboco.client.BookCollectionDto;
 import com.gitlab.jeeto.oboco.client.BookDto;
-import com.gitlab.jeeto.oboco.common.BaseViewModel;
 import com.gitlab.jeeto.oboco.common.BaseViewModelProviderFactory;
 import com.gitlab.jeeto.oboco.common.Utils;
 import com.gitlab.jeeto.oboco.manager.DownloadBookWorker;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 import java.util.Objects;
@@ -55,12 +53,9 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
     private Menu mMenu;
     private String mBookMarkStatus;
 
-    private Picasso mPicasso;
-
     private ActivityResultLauncher<Intent> mBookReaderActivityResultLauncher;
 
     private BookBrowserViewModel mViewModel;
-    private BookBrowserRequestHandler mRequestHandler;
 
     private AlertDialog mMarkSelectedBookDialog;
     private AlertDialog mDownloadSelectedBookDialog;
@@ -302,20 +297,6 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                 }
             }
         });
-        mRequestHandler = mViewModel.getRequestHandler();
-
-        mPicasso = new Picasso.Builder(getActivity())
-                .addRequestHandler(mRequestHandler)
-                .listener(new Picasso.Listener() {
-                    @Override
-                    public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
-                        mViewModel.setMessage(BaseViewModel.toMessage(exception));
-                        mViewModel.setShowMessage(true);
-                    }
-                })
-                //.loggingEnabled(true)
-                //.indicatorsEnabled(true)
-                .build();
 
         return view;
     }
@@ -554,8 +535,8 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
 
             mBookImageView.setImageResource(android.R.color.transparent);
 
-            Uri uri = mRequestHandler.getBookPageUri(bookDto, "DEFAULT", Constants.COVER_THUMBNAIL_WIDTH, Constants.COVER_THUMBNAIL_HEIGHT);
-            mPicasso.load(uri)
+            Uri uri = mViewModel.getBookPageUri(bookDto, "DEFAULT", Constants.COVER_THUMBNAIL_WIDTH, Constants.COVER_THUMBNAIL_HEIGHT);
+            mViewModel.getPicasso().load(uri)
                     .into(mBookImageView);
         }
     }

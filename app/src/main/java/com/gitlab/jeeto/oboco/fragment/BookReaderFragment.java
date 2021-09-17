@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -41,12 +40,10 @@ import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.BookReaderActivity;
 import com.gitlab.jeeto.oboco.client.BookDto;
 import com.gitlab.jeeto.oboco.client.BookMarkDto;
-import com.gitlab.jeeto.oboco.common.BaseViewModel;
 import com.gitlab.jeeto.oboco.common.BaseViewModelProviderFactory;
 import com.gitlab.jeeto.oboco.common.Utils;
 import com.gitlab.jeeto.oboco.view.BookViewPager;
 import com.gitlab.jeeto.oboco.view.PageImageView;
-import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -65,7 +62,6 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
     private Constants.PageViewMode mPageViewMode;
     private boolean mIsLeftToRight;
 
-    private Picasso mPicasso;
     private SparseArray<BookReaderTarget> mTargets = new SparseArray<>();
 
     private BookReaderViewModel.Mode mMode;
@@ -73,7 +69,6 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
     private Dialog mSwitchBookDialog;
 
     private BookReaderViewModel mViewModel;
-    private BookReaderRequestHandler mRequestHandler;
 
     static {
         RESOURCE_VIEW_MODE = new HashMap<Integer, Constants.PageViewMode>();
@@ -154,12 +149,12 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                mPicasso.pauseTag(getActivity());
+                mViewModel.getPicasso().pauseTag(getActivity());
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                mPicasso.resumeTag(getActivity());
+                mViewModel.getPicasso().resumeTag(getActivity());
             }
         });
         mPageNavTextView = (TextView) mPageNavLayout.findViewById(R.id.pageNavTextView);
@@ -337,21 +332,6 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
             }
         });
 
-        mRequestHandler = mViewModel.getRequestHandler();
-
-        mPicasso = new Picasso.Builder(getActivity())
-                .addRequestHandler(mRequestHandler)
-                .listener(new Picasso.Listener() {
-                    @Override
-                    public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
-                        mViewModel.setMessage(BaseViewModel.toMessage(exception));
-                        mViewModel.setShowMessage(true);
-                    }
-                })
-                //.loggingEnabled(true)
-                //.indicatorsEnabled(true)
-                .build();
-
         return view;
     }
 
@@ -380,9 +360,6 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
 
     @Override
     public void onDestroy() {
-        // https://github.com/square/picasso/issues/445
-        //mPicasso.shutdown();
-
         super.onDestroy();
     }
 
@@ -503,20 +480,10 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
         public void destroyItem(ViewGroup container, int position, Object object) {
             View layout = (View) object;
 
-            mPicasso.cancelRequest(mTargets.get(position));
+            mViewModel.getPicasso().cancelRequest(mTargets.get(position));
 
             mTargets.delete(position);
             container.removeView(layout);
-
-            ImageView iv = (ImageView) layout.findViewById(R.id.pageImageView);
-            Drawable drawable = iv.getDrawable();
-            if (drawable instanceof BitmapDrawable) {
-                BitmapDrawable bd = (BitmapDrawable) drawable;
-                Bitmap bm = bd.getBitmap();
-                if (bm != null) {
-                    bm.recycle();
-                }
-            }
         }
     }
 
@@ -528,9 +495,8 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
             page = mViewPager.getAdapter().getCount() - t.position;
         }
 
-        Uri uri = mRequestHandler.getBookPageUri(page);
-        mPicasso.load(uri)
-                .memoryPolicy(MemoryPolicy.NO_STORE)
+        Uri uri = mViewModel.getBookPageUri(page);
+        mViewModel.getPicasso().load(uri)
                 .tag(getActivity())
                 .resize(Constants.MAX_PAGE_WIDTH, Constants.MAX_PAGE_HEIGHT)
                 .centerInside()

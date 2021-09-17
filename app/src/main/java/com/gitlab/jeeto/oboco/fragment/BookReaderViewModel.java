@@ -1,6 +1,7 @@
 package com.gitlab.jeeto.oboco.fragment;
 
 import android.app.Application;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.lifecycle.LiveData;
@@ -10,6 +11,7 @@ import com.gitlab.jeeto.oboco.client.BookDto;
 import com.gitlab.jeeto.oboco.client.BookMarkDto;
 import com.gitlab.jeeto.oboco.client.LinkableDto;
 import com.gitlab.jeeto.oboco.common.BaseViewModel;
+import com.squareup.picasso.Picasso;
 
 public abstract class BookReaderViewModel extends BaseViewModel {
     public static final String PARAM_MODE = "PARAM_MODE";
@@ -116,7 +118,8 @@ public abstract class BookReaderViewModel extends BaseViewModel {
         mSelectedBookPageObservable.setValue(bookPage);
     }
 
-    public abstract BookReaderRequestHandler getRequestHandler();
     public abstract void load();
     public abstract void addBookMark();
+    public abstract Uri getBookPageUri(int bookPage);
+    public abstract Picasso getPicasso();
 }

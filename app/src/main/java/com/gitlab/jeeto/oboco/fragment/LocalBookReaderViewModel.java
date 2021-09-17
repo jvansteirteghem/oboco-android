@@ -1,6 +1,7 @@
 package com.gitlab.jeeto.oboco.fragment;
 
 import android.app.Application;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.room.Room;
@@ -13,6 +14,7 @@ import com.gitlab.jeeto.oboco.database.AppDatabase;
 import com.gitlab.jeeto.oboco.database.Book;
 import com.gitlab.jeeto.oboco.reader.BookReader;
 import com.gitlab.jeeto.oboco.reader.ZipBookReader;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -34,6 +36,9 @@ public class LocalBookReaderViewModel extends BookReaderViewModel {
     private File mBookFile;
     private AppDatabase mAppDatabase;
 
+    private BookReaderRequestHandler mRequestHandler;
+    private Picasso mPicasso;
+
     public LocalBookReaderViewModel(Application application, Bundle arguments) {
         super(application, arguments);
 
@@ -50,6 +55,21 @@ public class LocalBookReaderViewModel extends BookReaderViewModel {
         }
 
         mAppDatabase = Room.databaseBuilder(getApplication().getApplicationContext(), AppDatabase.class, "database").build();
+
+        mRequestHandler = new LocalBookReaderRequestHandler(mBookReader);
+
+        mPicasso = new Picasso.Builder(getApplication())
+                .addRequestHandler(mRequestHandler)
+                .listener(new Picasso.Listener() {
+                    @Override
+                    public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
+                        mMessageObservable.setValue(toMessage(exception));
+                        mShowMessageObservable.setValue(true);
+                    }
+                })
+                //.loggingEnabled(true)
+                //.indicatorsEnabled(true)
+                .build();
 
         load();
     }
@@ -69,11 +89,6 @@ public class LocalBookReaderViewModel extends BookReaderViewModel {
             mMessageObservable.setValue(toMessage(e));
             mShowMessageObservable.setValue(true);
         }
-    }
-
-    @Override
-    public BookReaderRequestHandler getRequestHandler() {
-        return new LocalBookReaderRequestHandler(mBookReader);
     }
 
     @Override
@@ -249,5 +264,15 @@ public class LocalBookReaderViewModel extends BookReaderViewModel {
                 mShowMessageObservable.setValue(true);
             }
         });
+    }
+
+    @Override
+    public Uri getBookPageUri(int bookPage) {
+        return mRequestHandler.getBookPageUri(bookPage);
+    }
+
+    @Override
+    public Picasso getPicasso() {
+        return mPicasso;
     }
 }

@@ -3,6 +3,7 @@ package com.gitlab.jeeto.oboco.fragment;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 
 import com.gitlab.jeeto.oboco.client.ApplicationService;
@@ -11,6 +12,7 @@ import com.gitlab.jeeto.oboco.client.BookCollectionDto;
 import com.gitlab.jeeto.oboco.client.BookDto;
 import com.gitlab.jeeto.oboco.client.BookMarkDto;
 import com.gitlab.jeeto.oboco.client.PageableListDto;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +40,9 @@ public class RemoteBookBrowserViewModel extends BookBrowserViewModel {
     private Disposable mAuthenticationManagerDisposable;
     private ApplicationService mApplicationService;
 
+    private BookBrowserRequestHandler mRequestHandler;
+    private Picasso mPicasso;
+
     public RemoteBookBrowserViewModel(Application application, Bundle arguments) {
         super(application, arguments);
 
@@ -63,6 +68,21 @@ public class RemoteBookBrowserViewModel extends BookBrowserViewModel {
         });
 
         mApplicationService = new ApplicationService(getApplication().getApplicationContext(), mBaseUrl, mAuthenticationManager);
+
+        mRequestHandler = new RemoteBookBrowserRequestHandler(mApplicationService);
+
+        mPicasso = new Picasso.Builder(getApplication())
+                .addRequestHandler(mRequestHandler)
+                .listener(new Picasso.Listener() {
+                    @Override
+                    public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
+                        mMessageObservable.setValue(toMessage(exception));
+                        mShowMessageObservable.setValue(true);
+                    }
+                })
+                //.loggingEnabled(true)
+                //.indicatorsEnabled(true)
+                .build();
 
         load();
     }
@@ -280,7 +300,12 @@ public class RemoteBookBrowserViewModel extends BookBrowserViewModel {
     }
 
     @Override
-    public BookBrowserRequestHandler getRequestHandler() {
-        return new RemoteBookBrowserRequestHandler(mApplicationService);
+    public Uri getBookPageUri(BookDto bookDto, String scaleType, int scaleWidth, int scaleHeight) {
+        return mRequestHandler.getBookPageUri(bookDto, scaleType, scaleWidth, scaleHeight);
+    }
+
+    @Override
+    public Picasso getPicasso() {
+        return mPicasso;
     }
 }

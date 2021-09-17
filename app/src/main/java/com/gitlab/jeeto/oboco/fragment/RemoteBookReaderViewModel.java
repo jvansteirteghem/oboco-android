@@ -3,6 +3,7 @@ package com.gitlab.jeeto.oboco.fragment;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 
 import com.gitlab.jeeto.oboco.client.ApplicationService;
@@ -10,6 +11,7 @@ import com.gitlab.jeeto.oboco.client.AuthenticationManager;
 import com.gitlab.jeeto.oboco.client.BookDto;
 import com.gitlab.jeeto.oboco.client.BookMarkDto;
 import com.gitlab.jeeto.oboco.client.LinkableDto;
+import com.squareup.picasso.Picasso;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -27,6 +29,9 @@ public class RemoteBookReaderViewModel extends BookReaderViewModel {
     private AuthenticationManager mAuthenticationManager;
     private Disposable mAuthenticationManagerDisposable;
     private ApplicationService mApplicationService;
+
+    private BookReaderRequestHandler mRequestHandler;
+    private Picasso mPicasso;
 
     public RemoteBookReaderViewModel(Application application, Bundle arguments) {
         super(application, arguments);
@@ -50,17 +55,27 @@ public class RemoteBookReaderViewModel extends BookReaderViewModel {
 
         mApplicationService = new ApplicationService(getApplication().getApplicationContext(), mBaseUrl, mAuthenticationManager);
 
+        mRequestHandler = new RemoteBookReaderRequestHandler(mApplicationService, mBookId);
+
+        mPicasso = new Picasso.Builder(getApplication())
+                .addRequestHandler(mRequestHandler)
+                .listener(new Picasso.Listener() {
+                    @Override
+                    public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
+                        mMessageObservable.setValue(toMessage(exception));
+                        mShowMessageObservable.setValue(true);
+                    }
+                })
+                //.loggingEnabled(true)
+                //.indicatorsEnabled(true)
+                .build();
+
         load();
     }
 
     @Override
     protected void onCleared() {
         mAuthenticationManagerDisposable.dispose();
-    }
-
-    @Override
-    public BookReaderRequestHandler getRequestHandler() {
-        return new RemoteBookReaderRequestHandler(mApplicationService, mBookId);
     }
 
     @Override
@@ -148,5 +163,15 @@ public class RemoteBookReaderViewModel extends BookReaderViewModel {
                 mShowMessageObservable.setValue(true);
             }
         });
+    }
+
+    @Override
+    public Uri getBookPageUri(int bookPage) {
+        return mRequestHandler.getBookPageUri(bookPage);
+    }
+
+    @Override
+    public Picasso getPicasso() {
+        return mPicasso;
     }
 }

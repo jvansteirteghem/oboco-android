@@ -1,14 +1,15 @@
 package com.gitlab.jeeto.oboco.fragment;
 
 import android.app.Application;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.gitlab.jeeto.oboco.client.BookCollectionDto;
-import com.gitlab.jeeto.oboco.client.BookDto;
 import com.gitlab.jeeto.oboco.common.BaseViewModel;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -122,5 +123,6 @@ public abstract class BookCollectionBrowserViewModel extends BaseViewModel {
     public abstract void loadNextBookCollectionList();
     public abstract void addBookMark();
     public abstract void removeBookMark();
-    public abstract BookCollectionBrowserRequestHandler getRequestHandler();
+    public abstract Uri getBookCollectionPageUri(BookCollectionDto bookCollectionDto, String scaleType, int scaleWidth, int scaleHeight);
+    public abstract Picasso getPicasso();
 }
