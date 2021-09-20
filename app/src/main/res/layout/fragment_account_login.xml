@@ -13,7 +13,7 @@
             android:id="@+id/account_login_et_baseUrl"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:hint="baseUrl: http://address:port"
+            android:hint="@string/account_login_base_url_hint"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:padding="15dp"
@@ -26,7 +26,7 @@
             android:id="@+id/account_login_et_name"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:hint="name"
+            android:hint="@string/account_login_name_hint"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:padding="15dp"
@@ -39,7 +39,7 @@
             android:id="@+id/account_login_et_password"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:hint="password"
+            android:hint="@string/account_login_password_hint"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginTop="10dp"
@@ -58,7 +58,7 @@
             android:layout_marginRight="20dp"
             android:layout_marginTop="10dp"
             android:padding="15dp"
-            android:text="show password" />
+            android:text="@string/account_login_show_password" />
 
         <Button
             android:id="@+id/account_login_btn_login"
@@ -68,7 +68,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginTop="15dp"
-            android:text="log in"/>
+            android:text="@string/account_login_log_in"/>
 
     </RelativeLayout>
 

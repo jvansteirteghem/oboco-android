@@ -200,9 +200,9 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                 if(showMarkSelectedBookDialog) {
                     if (mMarkSelectedBookDialog == null) {
                         mMarkSelectedBookDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
-                                .setTitle("Would you like to mark the book as read?")
+                                .setTitle(R.string.book_browser_dialog_mark)
                                 .setMessage(mViewModel.getSelectedBook().getName())
-                                .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
+                                .setPositiveButton(R.string.book_browser_dialog_mark_positive, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.addBookMark();
@@ -211,7 +211,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                                         mMarkSelectedBookDialog = null;
                                     }
                                 })
-                                .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
+                                .setNegativeButton(R.string.book_browser_dialog_mark_negative, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.setShowMarkSelectedBookDialog(false);
@@ -219,7 +219,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                                         mMarkSelectedBookDialog = null;
                                     }
                                 })
-                                .setNeutralButton("Unread", new DialogInterface.OnClickListener() {
+                                .setNeutralButton(R.string.book_browser_dialog_mark_neutral, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.removeBookMark();
@@ -248,9 +248,9 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                 if(showDownloadSelectedBookDialog) {
                     if (mDownloadSelectedBookDialog == null) {
                         mDownloadSelectedBookDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
-                                .setTitle("Would you like to download the book?")
+                                .setTitle(R.string.book_browser_dialog_download)
                                 .setMessage(mViewModel.getSelectedBook().getName())
-                                .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
+                                .setPositiveButton(R.string.book_browser_dialog_download_positive, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         WorkRequest downloadWorkRequest = DownloadBookWorker.createDownloadWorkRequest(mViewModel.getSelectedBook().getId(), mViewModel.getSelectedBook().getName());
@@ -264,7 +264,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                                         mDownloadSelectedBookDialog = null;
                                     }
                                 })
-                                .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
+                                .setNegativeButton(R.string.book_browser_dialog_download_negative, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.setShowDownloadSelectedBookDialog(false);

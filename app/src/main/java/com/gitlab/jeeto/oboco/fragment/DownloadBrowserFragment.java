@@ -57,7 +57,7 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
 
         mObjectList = new ArrayList<Object>();
 
-        getActivity().setTitle(R.string.menu_download_browser);
+        getActivity().setTitle(R.string.drawer_menu_download_browser);
 
         mBookReaderActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -107,7 +107,7 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
         ViewGroup breadcrumbLayout = (ViewGroup) inflater.inflate(R.layout.browser_breadcrumb, toolbar, false);
         toolbar.addView(breadcrumbLayout);
         mTitleTextView = (TextView) breadcrumbLayout.findViewById(R.id.browser_breadcrumb_title_textview);
-        mTitleTextView.setText(R.string.menu_download_browser);
+        mTitleTextView.setText(R.string.drawer_menu_download_browser);
         mSubtitleTextView = (TextView) breadcrumbLayout.findViewById(R.id.browser_breadcrumb_subtitle_textview);
 
         mListView = (ListView) view.findViewById(R.id.browser_listview);
@@ -144,9 +144,9 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
                 if(showDeleteSelectedBookCollectionDialog) {
                     if (mDeleteSelectedBookCollectionDialog == null) {
                         mDeleteSelectedBookCollectionDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
-                                .setTitle("Would you like to delete the book collection?")
+                                .setTitle(R.string.download_browser_dialog_delete_book_collection)
                                 .setMessage(mViewModel.getSelectedBookCollection().getName())
-                                .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
+                                .setPositiveButton(R.string.download_browser_dialog_delete_positive, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.deleteSelectedBookCollection();
@@ -155,7 +155,7 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
                                         mDeleteSelectedBookCollectionDialog = null;
                                     }
                                 })
-                                .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
+                                .setNegativeButton(R.string.download_browser_dialog_delete_negative, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.setShowDeleteSelectedBookCollectionDialog(false);
@@ -183,9 +183,9 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
                 if(showDeleteSelectedBookDialog) {
                     if(mDeleteSelectedBookCollectionDialog == null) {
                         mDeleteSelectedBookDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
-                                .setTitle("Would you like to delete the book?")
+                                .setTitle(R.string.download_browser_dialog_delete_book)
                                 .setMessage(mViewModel.getSelectedBook().getName())
-                                .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
+                                .setPositiveButton(R.string.download_browser_dialog_delete_positive, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.deleteSelectedBook();
@@ -194,7 +194,7 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
                                         mDeleteSelectedBookDialog = null;
                                     }
                                 })
-                                .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
+                                .setNegativeButton(R.string.download_browser_dialog_delete_negative, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.setShowDeleteSelectedBookDialog(false);

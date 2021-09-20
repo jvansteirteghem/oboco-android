@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.client.ApplicationService;
 import com.gitlab.jeeto.oboco.client.AuthenticationManager;
 import com.gitlab.jeeto.oboco.client.UserDto;
@@ -85,7 +86,7 @@ public class RemoteAccountLogoutViewModel extends AccountLogoutViewModel {
 
             @Override
             public void onComplete() {
-                mMessageObservable.setValue("You are logged out.");
+                mMessageObservable.setValue(getApplication().getResources().getString(R.string.account_logout_logged_out));
                 mShowMessageObservable.setValue(true);
 
                 mIsEnabledObservable.setValue(true);
@@ -124,7 +125,7 @@ public class RemoteAccountLogoutViewModel extends AccountLogoutViewModel {
 
             @Override
             public void onSuccess(UserDto userDto) {
-                mMessageObservable.setValue("Your password is updated.");
+                mMessageObservable.setValue(getApplication().getResources().getString(R.string.account_logout_updated_password));
                 mShowMessageObservable.setValue(true);
 
                 mPasswordObservable.setValue("");

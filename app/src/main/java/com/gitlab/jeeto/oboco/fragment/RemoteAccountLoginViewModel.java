@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.client.AuthenticationManager;
 
 import io.reactivex.Completable;
@@ -91,7 +92,7 @@ public class RemoteAccountLoginViewModel extends AccountLoginViewModel {
 
             @Override
             public void onComplete() {
-                mMessageObservable.setValue("You are logged in.");
+                mMessageObservable.setValue(getApplication().getResources().getString(R.string.account_login_logged_in));
                 mShowMessageObservable.setValue(true);
 
                 mPasswordObservable.setValue("");

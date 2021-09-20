@@ -29,7 +29,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/librarybrowser_empty"
+                    android:text="@string/book_browser_empty"
                     android:textSize="@dimen/card_text"
                     android:gravity="center"
                     android:padding="@dimen/button_horizontal_padding"/>

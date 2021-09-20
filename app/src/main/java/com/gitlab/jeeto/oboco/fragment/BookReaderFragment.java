@@ -236,15 +236,15 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                     if(mSwitchBookDialog == null) {
                         int titleResource = -1;
                         if(mViewModel.getSelectedBook().equals(mViewModel.getBookLinkable().getPreviousElement())) {
-                            titleResource = R.string.switch_prev_comic;
+                            titleResource = R.string.book_reader_dialog_switch_previous;
                         } else if(mViewModel.getSelectedBook().equals(mViewModel.getBookLinkable().getNextElement())) {
-                            titleResource = R.string.switch_next_comic;
+                            titleResource = R.string.book_reader_dialog_switch_next;
                         }
 
                         mSwitchBookDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                                 .setTitle(titleResource)
                                 .setMessage(mViewModel.getSelectedBook().getName())
-                                .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
+                                .setPositiveButton(R.string.book_reader_dialog_switch_positive, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         BookReaderActivity activity = (BookReaderActivity) getActivity();
@@ -258,7 +258,7 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                                         mSwitchBookDialog = null;
                                     }
                                 })
-                                .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
+                                .setNegativeButton(R.string.book_reader_dialog_switch_negative, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.setShowSwitchSelectedBookDialog(false);

@@ -58,7 +58,7 @@ public class DownloadManagerBrowserFragment extends Fragment {
 
         mDownloadWorkList = new ArrayList<DownloadWork>();
 
-        getActivity().setTitle(R.string.menu_download_manager_browser);
+        getActivity().setTitle(R.string.drawer_menu_download_manager_browser);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class DownloadManagerBrowserFragment extends Fragment {
         ViewGroup breadcrumbLayout = (ViewGroup) inflater.inflate(R.layout.browser_breadcrumb, toolbar, false);
         toolbar.addView(breadcrumbLayout);
         mTitleTextView = (TextView) breadcrumbLayout.findViewById(R.id.browser_breadcrumb_title_textview);
-        mTitleTextView.setText(R.string.menu_download_manager_browser);
+        mTitleTextView.setText(R.string.drawer_menu_download_manager_browser);
         mSubtitleTextView = (TextView) breadcrumbLayout.findViewById(R.id.browser_breadcrumb_subtitle_textview);
 
         mListView = (ListView) view.findViewById(R.id.browser_listview);
@@ -102,7 +102,7 @@ public class DownloadManagerBrowserFragment extends Fragment {
 
                 Integer numberOfDownloads = mDownloadWorkList.size();
 
-                String numberOfDownloadsText = getResources().getQuantityString(R.plurals.number_of_downloads, numberOfDownloads, numberOfDownloads);
+                String numberOfDownloadsText = getResources().getQuantityString(R.plurals.download_manager_browser_number_of_downloads, numberOfDownloads, numberOfDownloads);
 
                 mSubtitleTextView.setText(numberOfDownloadsText);
             }
@@ -113,9 +113,9 @@ public class DownloadManagerBrowserFragment extends Fragment {
             public void onChanged(Boolean showStartSelectedDownloadWorkDialog) {
                 if(mStartDownloadWorkDialog == null) {
                     mStartDownloadWorkDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
-                            .setTitle("Would you like to start the download?")
+                            .setTitle(R.string.download_manager_browser_dialog_download_start)
                             .setMessage(mViewModel.getSelectedDownloadWork().getDownloadName())
-                            .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
+                            .setPositiveButton(R.string.download_manager_browser_dialog_download_positive, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     WorkRequest downloadWorkRequest;
@@ -135,7 +135,7 @@ public class DownloadManagerBrowserFragment extends Fragment {
                                     mStartDownloadWorkDialog = null;
                                 }
                             })
-                            .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
+                            .setNegativeButton(R.string.download_manager_browser_dialog_download_negative, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     mViewModel.setShowStartSelectedDownloadWorkDialog(false);
@@ -161,9 +161,9 @@ public class DownloadManagerBrowserFragment extends Fragment {
             public void onChanged(Boolean showStopSelectedDownloadWorkDialog) {
                 if(mStopDownloadWorkDialog == null) {
                     mStopDownloadWorkDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
-                            .setTitle("Would you like to stop the download?")
+                            .setTitle(R.string.download_manager_browser_dialog_download_stop)
                             .setMessage(mViewModel.getSelectedDownloadWork().getDownloadName())
-                            .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
+                            .setPositiveButton(R.string.download_manager_browser_dialog_download_positive, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     mWorkManager.cancelWorkById(mViewModel.getSelectedDownloadWork().getId());
@@ -173,7 +173,7 @@ public class DownloadManagerBrowserFragment extends Fragment {
                                     mStopDownloadWorkDialog = null;
                                 }
                             })
-                            .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
+                            .setNegativeButton(R.string.download_manager_browser_dialog_download_negative, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     mViewModel.setShowStopSelectedDownloadWorkDialog(false);

@@ -185,9 +185,9 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                 if(showMarkSelectedBookCollectionDialog) {
                     if(mMarkSelectedBookCollectionDialog == null) {
                         mMarkSelectedBookCollectionDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
-                                .setTitle("Would you like to mark the book collection as read?")
+                                .setTitle(R.string.book_collection_browser_dialog_mark)
                                 .setMessage(mViewModel.getSelectedBookCollection().getName())
-                                .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
+                                .setPositiveButton(R.string.book_collection_browser_dialog_mark_positive, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.addBookMark();
@@ -196,7 +196,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                                         mMarkSelectedBookCollectionDialog = null;
                                     }
                                 })
-                                .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
+                                .setNegativeButton(R.string.book_collection_browser_dialog_mark_negative, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.setShowMarkSelectedBookCollectionDialog(false);
@@ -204,7 +204,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                                         mMarkSelectedBookCollectionDialog = null;
                                     }
                                 })
-                                .setNeutralButton("Unread", new DialogInterface.OnClickListener() {
+                                .setNeutralButton(R.string.book_collection_browser_dialog_mark_neutral, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.removeBookMark();
@@ -233,9 +233,9 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                 if(showDownloadSelectedBookCollectionDialog) {
                     if(mDownloadSelectedBookCollectionDialog == null) {
                         mDownloadSelectedBookCollectionDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
-                                .setTitle("Would you like to download the book collection?")
+                                .setTitle(R.string.book_collection_browser_dialog_download)
                                 .setMessage(mViewModel.getSelectedBookCollection().getName())
-                                .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
+                                .setPositiveButton(R.string.book_collection_browser_dialog_download_positive, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         WorkRequest downloadWorkRequest = DownloadBookCollectionWorker.createDownloadWorkRequest(mViewModel.getSelectedBookCollection().getId(), mViewModel.getSelectedBookCollection().getName());
@@ -249,7 +249,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                                         mDownloadSelectedBookCollectionDialog = null;
                                     }
                                 })
-                                .setNegativeButton(R.string.switch_action_negative, new DialogInterface.OnClickListener() {
+                                .setNegativeButton(R.string.book_collection_browser_dialog_download_negative, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.setShowDownloadSelectedBookCollectionDialog(false);

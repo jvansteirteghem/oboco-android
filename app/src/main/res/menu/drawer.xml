@@ -4,21 +4,21 @@
            android:checkableBehavior="single">
         <item android:id="@+id/drawer_menu_account"
             android:icon="@drawable/ic_my_library_books_grey600_24dp"
-            android:title="@string/menu_account"/>
+            android:title="@string/drawer_menu_account"/>
         <item android:id="@+id/drawer_menu_book_collection_browser"
             android:icon="@drawable/ic_folder_grey600_24dp"
-            android:title="@string/menu_library"/>
+            android:title="@string/drawer_menu_book_collection_browser"/>
         <item android:id="@+id/drawer_menu_latest_book_collection_browser"
             android:icon="@drawable/ic_folder_grey600_24dp"
-            android:title="@string/menu_library_latest"/>
+            android:title="@string/drawer_menu_book_collection_browser_latest"/>
         <item android:id="@+id/drawer_menu_download_browser"
             android:icon="@drawable/ic_folder_grey600_24dp"
-            android:title="@string/menu_download_browser"/>
+            android:title="@string/drawer_menu_download_browser"/>
         <item android:id="@+id/drawer_menu_download_manager_browser"
             android:icon="@drawable/ic_folder_grey600_24dp"
-            android:title="@string/menu_download_manager_browser"/>
+            android:title="@string/drawer_menu_download_manager_browser"/>
         <item android:id="@+id/drawer_menu_about"
               android:icon="@drawable/ic_info_grey600_24dp"
-              android:title="@string/menu_about"/>
+              android:title="@string/drawer_menu_about"/>
     </group>
 </menu>
