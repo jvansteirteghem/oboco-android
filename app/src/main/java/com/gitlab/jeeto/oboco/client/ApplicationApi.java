@@ -24,7 +24,11 @@ public interface ApplicationApi {
 
     @Headers("Content-Type: application/json")
     @GET("/api/v1/bookCollections")
-    public Single<PageableListDto<BookCollectionDto>> getBookCollections(@Query("parentBookCollectionId") Long parentBookCollectionId, @Query("name") String name, @Query("page") Integer page, @Query("pageSize") Integer pageSize, @Query("graph") String graph);
+    public Single<PageableListDto<BookCollectionDto>> getBookCollections(@Query("name") String name, @Query("filterType") String filterType, @Query("page") Integer page, @Query("pageSize") Integer pageSize, @Query("graph") String graph);
+
+    @Headers("Content-Type: application/json")
+    @GET("/api/v1/bookCollections/{bookCollectionId}/bookCollections")
+    public Single<PageableListDto<BookCollectionDto>> getBookCollectionsByBookCollection(@Path("bookCollectionId") Long bookCollectionId, @Query("name") String name, @Query("page") Integer page, @Query("pageSize") Integer pageSize, @Query("graph") String graph);
 
     @Headers("Content-Type: application/json")
     @GET("/api/v1/bookCollections/ROOT")
@@ -35,12 +39,12 @@ public interface ApplicationApi {
     public Single<BookCollectionDto> getBookCollection(@Path("id") Long id, @Query("graph") String graph);
 
     @Headers("Content-Type: application/json")
-    @GET("/api/v1/bookCollections/{bookCollectionId}/books/{bookId}/books")
-    public Single<LinkableDto<BookDto>> getBooks(@Path("bookCollectionId") Long bookCollectionId, @Path("bookId") Long id, @Query("graph") String graph);
+    @GET("/api/v1/bookCollections/{bookCollectionId}/books/{bookId}")
+    public Single<LinkableDto<BookDto>> getLinkableBookByBookCollection(@Path("bookCollectionId") Long bookCollectionId, @Path("bookId") Long id, @Query("graph") String graph);
 
     @Headers("Content-Type: application/json")
     @GET("/api/v1/bookCollections/{bookCollectionId}/books")
-    public Single<PageableListDto<BookDto>> getBooks(@Path("bookCollectionId") Long bookCollectionId, @Query("bookMarkStatus") String bookMarkStatus, @Query("page") Integer page, @Query("pageSize") Integer pageSize, @Query("graph") String graph);
+    public Single<PageableListDto<BookDto>> getBooksByBookCollection(@Path("bookCollectionId") Long bookCollectionId, @Query("filterType") String filterType, @Query("page") Integer page, @Query("pageSize") Integer pageSize, @Query("graph") String graph);
 
     @Headers("Content-Type: application/json")
     @GET("/api/v1/books/{id}")
@@ -52,23 +56,23 @@ public interface ApplicationApi {
 
     @Headers("Content-Type: application/json")
     @GET("/api/v1/books/{bookId}/bookMark")
-    public Single<BookMarkDto> getBookMark(@Path("bookId") Long bookId, @Query("graph") String graph);
+    public Single<BookMarkDto> getBookMarkByBook(@Path("bookId") Long bookId, @Query("graph") String graph);
 
     @Headers("Content-Type: application/json")
     @PUT("/api/v1/books/{bookId}/bookMark")
-    public Single<BookMarkDto> createOrUpdateBookMark(@Path("bookId") Long bookId, @Body BookMarkDto bookMark);
+    public Single<BookMarkDto> createOrUpdateBookMarkByBook(@Path("bookId") Long bookId, @Body BookMarkDto bookMark);
 
     @Headers("Content-Type: application/json")
     @DELETE("/api/v1/books/{bookId}/bookMark")
-    public Completable deleteBookMark(@Path("bookId") Long bookId);
+    public Completable deleteBookMarkByBook(@Path("bookId") Long bookId);
 
     @Headers("Content-Type: application/json")
     @PUT("/api/v1/bookCollections/{bookCollectionId}/bookMarks")
-    public Completable createOrUpdateBookMarks(@Path("bookCollectionId") Long bookCollectionId);
+    public Completable createOrUpdateBookMarksByBookCollection(@Path("bookCollectionId") Long bookCollectionId);
 
     @Headers("Content-Type: application/json")
     @DELETE("/api/v1/bookCollections/{bookCollectionId}/bookMarks")
-    public Completable deleteBookMarks(@Path("bookCollectionId") Long bookCollectionId);
+    public Completable deleteBookMarksByBookCollection(@Path("bookCollectionId") Long bookCollectionId);
 
     @Streaming
     @Headers("Content-Type: image/jpeg")
@@ -84,9 +88,4 @@ public interface ApplicationApi {
     @Headers("Content-Type: application/zip")
     @GET("/api/v1/books/{bookId}.cbz")
     public Single<ResponseBody> downloadBook(@Path("bookId") Long bookId);
-
-    @Headers("Content-Type: application/json")
-    @GET("/api/v1/bookCollections/LATEST/bookCollections")
-    public Single<PageableListDto<BookCollectionDto>> getLatestBookCollections(@Query("name") String name, @Query("page") Integer page, @Query("pageSize") Integer pageSize, @Query("graph") String graph);
-
 }

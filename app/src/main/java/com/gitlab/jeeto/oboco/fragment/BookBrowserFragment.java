@@ -51,7 +51,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
     private View mNotEmptyView;
     private SwipeRefreshLayout mRefreshView;
     private Menu mMenu;
-    private String mBookMarkStatus;
+    private String mFilterType;
 
     private ActivityResultLauncher<Intent> mBookReaderActivityResultLauncher;
 
@@ -60,10 +60,11 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
     private AlertDialog mMarkSelectedBookDialog;
     private AlertDialog mDownloadSelectedBookDialog;
 
-    public static BookBrowserFragment create(Long bookCollectionId) {
+    public static BookBrowserFragment create(Long bookCollectionId, String filterType) {
         BookBrowserFragment fragment = new BookBrowserFragment();
         Bundle args = new Bundle();
         args.putLong(BookBrowserViewModel.PARAM_BOOK_COLLECTION_ID, bookCollectionId);
+        args.putString(BookBrowserViewModel.PARAM_FILTER_TYPE, filterType);
         fragment.setArguments(args);
         return fragment;
     }
@@ -303,7 +304,11 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
 
     @Override
     public void onRefresh() {
-        mViewModel.loadBookList();
+        if(mViewModel.getBookCollection() == null) {
+            mViewModel.load();
+        } else {
+            mViewModel.loadBookList();
+        }
     }
 
     @Override
@@ -317,23 +322,29 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         MenuItem menuItem = mMenu.findItem(R.id.menu_book_browser_filter_all);
         menuItem.setChecked(true);
 
-        mBookMarkStatus = null;
+        mFilterType = "ALL";
 
-        mViewModel.getBookMarkStatusObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
+        mViewModel.getFilterTypeObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
-            public void onChanged(String bookMarkStatus) {
-                if(!Objects.equals(mBookMarkStatus, bookMarkStatus)) {
-                    mBookMarkStatus = bookMarkStatus;
+            public void onChanged(String filterType) {
+                if(!Objects.equals(mFilterType, filterType)) {
+                    mFilterType = filterType;
 
-                    int menuItemId = R.id.menu_book_browser_filter_all;
-                    if(bookMarkStatus != null) {
-                        if (bookMarkStatus.equals("READ")) {
-                            menuItemId = R.id.menu_book_browser_filter_read;
-                        } else if (bookMarkStatus.equals("UNREAD")) {
-                            menuItemId = R.id.menu_book_browser_filter_unread;
-                        } else if (bookMarkStatus.equals("READING")) {
-                            menuItemId = R.id.menu_book_browser_filter_reading;
-                        }
+                    int menuItemId;
+                    if (filterType.equals("ALL")) {
+                        menuItemId = R.id.menu_book_browser_filter_all;
+                    } else if (filterType.equals("NEW")) {
+                        menuItemId = R.id.menu_book_browser_filter_new;
+                    } else if (filterType.equals("LATEST_READ")) {
+                        menuItemId = R.id.menu_book_browser_filter_latest_read;
+                    } else if (filterType.equals("READ")) {
+                        menuItemId = R.id.menu_book_browser_filter_read;
+                    } else if (filterType.equals("READING")) {
+                        menuItemId = R.id.menu_book_browser_filter_reading;
+                    } else if (filterType.equals("UNREAD")) {
+                        menuItemId = R.id.menu_book_browser_filter_unread;
+                    } else {
+                        menuItemId = R.id.menu_book_browser_filter_all;
                     }
                     MenuItem menuItem = mMenu.findItem(menuItemId);
                     menuItem.setChecked(true);
@@ -348,25 +359,32 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.menu_book_browser_filter_all:
+            case R.id.menu_book_browser_filter_new:
+            case R.id.menu_book_browser_filter_latest_read:
             case R.id.menu_book_browser_filter_read:
-            case R.id.menu_book_browser_filter_unread:
             case R.id.menu_book_browser_filter_reading:
+            case R.id.menu_book_browser_filter_unread:
                 menuItem.setChecked(true);
 
                 int menuItemId = menuItem.getItemId();
 
-                mBookMarkStatus = null;
-                if (menuItemId != R.id.menu_book_browser_filter_all) {
-                    if (menuItemId == R.id.menu_book_browser_filter_read) {
-                        mBookMarkStatus = "READ";
-                    } else if (menuItemId == R.id.menu_book_browser_filter_unread) {
-                        mBookMarkStatus = "UNREAD";
-                    } else if (menuItemId == R.id.menu_book_browser_filter_reading) {
-                        mBookMarkStatus = "READING";
-                    }
+                if (menuItemId == R.id.menu_book_browser_filter_all) {
+                    mFilterType = "ALL";
+                } else if (menuItemId == R.id.menu_book_browser_filter_new) {
+                    mFilterType = "NEW";
+                } else if (menuItemId == R.id.menu_book_browser_filter_latest_read) {
+                    mFilterType = "LATEST_READ";
+                } else if (menuItemId == R.id.menu_book_browser_filter_read) {
+                    mFilterType = "READ";
+                } else if (menuItemId == R.id.menu_book_browser_filter_reading) {
+                    mFilterType = "READING";
+                } else if (menuItemId == R.id.menu_book_browser_filter_unread) {
+                    mFilterType = "UNREAD";
+                } else {
+                    mFilterType = "ALL";
                 }
 
-                mViewModel.setBookMarkStatus(mBookMarkStatus);
+                mViewModel.setFilterType(mFilterType);
                 mViewModel.loadBookList();
                 return true;
         }

@@ -91,7 +91,7 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
 
     @Override
     public void load() {
-        mBookCollectionNameObservable.setValue(null);
+        mBookCollectionNameObservable.setValue("");
 
         mIsLoadingObservable.setValue(true);
 
@@ -114,7 +114,7 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
                 mBookCollectionId = bookCollectionDto.getId();
                 mBookCollectionObservable.setValue(bookCollectionDto);
 
-                Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollections(mBookCollectionId, mBookCollectionNameObservable.getValue(), mPage, mPageSize, "()");
+                Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollectionsByBookCollection(mBookCollectionId, mBookCollectionNameObservable.getValue(), mPage, mPageSize, "()");
                 single = single.observeOn(AndroidSchedulers.mainThread());
                 single = single.subscribeOn(Schedulers.io());
                 single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
@@ -157,7 +157,7 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
     public void loadBookCollectionList() {
         mIsLoadingObservable.setValue(true);
 
-        Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollections(mBookCollectionId, mBookCollectionNameObservable.getValue(), mPage, mPageSize, "()");
+        Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollectionsByBookCollection(mBookCollectionId, mBookCollectionNameObservable.getValue(), mPage, mPageSize, "()");
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
         single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
@@ -200,7 +200,7 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
         if(hasNextBookCollectionList()) {
             mIsLoadingObservable.setValue(true);
 
-            Single<PageableListDto<BookCollectionDto>> single = mApplicationService.getBookCollections(mBookCollectionId, mBookCollectionNameObservable.getValue(), mNextPage, mNextPageSize, "()");
+            Single<PageableListDto<BookCollectionDto>> single = mApplicationService.getBookCollectionsByBookCollection(mBookCollectionId, mBookCollectionNameObservable.getValue(), mNextPage, mNextPageSize, "()");
             single = single.observeOn(AndroidSchedulers.mainThread());
             single = single.subscribeOn(Schedulers.io());
             single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
@@ -235,7 +235,7 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
     public void addBookMark() {
         BookCollectionDto selectedBookCollectionDto = mSelectedBookCollectionObservable.getValue();
 
-        Completable completable = mApplicationService.createOrUpdateBookMarks(selectedBookCollectionDto.getId());
+        Completable completable = mApplicationService.createOrUpdateBookMarksByBookCollection(selectedBookCollectionDto.getId());
         completable = completable.observeOn(AndroidSchedulers.mainThread());
         completable = completable.subscribeOn(Schedulers.io());
         completable.subscribe(new CompletableObserver() {
@@ -261,7 +261,7 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
     public void removeBookMark() {
         BookCollectionDto selectedBookCollectionDto = mSelectedBookCollectionObservable.getValue();
 
-        Completable completable = mApplicationService.deleteBookMarks(selectedBookCollectionDto.getId());
+        Completable completable = mApplicationService.deleteBookMarksByBookCollection(selectedBookCollectionDto.getId());
         completable = completable.observeOn(AndroidSchedulers.mainThread());
         completable = completable.subscribeOn(Schedulers.io());
         completable.subscribe(new CompletableObserver() {

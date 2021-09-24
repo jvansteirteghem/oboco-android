@@ -29,6 +29,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class RemoteBookBrowserViewModel extends BookBrowserViewModel {
     private Long mBookCollectionId;
+    private String mFilterType;
     private Integer mPage;
     private Integer mPageSize;
     private Integer mNextPage;
@@ -47,6 +48,7 @@ public class RemoteBookBrowserViewModel extends BookBrowserViewModel {
         super(application, arguments);
 
         mBookCollectionId = getArguments().getLong(BookBrowserViewModel.PARAM_BOOK_COLLECTION_ID);
+        mFilterType = getArguments().getString(BookBrowserViewModel.PARAM_FILTER_TYPE);
         mPage = 1;
         mPageSize = 100;
         mNextPage = null;
@@ -94,7 +96,7 @@ public class RemoteBookBrowserViewModel extends BookBrowserViewModel {
 
     @Override
     public void load() {
-        mBookMarkStatusObservable.setValue(null);
+        mFilterTypeObservable.setValue(mFilterType);
 
         mIsLoadingObservable.setValue(true);
 
@@ -117,7 +119,7 @@ public class RemoteBookBrowserViewModel extends BookBrowserViewModel {
                 mBookCollectionId = bookCollectionDto.getId();
                 mBookCollectionObservable.setValue(bookCollectionDto);
 
-                Single<PageableListDto<BookDto>> single = mApplicationService.getBooks(mBookCollectionId, mBookMarkStatusObservable.getValue(), mPage, mPageSize, "(bookMark)");
+                Single<PageableListDto<BookDto>> single = mApplicationService.getBooksByBookCollection(mBookCollectionId, mFilterTypeObservable.getValue(), mPage, mPageSize, "(bookMark)");
                 single = single.observeOn(AndroidSchedulers.mainThread());
                 single = single.subscribeOn(Schedulers.io());
                 single.subscribe(new SingleObserver<PageableListDto<BookDto>>() {
@@ -160,7 +162,7 @@ public class RemoteBookBrowserViewModel extends BookBrowserViewModel {
     public void loadBookList() {
         mIsLoadingObservable.setValue(true);
 
-        Single<PageableListDto<BookDto>> single = mApplicationService.getBooks(mBookCollectionId, mBookMarkStatusObservable.getValue(), mPage, mPageSize, "(bookMark)");
+        Single<PageableListDto<BookDto>> single = mApplicationService.getBooksByBookCollection(mBookCollectionId, mFilterTypeObservable.getValue(), mPage, mPageSize, "(bookMark)");
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
         single.subscribe(new SingleObserver<PageableListDto<BookDto>>() {
@@ -203,7 +205,7 @@ public class RemoteBookBrowserViewModel extends BookBrowserViewModel {
         if(hasNextBookList()) {
             mIsLoadingObservable.setValue(true);
 
-            Single<PageableListDto<BookDto>> single = mApplicationService.getBooks(mBookCollectionId, mBookMarkStatusObservable.getValue(), mNextPage, mNextPageSize, "(bookMark)");
+            Single<PageableListDto<BookDto>> single = mApplicationService.getBooksByBookCollection(mBookCollectionId, mFilterTypeObservable.getValue(), mNextPage, mNextPageSize, "(bookMark)");
             single = single.observeOn(AndroidSchedulers.mainThread());
             single = single.subscribeOn(Schedulers.io());
             single.subscribe(new SingleObserver<PageableListDto<BookDto>>() {
@@ -241,7 +243,7 @@ public class RemoteBookBrowserViewModel extends BookBrowserViewModel {
         BookMarkDto bookMarkDto = new BookMarkDto();
         bookMarkDto.setPage(selectedBookDto.getNumberOfPages());
 
-        Single<BookMarkDto> single = mApplicationService.createOrUpdateBookMark(selectedBookDto.getId(), bookMarkDto);
+        Single<BookMarkDto> single = mApplicationService.createOrUpdateBookMarkByBook(selectedBookDto.getId(), bookMarkDto);
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
         single.subscribe(new SingleObserver<BookMarkDto>() {
@@ -272,7 +274,7 @@ public class RemoteBookBrowserViewModel extends BookBrowserViewModel {
     public void removeBookMark() {
         BookDto selectedBookDto = mSelectedBookObservable.getValue();
 
-        Completable completable = mApplicationService.deleteBookMark(selectedBookDto.getId());
+        Completable completable = mApplicationService.deleteBookMarkByBook(selectedBookDto.getId());
         completable = completable.observeOn(AndroidSchedulers.mainThread());
         completable = completable.subscribeOn(Schedulers.io());
         completable.subscribe(new CompletableObserver() {

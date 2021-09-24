@@ -4,8 +4,10 @@
     <string name="app_description">A client for Oboco.</string>
 
     <string name="drawer_menu_account">Account</string>
-    <string name="drawer_menu_book_collection_browser">All book collections</string>
-    <string name="drawer_menu_book_collection_browser_latest">Latest book collections</string>
+    <string name="drawer_menu_book_collection_browser">Browse</string>
+    <string name="drawer_menu_book_collection_browser_all">Browse all</string>
+    <string name="drawer_menu_book_collection_browser_all_new">Browse all new</string>
+    <string name="drawer_menu_book_collection_browser_all_latest_read">Browse all latest read</string>
     <string name="drawer_menu_download_browser">Downloads</string>
     <string name="drawer_menu_download_manager_browser">Downloads manager</string>
     <string name="drawer_menu_about">About</string>
@@ -41,6 +43,8 @@
 
     <string name="book_browser_menu_filter">Filter</string>
     <string name="book_browser_menu_filter_all">All</string>
+    <string name="book_browser_menu_filter_new">New</string>
+    <string name="book_browser_menu_filter_latest_read">Latest read</string>
     <string name="book_browser_menu_filter_read">Read</string>
     <string name="book_browser_menu_filter_reading">Reading</string>
     <string name="book_browser_menu_filter_unread">Unread</string>

@@ -8,9 +8,15 @@
         <item android:id="@+id/drawer_menu_book_collection_browser"
             android:icon="@drawable/ic_folder_grey600_24dp"
             android:title="@string/drawer_menu_book_collection_browser"/>
-        <item android:id="@+id/drawer_menu_latest_book_collection_browser"
+        <item android:id="@+id/drawer_menu_book_collection_browser_all"
             android:icon="@drawable/ic_folder_grey600_24dp"
-            android:title="@string/drawer_menu_book_collection_browser_latest"/>
+            android:title="@string/drawer_menu_book_collection_browser_all"/>
+        <item android:id="@+id/drawer_menu_book_collection_browser_all_new"
+            android:icon="@drawable/ic_folder_grey600_24dp"
+            android:title="@string/drawer_menu_book_collection_browser_all_new"/>
+        <item android:id="@+id/drawer_menu_book_collection_browser_all_latest_read"
+            android:icon="@drawable/ic_folder_grey600_24dp"
+            android:title="@string/drawer_menu_book_collection_browser_all_latest_read"/>
         <item android:id="@+id/drawer_menu_download_browser"
             android:icon="@drawable/ic_folder_grey600_24dp"
             android:title="@string/drawer_menu_download_browser"/>

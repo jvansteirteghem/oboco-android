@@ -135,7 +135,7 @@ public class DownloadBookCollectionWorker extends Worker {
                 break;
             }
 
-            PageableListDto<BookDto> bookPageableList = applicationService.getBooks(bookCollectionId, page, pageSize, "(bookMark)").blockingGet();
+            PageableListDto<BookDto> bookPageableList = applicationService.getBooksByBookCollection(bookCollectionId, page, pageSize, "(bookMark)").blockingGet();
             for(BookDto book: bookPageableList.getElements()) {
                 if(isStopped()) {
                     break;

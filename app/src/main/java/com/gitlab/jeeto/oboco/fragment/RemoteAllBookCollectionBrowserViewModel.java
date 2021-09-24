@@ -24,7 +24,8 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
-public class RemoteLatestBookCollectionBrowserViewModel extends BookCollectionBrowserViewModel {
+public class RemoteAllBookCollectionBrowserViewModel extends BookCollectionBrowserViewModel {
+    private BookCollectionBrowserViewModel.Mode mMode;
     private Integer mPage;
     private Integer mPageSize;
     private Integer mNextPage;
@@ -39,9 +40,10 @@ public class RemoteLatestBookCollectionBrowserViewModel extends BookCollectionBr
     private BookCollectionBrowserRequestHandler mRequestHandler;
     private Picasso mPicasso;
 
-    public RemoteLatestBookCollectionBrowserViewModel(Application application, Bundle arguments) {
+    public RemoteAllBookCollectionBrowserViewModel(Application application, Bundle arguments) {
         super(application, arguments);
 
+        mMode = (BookCollectionBrowserViewModel.Mode) getArguments().getSerializable(BookCollectionBrowserViewModel.PARAM_MODE);
         mPage = 1;
         mPageSize = 100;
         mNextPage = null;
@@ -89,18 +91,37 @@ public class RemoteLatestBookCollectionBrowserViewModel extends BookCollectionBr
 
     @Override
     public void load() {
+        mBookCollectionNameObservable.setValue("");
+
         BookCollectionDto bookCollection = new BookCollectionDto();
-        bookCollection.setName("LATEST");
+        bookCollection.setName("");
+
         mBookCollectionObservable.setValue(bookCollection);
 
         loadBookCollectionList();
+    }
+
+    private String getFilterType() {
+        String filterType;
+        if(Mode.MODE_REMOTE_ALL.equals(mMode)) {
+            filterType = "ALL";
+        } else if(Mode.MODE_REMOTE_ALL_NEW.equals(mMode)) {
+            filterType = "NEW";
+        } else if(Mode.MODE_REMOTE_ALL_LATEST_READ.equals(mMode)) {
+            filterType = "LATEST_READ";
+        } else {
+            filterType = "ALL";
+        }
+        return filterType;
     }
 
     @Override
     public void loadBookCollectionList() {
         mIsLoadingObservable.setValue(true);
 
-        Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getLatestBookCollections(mBookCollectionNameObservable.getValue(), mPage, mPageSize, "()");
+        String filterType = getFilterType();
+
+        Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollections(mBookCollectionNameObservable.getValue(), filterType, mPage, mPageSize, "()");
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
         single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
@@ -143,7 +164,9 @@ public class RemoteLatestBookCollectionBrowserViewModel extends BookCollectionBr
         if(hasNextBookCollectionList()) {
             mIsLoadingObservable.setValue(true);
 
-            Single<PageableListDto<BookCollectionDto>> single = mApplicationService.getLatestBookCollections(mBookCollectionNameObservable.getValue(), mNextPage, mNextPageSize, "()");
+            String filterType = getFilterType();
+
+            Single<PageableListDto<BookCollectionDto>> single = mApplicationService.getBookCollections(mBookCollectionNameObservable.getValue(), filterType, mNextPage, mNextPageSize, "()");
             single = single.observeOn(AndroidSchedulers.mainThread());
             single = single.subscribeOn(Schedulers.io());
             single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
@@ -178,7 +201,7 @@ public class RemoteLatestBookCollectionBrowserViewModel extends BookCollectionBr
     public void addBookMark() {
         BookCollectionDto selectedBookCollectionDto = mSelectedBookCollectionObservable.getValue();
 
-        Completable completable = mApplicationService.createOrUpdateBookMarks(selectedBookCollectionDto.getId());
+        Completable completable = mApplicationService.createOrUpdateBookMarksByBookCollection(selectedBookCollectionDto.getId());
         completable = completable.observeOn(AndroidSchedulers.mainThread());
         completable = completable.subscribeOn(Schedulers.io());
         completable.subscribe(new CompletableObserver() {
@@ -204,7 +227,7 @@ public class RemoteLatestBookCollectionBrowserViewModel extends BookCollectionBr
     public void removeBookMark() {
         BookCollectionDto selectedBookCollectionDto = mSelectedBookCollectionObservable.getValue();
 
-        Completable completable = mApplicationService.deleteBookMarks(selectedBookCollectionDto.getId());
+        Completable completable = mApplicationService.deleteBookMarksByBookCollection(selectedBookCollectionDto.getId());
         completable = completable.observeOn(AndroidSchedulers.mainThread());
         completable = completable.subscribeOn(Schedulers.io());
         completable.subscribe(new CompletableObserver() {

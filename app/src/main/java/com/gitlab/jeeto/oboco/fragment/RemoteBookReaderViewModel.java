@@ -103,7 +103,7 @@ public class RemoteBookReaderViewModel extends BookReaderViewModel {
 
                 mBookObservable.setValue(bookDto);
 
-                Single<LinkableDto<BookDto>> single = mApplicationService.getBooks(bookDto.getBookCollection().getId(), bookDto.getId(), "()");
+                Single<LinkableDto<BookDto>> single = mApplicationService.getLinkableBookByBookCollection(bookDto.getBookCollection().getId(), bookDto.getId(), "()");
                 single = single.observeOn(AndroidSchedulers.mainThread());
                 single = single.subscribeOn(Schedulers.io());
                 single.subscribe(new SingleObserver<LinkableDto<BookDto>>() {
@@ -143,7 +143,7 @@ public class RemoteBookReaderViewModel extends BookReaderViewModel {
         BookDto bookDto = mBookObservable.getValue();
         bookDto.setBookMark(bookMarkDto);
 
-        Single<BookMarkDto> single = mApplicationService.createOrUpdateBookMark(mBookId, bookMarkDto);
+        Single<BookMarkDto> single = mApplicationService.createOrUpdateBookMarkByBook(mBookId, bookMarkDto);
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
         single.subscribe(new SingleObserver<BookMarkDto>() {

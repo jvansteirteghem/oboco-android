@@ -16,9 +16,10 @@ import java.util.List;
 
 public abstract class BookBrowserViewModel extends BaseViewModel {
     public static final String PARAM_BOOK_COLLECTION_ID = "PARAM_BOOK_COLLECTION_ID";
+    public static final String PARAM_FILTER_TYPE = "PARAM_FILTER_TYPE";
     protected MutableLiveData<BookCollectionDto> mBookCollectionObservable;
     protected MutableLiveData<List<BookDto>> mBookListObservable;
-    protected MutableLiveData<String> mBookMarkStatusObservable;
+    protected MutableLiveData<String> mFilterTypeObservable;
     protected MutableLiveData<Boolean> mIsLoadingObservable;
     protected MutableLiveData<String> mMessageObservable;
     protected MutableLiveData<Boolean> mShowMessageObservable;
@@ -31,7 +32,7 @@ public abstract class BookBrowserViewModel extends BaseViewModel {
 
         mBookCollectionObservable = new MutableLiveData<BookCollectionDto>();
         mBookListObservable= new MutableLiveData<List<BookDto>>();
-        mBookMarkStatusObservable = new MutableLiveData<String>();
+        mFilterTypeObservable = new MutableLiveData<String>();
         mIsLoadingObservable = new MutableLiveData<Boolean>();
         mMessageObservable = new MutableLiveData<String>();
         mShowMessageObservable = new MutableLiveData<Boolean>();
@@ -52,14 +53,14 @@ public abstract class BookBrowserViewModel extends BaseViewModel {
     public LiveData<List<BookDto>> getBookListObservable() {
         return mBookListObservable;
     }
-    public String getBookMarkStatus() {
-        return mBookMarkStatusObservable.getValue();
+    public String getFilterType() {
+        return mFilterTypeObservable.getValue();
     }
-    public LiveData<String> getBookMarkStatusObservable() {
-        return mBookMarkStatusObservable;
+    public LiveData<String> getFilterTypeObservable() {
+        return mFilterTypeObservable;
     }
-    public void setBookMarkStatus(String bookMarkStatus) {
-        mBookMarkStatusObservable.setValue(bookMarkStatus);
+    public void setFilterType(String filterType) {
+        mFilterTypeObservable.setValue(filterType);
     }
     public Boolean getIsLoading() {
         return mIsLoadingObservable.getValue();

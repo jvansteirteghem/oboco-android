@@ -111,7 +111,7 @@ public class AuthenticationManager {
                         if(e instanceof ProblemException) {
                             ProblemException pe = (ProblemException) e;
 
-                            if(pe.getProblem().getStatusCode() == 401) {
+                            if(pe.getProblem().getStatusCode() == 400) {
                                 mWorkManager.cancelAllWorkByTag("download");
                                 mWorkManager.pruneWork();
 
