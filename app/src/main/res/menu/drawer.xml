@@ -17,6 +17,15 @@
         <item android:id="@+id/drawer_menu_book_collection_browser_all_latest_read"
             android:icon="@drawable/ic_folder_grey600_24dp"
             android:title="@string/drawer_menu_book_collection_browser_all_latest_read"/>
+        <item android:id="@+id/drawer_menu_book_collection_browser_all_read"
+            android:icon="@drawable/ic_folder_grey600_24dp"
+            android:title="@string/drawer_menu_book_collection_browser_all_read"/>
+        <item android:id="@+id/drawer_menu_book_collection_browser_all_reading"
+            android:icon="@drawable/ic_folder_grey600_24dp"
+            android:title="@string/drawer_menu_book_collection_browser_all_reading"/>
+        <item android:id="@+id/drawer_menu_book_collection_browser_all_unread"
+            android:icon="@drawable/ic_folder_grey600_24dp"
+            android:title="@string/drawer_menu_book_collection_browser_all_unread"/>
         <item android:id="@+id/drawer_menu_download_browser"
             android:icon="@drawable/ic_folder_grey600_24dp"
             android:title="@string/drawer_menu_download_browser"/>

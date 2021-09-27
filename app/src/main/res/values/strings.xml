@@ -8,6 +8,9 @@
     <string name="drawer_menu_book_collection_browser_all">Browse all</string>
     <string name="drawer_menu_book_collection_browser_all_new">Browse all new</string>
     <string name="drawer_menu_book_collection_browser_all_latest_read">Browse all latest read</string>
+    <string name="drawer_menu_book_collection_browser_all_read">Browse all read</string>
+    <string name="drawer_menu_book_collection_browser_all_reading">Browse all reading</string>
+    <string name="drawer_menu_book_collection_browser_all_unread">Browse all unread</string>
     <string name="drawer_menu_download_browser">Downloads</string>
     <string name="drawer_menu_download_manager_browser">Downloads manager</string>
     <string name="drawer_menu_about">About</string>

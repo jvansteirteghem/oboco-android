@@ -232,6 +232,15 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                     case R.id.drawer_menu_book_collection_browser_all_latest_read:
                         setFragment(BookCollectionBrowserFragment.createAllLatestRead());
                         break;
+                    case R.id.drawer_menu_book_collection_browser_all_read:
+                        setFragment(BookCollectionBrowserFragment.createAllRead());
+                        break;
+                    case R.id.drawer_menu_book_collection_browser_all_reading:
+                        setFragment(BookCollectionBrowserFragment.createAllReading());
+                        break;
+                    case R.id.drawer_menu_book_collection_browser_all_unread:
+                        setFragment(BookCollectionBrowserFragment.createAllUnread());
+                        break;
                     case R.id.drawer_menu_download_browser:
                         setFragment(new DownloadBrowserFragment());
                         break;

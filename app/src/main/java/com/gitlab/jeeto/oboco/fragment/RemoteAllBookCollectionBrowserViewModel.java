@@ -91,7 +91,8 @@ public class RemoteAllBookCollectionBrowserViewModel extends BookCollectionBrows
 
     @Override
     public void load() {
-        mBookCollectionNameObservable.setValue("");
+        mSearchTypeObservable.setValue("NAME");
+        mSearchObservable.setValue("");
 
         BookCollectionDto bookCollection = new BookCollectionDto();
         bookCollection.setName("");
@@ -109,6 +110,12 @@ public class RemoteAllBookCollectionBrowserViewModel extends BookCollectionBrows
             filterType = "NEW";
         } else if(Mode.MODE_REMOTE_ALL_LATEST_READ.equals(mMode)) {
             filterType = "LATEST_READ";
+        } else if(Mode.MODE_REMOTE_ALL_READ.equals(mMode)) {
+            filterType = "READ";
+        } else if(Mode.MODE_REMOTE_ALL_READING.equals(mMode)) {
+            filterType = "READING";
+        } else if(Mode.MODE_REMOTE_ALL_UNREAD.equals(mMode)) {
+            filterType = "UNREAD";
         } else {
             filterType = "ALL";
         }
@@ -121,7 +128,7 @@ public class RemoteAllBookCollectionBrowserViewModel extends BookCollectionBrows
 
         String filterType = getFilterType();
 
-        Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollections(mBookCollectionNameObservable.getValue(), filterType, mPage, mPageSize, "()");
+        Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollections(mSearchTypeObservable.getValue(), mSearchObservable.getValue(), filterType, mPage, mPageSize, "()");
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
         single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
@@ -166,7 +173,7 @@ public class RemoteAllBookCollectionBrowserViewModel extends BookCollectionBrows
 
             String filterType = getFilterType();
 
-            Single<PageableListDto<BookCollectionDto>> single = mApplicationService.getBookCollections(mBookCollectionNameObservable.getValue(), filterType, mNextPage, mNextPageSize, "()");
+            Single<PageableListDto<BookCollectionDto>> single = mApplicationService.getBookCollections(mSearchTypeObservable.getValue(), mSearchObservable.getValue(), filterType, mNextPage, mNextPageSize, "()");
             single = single.observeOn(AndroidSchedulers.mainThread());
             single = single.subscribeOn(Schedulers.io());
             single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {

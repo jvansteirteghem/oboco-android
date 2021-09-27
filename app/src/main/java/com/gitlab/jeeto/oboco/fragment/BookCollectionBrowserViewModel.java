@@ -19,12 +19,16 @@ public abstract class BookCollectionBrowserViewModel extends BaseViewModel {
         MODE_REMOTE,
         MODE_REMOTE_ALL,
         MODE_REMOTE_ALL_NEW,
-        MODE_REMOTE_ALL_LATEST_READ;
+        MODE_REMOTE_ALL_LATEST_READ,
+        MODE_REMOTE_ALL_READ,
+        MODE_REMOTE_ALL_READING,
+        MODE_REMOTE_ALL_UNREAD;
     }
     public static final String PARAM_BOOK_COLLECTION_ID = "PARAM_BOOK_COLLECTION_ID";
     protected MutableLiveData<BookCollectionDto> mBookCollectionObservable;
     protected MutableLiveData<List<BookCollectionDto>> mBookCollectionListObservable;
-    protected MutableLiveData<String> mBookCollectionNameObservable;
+    protected MutableLiveData<String> mSearchTypeObservable;
+    protected MutableLiveData<String> mSearchObservable;
     protected MutableLiveData<Boolean> mIsLoadingObservable;
     protected MutableLiveData<String> mMessageObservable;
     protected MutableLiveData<Boolean> mShowMessageObservable;
@@ -37,7 +41,8 @@ public abstract class BookCollectionBrowserViewModel extends BaseViewModel {
 
         mBookCollectionObservable = new MutableLiveData<BookCollectionDto>();
         mBookCollectionListObservable= new MutableLiveData<List<BookCollectionDto>>();
-        mBookCollectionNameObservable = new MutableLiveData<String>();
+        mSearchTypeObservable = new MutableLiveData<String>();
+        mSearchObservable = new MutableLiveData<String>();
         mIsLoadingObservable = new MutableLiveData<Boolean>();
         mMessageObservable = new MutableLiveData<String>();
         mShowMessageObservable = new MutableLiveData<Boolean>();
@@ -58,14 +63,23 @@ public abstract class BookCollectionBrowserViewModel extends BaseViewModel {
     public LiveData<List<BookCollectionDto>> getBookCollectionListObservable() {
         return mBookCollectionListObservable;
     }
-    public String getBookCollectionName() {
-        return mBookCollectionNameObservable.getValue();
+    public String getSearchType() {
+        return mSearchTypeObservable.getValue();
     }
-    public LiveData<String> getBookCollectionNameObservable() {
-        return mBookCollectionNameObservable;
+    public LiveData<String> getSearchTypeObservable() {
+        return mSearchTypeObservable;
     }
-    public void setBookCollectionName(String bookCollectionName) {
-        mBookCollectionNameObservable.setValue(bookCollectionName);
+    public void setSearchType(String searchType) {
+        mSearchTypeObservable.setValue(searchType);
+    }
+    public String getSearch() {
+        return mSearchObservable.getValue();
+    }
+    public LiveData<String> getSearchObservable() {
+        return mSearchObservable;
+    }
+    public void setSearch(String search) {
+        mSearchObservable.setValue(search);
     }
     public Boolean getIsLoading() {
         return mIsLoadingObservable.getValue();

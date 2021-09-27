@@ -91,7 +91,8 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
 
     @Override
     public void load() {
-        mBookCollectionNameObservable.setValue("");
+        mSearchTypeObservable.setValue("NAME");
+        mSearchObservable.setValue("");
 
         mIsLoadingObservable.setValue(true);
 
@@ -114,7 +115,7 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
                 mBookCollectionId = bookCollectionDto.getId();
                 mBookCollectionObservable.setValue(bookCollectionDto);
 
-                Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollectionsByBookCollection(mBookCollectionId, mBookCollectionNameObservable.getValue(), mPage, mPageSize, "()");
+                Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollectionsByBookCollection(mBookCollectionId, mSearchTypeObservable.getValue(), mSearchObservable.getValue(), mPage, mPageSize, "()");
                 single = single.observeOn(AndroidSchedulers.mainThread());
                 single = single.subscribeOn(Schedulers.io());
                 single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
@@ -157,7 +158,7 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
     public void loadBookCollectionList() {
         mIsLoadingObservable.setValue(true);
 
-        Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollectionsByBookCollection(mBookCollectionId, mBookCollectionNameObservable.getValue(), mPage, mPageSize, "()");
+        Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollectionsByBookCollection(mBookCollectionId, mSearchTypeObservable.getValue(), mSearchObservable.getValue(), mPage, mPageSize, "()");
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
         single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
@@ -200,7 +201,7 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
         if(hasNextBookCollectionList()) {
             mIsLoadingObservable.setValue(true);
 
-            Single<PageableListDto<BookCollectionDto>> single = mApplicationService.getBookCollectionsByBookCollection(mBookCollectionId, mBookCollectionNameObservable.getValue(), mNextPage, mNextPageSize, "()");
+            Single<PageableListDto<BookCollectionDto>> single = mApplicationService.getBookCollectionsByBookCollection(mBookCollectionId, mSearchTypeObservable.getValue(), mSearchObservable.getValue(), mNextPage, mNextPageSize, "()");
             single = single.observeOn(AndroidSchedulers.mainThread());
             single = single.subscribeOn(Schedulers.io());
             single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
