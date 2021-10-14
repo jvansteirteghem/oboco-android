@@ -16,6 +16,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.HttpUrl;
 
 public class RemoteAccountLoginViewModel extends AccountLoginViewModel {
     private static final String TAG = "AccountLogin";
@@ -69,9 +70,25 @@ public class RemoteAccountLoginViewModel extends AccountLoginViewModel {
 
     @Override
     public void login() {
-        mBaseUrlObservable.setValue(mBaseUrlObservable.getValue().replaceAll("\\/+$", ""));
-
         mIsEnabledObservable.setValue(false);
+
+        String baseUrl = mBaseUrlObservable.getValue();
+        baseUrl = baseUrl.replaceAll("\\/+$", "");
+
+        try {
+            HttpUrl.get(baseUrl);
+        } catch(Exception e) {
+            Log.v(TAG, "Error.", e);
+
+            mMessageObservable.setValue(toMessage(e));
+            mShowMessageObservable.setValue(true);
+
+            mIsEnabledObservable.setValue(true);
+
+            return;
+        }
+
+        mBaseUrlObservable.setValue(baseUrl);
 
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putString("baseUrl", mBaseUrlObservable.getValue());
