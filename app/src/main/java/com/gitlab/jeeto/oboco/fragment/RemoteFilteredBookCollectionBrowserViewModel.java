@@ -24,7 +24,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
-public class RemoteAllBookCollectionBrowserViewModel extends BookCollectionBrowserViewModel {
+public class RemoteFilteredBookCollectionBrowserViewModel extends BookCollectionBrowserViewModel {
     private BookCollectionBrowserViewModel.Mode mMode;
     private Integer mPage;
     private Integer mPageSize;
@@ -40,7 +40,7 @@ public class RemoteAllBookCollectionBrowserViewModel extends BookCollectionBrows
     private BookCollectionBrowserRequestHandler mRequestHandler;
     private Picasso mPicasso;
 
-    public RemoteAllBookCollectionBrowserViewModel(Application application, Bundle arguments) {
+    public RemoteFilteredBookCollectionBrowserViewModel(Application application, Bundle arguments) {
         super(application, arguments);
 
         mMode = (BookCollectionBrowserViewModel.Mode) getArguments().getSerializable(BookCollectionBrowserViewModel.PARAM_MODE);
@@ -106,15 +106,15 @@ public class RemoteAllBookCollectionBrowserViewModel extends BookCollectionBrows
         String filterType;
         if(Mode.MODE_REMOTE_ALL.equals(mMode)) {
             filterType = "ALL";
-        } else if(Mode.MODE_REMOTE_ALL_NEW.equals(mMode)) {
+        } else if(Mode.MODE_REMOTE_NEW.equals(mMode)) {
             filterType = "NEW";
-        } else if(Mode.MODE_REMOTE_ALL_LATEST_READ.equals(mMode)) {
+        } else if(Mode.MODE_REMOTE_LATEST_READ.equals(mMode)) {
             filterType = "LATEST_READ";
-        } else if(Mode.MODE_REMOTE_ALL_READ.equals(mMode)) {
+        } else if(Mode.MODE_REMOTE_READ.equals(mMode)) {
             filterType = "READ";
-        } else if(Mode.MODE_REMOTE_ALL_READING.equals(mMode)) {
+        } else if(Mode.MODE_REMOTE_READING.equals(mMode)) {
             filterType = "READING";
-        } else if(Mode.MODE_REMOTE_ALL_UNREAD.equals(mMode)) {
+        } else if(Mode.MODE_REMOTE_UNREAD.equals(mMode)) {
             filterType = "UNREAD";
         } else {
             filterType = "ALL";

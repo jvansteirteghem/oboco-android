@@ -76,42 +76,42 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         return fragment;
     }
 
-    public static BookCollectionBrowserFragment createAllNew() {
+    public static BookCollectionBrowserFragment createNew() {
         BookCollectionBrowserFragment fragment = new BookCollectionBrowserFragment();
         Bundle args = new Bundle();
-        args.putSerializable(BookCollectionBrowserViewModel.PARAM_MODE, BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_NEW);
+        args.putSerializable(BookCollectionBrowserViewModel.PARAM_MODE, BookCollectionBrowserViewModel.Mode.MODE_REMOTE_NEW);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public static BookCollectionBrowserFragment createAllLatestRead() {
+    public static BookCollectionBrowserFragment createLatestRead() {
         BookCollectionBrowserFragment fragment = new BookCollectionBrowserFragment();
         Bundle args = new Bundle();
-        args.putSerializable(BookCollectionBrowserViewModel.PARAM_MODE, BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_LATEST_READ);
+        args.putSerializable(BookCollectionBrowserViewModel.PARAM_MODE, BookCollectionBrowserViewModel.Mode.MODE_REMOTE_LATEST_READ);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public static BookCollectionBrowserFragment createAllRead() {
+    public static BookCollectionBrowserFragment createRead() {
         BookCollectionBrowserFragment fragment = new BookCollectionBrowserFragment();
         Bundle args = new Bundle();
-        args.putSerializable(BookCollectionBrowserViewModel.PARAM_MODE, BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_READ);
+        args.putSerializable(BookCollectionBrowserViewModel.PARAM_MODE, BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READ);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public static BookCollectionBrowserFragment createAllReading() {
+    public static BookCollectionBrowserFragment createReading() {
         BookCollectionBrowserFragment fragment = new BookCollectionBrowserFragment();
         Bundle args = new Bundle();
-        args.putSerializable(BookCollectionBrowserViewModel.PARAM_MODE, BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_READING);
+        args.putSerializable(BookCollectionBrowserViewModel.PARAM_MODE, BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READING);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public static BookCollectionBrowserFragment createAllUnread() {
+    public static BookCollectionBrowserFragment createUnread() {
         BookCollectionBrowserFragment fragment = new BookCollectionBrowserFragment();
         Bundle args = new Bundle();
-        args.putSerializable(BookCollectionBrowserViewModel.PARAM_MODE, BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_UNREAD);
+        args.putSerializable(BookCollectionBrowserViewModel.PARAM_MODE, BookCollectionBrowserViewModel.Mode.MODE_REMOTE_UNREAD);
         fragment.setArguments(args);
         return fragment;
     }
@@ -127,17 +127,17 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE.equals(mMode)) {
             mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteBookCollectionBrowserViewModel.class);
         } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL.equals(mMode)) {
-            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteAllBookCollectionBrowserViewModel.class);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_NEW.equals(mMode)) {
-            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteAllBookCollectionBrowserViewModel.class);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_LATEST_READ.equals(mMode)) {
-            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteAllBookCollectionBrowserViewModel.class);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_READ.equals(mMode)) {
-            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteAllBookCollectionBrowserViewModel.class);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_READING.equals(mMode)) {
-            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteAllBookCollectionBrowserViewModel.class);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_UNREAD.equals(mMode)) {
-            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteAllBookCollectionBrowserViewModel.class);
+            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteFilteredBookCollectionBrowserViewModel.class);
+        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_NEW.equals(mMode)) {
+            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteFilteredBookCollectionBrowserViewModel.class);
+        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_LATEST_READ.equals(mMode)) {
+            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteFilteredBookCollectionBrowserViewModel.class);
+        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READ.equals(mMode)) {
+            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteFilteredBookCollectionBrowserViewModel.class);
+        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READING.equals(mMode)) {
+            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteFilteredBookCollectionBrowserViewModel.class);
+        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_UNREAD.equals(mMode)) {
+            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteFilteredBookCollectionBrowserViewModel.class);
         }
     }
 
@@ -157,16 +157,16 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
             title = getResources().getString(R.string.drawer_menu_book_collection_browser);
         } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL.equals(mMode)) {
             title = getResources().getString(R.string.drawer_menu_book_collection_browser_all);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_NEW.equals(mMode)) {
-            title = getResources().getString(R.string.drawer_menu_book_collection_browser_all_new);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_LATEST_READ.equals(mMode)) {
-            title = getResources().getString(R.string.drawer_menu_book_collection_browser_all_latest_read);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_READ.equals(mMode)) {
-            title = getResources().getString(R.string.drawer_menu_book_collection_browser_all_read);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_READING.equals(mMode)) {
-            title = getResources().getString(R.string.drawer_menu_book_collection_browser_all_reading);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_UNREAD.equals(mMode)) {
-            title = getResources().getString(R.string.drawer_menu_book_collection_browser_all_unread);
+        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_NEW.equals(mMode)) {
+            title = getResources().getString(R.string.drawer_menu_book_collection_browser_new);
+        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_LATEST_READ.equals(mMode)) {
+            title = getResources().getString(R.string.drawer_menu_book_collection_browser_latest_read);
+        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READ.equals(mMode)) {
+            title = getResources().getString(R.string.drawer_menu_book_collection_browser_read);
+        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READING.equals(mMode)) {
+            title = getResources().getString(R.string.drawer_menu_book_collection_browser_reading);
+        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_UNREAD.equals(mMode)) {
+            title = getResources().getString(R.string.drawer_menu_book_collection_browser_unread);
         } else {
             title = getResources().getString(R.string.drawer_menu_book_collection_browser);
         }
@@ -514,15 +514,15 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                             filterType = "ALL";
                         } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL.equals(mMode)) {
                             filterType = "ALL";
-                        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_NEW.equals(mMode)) {
+                        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_NEW.equals(mMode)) {
                             filterType = "NEW";
-                        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_LATEST_READ.equals(mMode)) {
+                        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_LATEST_READ.equals(mMode)) {
                             filterType = "LATEST_READ";
-                        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_READ.equals(mMode)) {
+                        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READ.equals(mMode)) {
                             filterType = "READ";
-                        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_READING.equals(mMode)) {
+                        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READING.equals(mMode)) {
                             filterType = "READING";
-                        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL_UNREAD.equals(mMode)) {
+                        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_UNREAD.equals(mMode)) {
                             filterType = "UNREAD";
                         } else {
                             filterType = "ALL";

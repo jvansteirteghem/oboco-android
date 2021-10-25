@@ -18,11 +18,11 @@ public abstract class BookCollectionBrowserViewModel extends BaseViewModel {
     public enum Mode {
         MODE_REMOTE,
         MODE_REMOTE_ALL,
-        MODE_REMOTE_ALL_NEW,
-        MODE_REMOTE_ALL_LATEST_READ,
-        MODE_REMOTE_ALL_READ,
-        MODE_REMOTE_ALL_READING,
-        MODE_REMOTE_ALL_UNREAD;
+        MODE_REMOTE_NEW,
+        MODE_REMOTE_LATEST_READ,
+        MODE_REMOTE_READ,
+        MODE_REMOTE_READING,
+        MODE_REMOTE_UNREAD;
     }
     public static final String PARAM_BOOK_COLLECTION_ID = "PARAM_BOOK_COLLECTION_ID";
     protected MutableLiveData<BookCollectionDto> mBookCollectionObservable;
