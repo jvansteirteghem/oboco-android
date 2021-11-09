@@ -95,7 +95,7 @@ public class RemoteBookReaderViewModel extends BookReaderViewModel {
             public void onSuccess(BookDto bookDto) {
                 BookMarkDto bookMarkDto = bookDto.getBookMark();
 
-                if(bookMarkDto != null) {
+                if(bookMarkDto != null && bookMarkDto.getPage() != 0) {
                     mSelectedBookPageObservable.setValue(bookMarkDto.getPage());
                 } else {
                     mSelectedBookPageObservable.setValue(1);
@@ -137,10 +137,12 @@ public class RemoteBookReaderViewModel extends BookReaderViewModel {
 
     @Override
     public void addBookMark() {
+        BookDto bookDto = mBookObservable.getValue();
+
         BookMarkDto bookMarkDto = new BookMarkDto();
+        bookMarkDto.setNumberOfPages(bookDto.getNumberOfPages());
         bookMarkDto.setPage(mSelectedBookPageObservable.getValue());
 
-        BookDto bookDto = mBookObservable.getValue();
         bookDto.setBookMark(bookMarkDto);
 
         Single<BookMarkDto> single = mApplicationService.createOrUpdateBookMarkByBook(mBookId, bookMarkDto);

@@ -404,20 +404,20 @@ public class ApplicationService extends Service {
         return completable;
     }
 
-    public Completable createOrUpdateBookMarksByBookCollection(Long bookCollectionId) {
-        Completable completable = new Completable() {
+    public Single<BookCollectionMarkDto> createOrUpdateBookMarksByBookCollection(Long bookCollectionId, BookCollectionMarkDto bookCollectionMark) {
+        Single<BookCollectionMarkDto> single = new Single<BookCollectionMarkDto>() {
             @Override
-            protected void subscribeActual(CompletableObserver observer) {
-                Completable retrofitCompletable = retrofitApplicationApi.createOrUpdateBookMarksByBookCollection(bookCollectionId);
-                retrofitCompletable.subscribe(new CompletableObserver() {
+            protected void subscribeActual(SingleObserver<? super BookCollectionMarkDto> observer) {
+                Single<BookCollectionMarkDto> retrofitSingle = retrofitApplicationApi.createOrUpdateBookMarksByBookCollection(bookCollectionId, bookCollectionMark);
+                retrofitSingle.subscribe(new SingleObserver<BookCollectionMarkDto>() {
                     @Override
                     public void onSubscribe(Disposable d) {
 
                     }
 
                     @Override
-                    public void onComplete() {
-                        observer.onComplete();
+                    public void onSuccess(BookCollectionMarkDto bookCollectionMark) {
+                        observer.onSuccess(bookCollectionMark);
                     }
 
                     @Override
@@ -428,7 +428,7 @@ public class ApplicationService extends Service {
             }
         };
 
-        return completable;
+        return single;
     }
 
     public Completable deleteBookMarksByBookCollection(Long bookCollectionId) {

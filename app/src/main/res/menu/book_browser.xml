@@ -12,6 +12,8 @@
                       android:checked="true"/>
                 <item android:id="@+id/menu_book_browser_filter_new"
                     android:title="@string/book_browser_menu_filter_new"/>
+                <item android:id="@+id/menu_book_browser_filter_to_read"
+                    android:title="@string/book_browser_menu_filter_to_read"/>
                 <item android:id="@+id/menu_book_browser_filter_latest_read"
                     android:title="@string/book_browser_menu_filter_latest_read"/>
                 <item android:id="@+id/menu_book_browser_filter_read"

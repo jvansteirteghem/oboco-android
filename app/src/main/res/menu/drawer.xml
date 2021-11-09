@@ -14,6 +14,9 @@
         <item android:id="@+id/drawer_menu_book_collection_browser_new"
             android:icon="@drawable/ic_folder_grey600_24dp"
             android:title="@string/drawer_menu_book_collection_browser_new"/>
+        <item android:id="@+id/drawer_menu_book_collection_browser_to_read"
+            android:icon="@drawable/ic_folder_grey600_24dp"
+            android:title="@string/drawer_menu_book_collection_browser_to_read"/>
         <item android:id="@+id/drawer_menu_book_collection_browser_latest_read"
             android:icon="@drawable/ic_folder_grey600_24dp"
             android:title="@string/drawer_menu_book_collection_browser_latest_read"/>

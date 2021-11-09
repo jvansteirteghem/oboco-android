@@ -36,6 +36,7 @@ import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.BookReaderActivity;
 import com.gitlab.jeeto.oboco.client.BookCollectionDto;
 import com.gitlab.jeeto.oboco.client.BookDto;
+import com.gitlab.jeeto.oboco.client.BookMarkDto;
 import com.gitlab.jeeto.oboco.common.BaseViewModelProviderFactory;
 import com.gitlab.jeeto.oboco.common.Utils;
 import com.gitlab.jeeto.oboco.manager.DownloadBookWorker;
@@ -202,11 +203,23 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                     if (mMarkSelectedBookDialog == null) {
                         mMarkSelectedBookDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
                                 .setTitle(R.string.book_browser_dialog_mark)
-                                .setMessage(mViewModel.getSelectedBook().getName())
-                                .setPositiveButton(R.string.book_browser_dialog_mark_positive, new DialogInterface.OnClickListener() {
+                                .setItems(R.array.book_browser_dialog_mark_as_array, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        mViewModel.addBookMark();
+                                        if(which == 0) {
+                                            BookMarkDto bookMarkDto = new BookMarkDto();
+                                            bookMarkDto.setPage(0);
+
+                                            mViewModel.addBookMark(bookMarkDto);
+                                        } else if(which == 1) {
+                                            BookMarkDto bookMarkDto = new BookMarkDto();
+                                            bookMarkDto.setPage(-1);
+
+                                            mViewModel.addBookMark(bookMarkDto);
+                                        } else if(which == 2) {
+                                            mViewModel.removeBookMark();
+                                        }
+
                                         mViewModel.setShowMarkSelectedBookDialog(false);
 
                                         mMarkSelectedBookDialog = null;
@@ -215,15 +228,6 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                                 .setNegativeButton(R.string.book_browser_dialog_mark_negative, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        mViewModel.setShowMarkSelectedBookDialog(false);
-
-                                        mMarkSelectedBookDialog = null;
-                                    }
-                                })
-                                .setNeutralButton(R.string.book_browser_dialog_mark_neutral, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        mViewModel.removeBookMark();
                                         mViewModel.setShowMarkSelectedBookDialog(false);
 
                                         mMarkSelectedBookDialog = null;
@@ -335,6 +339,8 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                         menuItemId = R.id.menu_book_browser_filter_all;
                     } else if (filterType.equals("NEW")) {
                         menuItemId = R.id.menu_book_browser_filter_new;
+                    } else if (filterType.equals("TO_READ")) {
+                        menuItemId = R.id.menu_book_browser_filter_to_read;
                     } else if (filterType.equals("LATEST_READ")) {
                         menuItemId = R.id.menu_book_browser_filter_latest_read;
                     } else if (filterType.equals("READ")) {
@@ -360,6 +366,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         switch (menuItem.getItemId()) {
             case R.id.menu_book_browser_filter_all:
             case R.id.menu_book_browser_filter_new:
+            case R.id.menu_book_browser_filter_to_read:
             case R.id.menu_book_browser_filter_latest_read:
             case R.id.menu_book_browser_filter_read:
             case R.id.menu_book_browser_filter_reading:
@@ -372,6 +379,8 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                     mFilterType = "ALL";
                 } else if (menuItemId == R.id.menu_book_browser_filter_new) {
                     mFilterType = "NEW";
+                } else if (menuItemId == R.id.menu_book_browser_filter_to_read) {
+                    mFilterType = "TO_READ";
                 } else if (menuItemId == R.id.menu_book_browser_filter_latest_read) {
                     mFilterType = "LATEST_READ";
                 } else if (menuItemId == R.id.menu_book_browser_filter_read) {
@@ -545,10 +554,11 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         public void setupBook(BookDto bookDto) {
             mBookTextView.setText(bookDto.getName());
 
-            if(bookDto.getBookMark() == null) {
-                mBookBookMarkTextView.setText("0/" + bookDto.getNumberOfPages());
+            BookMarkDto bookMarkDto = bookDto.getBookMark();
+            if(bookMarkDto == null) {
+                mBookBookMarkTextView.setText("0/0");
             } else {
-                mBookBookMarkTextView.setText(bookDto.getBookMark().getPage() + "/" + bookDto.getNumberOfPages());
+                mBookBookMarkTextView.setText(bookMarkDto.getPage() + "/" + bookMarkDto.getNumberOfPages());
             }
 
             mBookImageView.setImageResource(android.R.color.transparent);

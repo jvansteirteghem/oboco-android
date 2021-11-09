@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.gitlab.jeeto.oboco.client.BookCollectionDto;
 import com.gitlab.jeeto.oboco.client.BookDto;
+import com.gitlab.jeeto.oboco.client.BookMarkDto;
 import com.gitlab.jeeto.oboco.common.BaseViewModel;
 import com.squareup.picasso.Picasso;
 
@@ -138,7 +139,7 @@ public abstract class BookBrowserViewModel extends BaseViewModel {
     public abstract void loadBookList();
     public abstract Boolean hasNextBookList();
     public abstract void loadNextBookList();
-    public abstract void addBookMark();
+    public abstract void addBookMark(BookMarkDto bookMarkDto);
     public abstract void removeBookMark();
     public abstract Uri getBookPageUri(BookDto bookDto, String scaleType, int scaleWidth, int scaleHeight);
     public abstract Picasso getPicasso();

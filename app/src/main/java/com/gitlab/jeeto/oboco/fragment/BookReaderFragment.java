@@ -66,7 +66,7 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
 
     private BookReaderViewModel.Mode mMode;
 
-    private Dialog mSwitchBookDialog;
+    private Dialog mOpenBookDialog;
 
     private BookReaderViewModel mViewModel;
 
@@ -229,22 +229,22 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                 ((BookReaderActivity) getActivity()).addUpdatedBook(mViewModel.getBook());
             }
         });
-        mViewModel.getShowSwitchSelectedBookDialogObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+        mViewModel.getShowOpenSelectedBookDialogObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
-            public void onChanged(Boolean showSwitchSelectedBookDialog) {
-                if(showSwitchSelectedBookDialog) {
-                    if(mSwitchBookDialog == null) {
+            public void onChanged(Boolean showOpenSelectedBookDialog) {
+                if(showOpenSelectedBookDialog) {
+                    if(mOpenBookDialog == null) {
                         int titleResource = -1;
                         if(mViewModel.getSelectedBook().equals(mViewModel.getBookLinkable().getPreviousElement())) {
-                            titleResource = R.string.book_reader_dialog_switch_previous;
+                            titleResource = R.string.book_reader_dialog_open_previous;
                         } else if(mViewModel.getSelectedBook().equals(mViewModel.getBookLinkable().getNextElement())) {
-                            titleResource = R.string.book_reader_dialog_switch_next;
+                            titleResource = R.string.book_reader_dialog_open_next;
                         }
 
-                        mSwitchBookDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                        mOpenBookDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                                 .setTitle(titleResource)
                                 .setMessage(mViewModel.getSelectedBook().getName())
-                                .setPositiveButton(R.string.book_reader_dialog_switch_positive, new DialogInterface.OnClickListener() {
+                                .setPositiveButton(R.string.book_reader_dialog_open_positive, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         BookReaderActivity activity = (BookReaderActivity) getActivity();
@@ -253,30 +253,30 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                                         } else if (mMode == BookReaderViewModel.Mode.MODE_LOCAL) {
                                             activity.setFragment(BookReaderFragment.create(mViewModel.getSelectedBook().getPath()));
                                         }
-                                        mViewModel.setShowSwitchSelectedBookDialog(false);
+                                        mViewModel.setShowOpenSelectedBookDialog(false);
 
-                                        mSwitchBookDialog = null;
+                                        mOpenBookDialog = null;
                                     }
                                 })
-                                .setNegativeButton(R.string.book_reader_dialog_switch_negative, new DialogInterface.OnClickListener() {
+                                .setNegativeButton(R.string.book_reader_dialog_open_negative, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        mViewModel.setShowSwitchSelectedBookDialog(false);
+                                        mViewModel.setShowOpenSelectedBookDialog(false);
 
-                                        mSwitchBookDialog = null;
+                                        mOpenBookDialog = null;
                                     }
                                 })
                                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                                     @Override
                                     public void onCancel(DialogInterface dialog) {
-                                        mViewModel.setShowSwitchSelectedBookDialog(false);
+                                        mViewModel.setShowOpenSelectedBookDialog(false);
 
-                                        mSwitchBookDialog = null;
+                                        mOpenBookDialog = null;
                                     }
                                 })
                                 .create();
 
-                        mSwitchBookDialog.show();
+                        mOpenBookDialog.show();
                     }
                 }
             }
@@ -365,9 +365,9 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
 
     @Override
     public void onDestroyView() {
-        if(mSwitchBookDialog != null) {
-            mSwitchBookDialog.dismiss();
-            mSwitchBookDialog = null;
+        if(mOpenBookDialog != null) {
+            mOpenBookDialog.dismiss();
+            mOpenBookDialog = null;
         }
 
         super.onDestroyView();
@@ -636,7 +636,7 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
 
             if(previousBookDto != null) {
                 mViewModel.setSelectedBook(previousBookDto);
-                mViewModel.setShowSwitchSelectedBookDialog(true);
+                mViewModel.setShowOpenSelectedBookDialog(true);
             }
         }
     }
@@ -647,7 +647,7 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
 
             if(nextBookDto != null) {
                 mViewModel.setSelectedBook(nextBookDto);
-                mViewModel.setShowSwitchSelectedBookDialog(true);
+                mViewModel.setShowOpenSelectedBookDialog(true);
             }
         }
     }

@@ -237,11 +237,8 @@ public class RemoteBookBrowserViewModel extends BookBrowserViewModel {
     }
 
     @Override
-    public void addBookMark() {
+    public void addBookMark(BookMarkDto bookMarkDto) {
         BookDto selectedBookDto = mSelectedBookObservable.getValue();
-
-        BookMarkDto bookMarkDto = new BookMarkDto();
-        bookMarkDto.setPage(selectedBookDto.getNumberOfPages());
 
         Single<BookMarkDto> single = mApplicationService.createOrUpdateBookMarkByBook(selectedBookDto.getId(), bookMarkDto);
         single = single.observeOn(AndroidSchedulers.mainThread());

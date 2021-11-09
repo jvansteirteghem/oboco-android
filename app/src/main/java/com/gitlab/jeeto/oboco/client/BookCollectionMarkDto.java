@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
-public class BookMarkDto implements Serializable {
+public class BookCollectionMarkDto implements Serializable {
     @Expose()
     private Long id;
     @Expose()
@@ -14,12 +14,12 @@ public class BookMarkDto implements Serializable {
     @Expose()
     private Date updateDate;
     @Expose()
-    private Integer numberOfPages;
+    private Integer numberOfBookPages;
     @Expose()
-    private Integer page;
+    private Integer bookPage;
     @Expose()
-    private BookDto book;
-    public BookMarkDto() {
+    private BookCollectionDto bookCollection;
+    public BookCollectionMarkDto() {
         super();
     }
     public Long getId() {
@@ -40,29 +40,29 @@ public class BookMarkDto implements Serializable {
     public void setUpdateDate(Date updateDate) {
         this.updateDate = updateDate;
     }
-    public Integer getNumberOfPages() {
-        return numberOfPages;
+    public Integer getNumberOfBookPages() {
+        return numberOfBookPages;
     }
-    public void setNumberOfPages(Integer numberOfPages) {
-        this.numberOfPages = numberOfPages;
+    public void setNumberOfBookPages(Integer numberOfBookPages) {
+        this.numberOfBookPages = numberOfBookPages;
     }
-    public Integer getPage() {
-        return page;
+    public Integer getBookPage() {
+        return bookPage;
     }
-    public void setPage(Integer page) {
-        this.page = page;
+    public void setBookPage(Integer bookPage) {
+        this.bookPage = bookPage;
     }
-    public BookDto getBook() {
-        return book;
+    public BookCollectionDto getBookCollection() {
+        return bookCollection;
     }
-    public void setBook(BookDto book) {
-        this.book = book;
+    public void setBookCollection(BookCollectionDto bookCollection) {
+        this.bookCollection = bookCollection;
     }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        BookMarkDto that = (BookMarkDto) o;
+        BookCollectionMarkDto that = (BookCollectionMarkDto) o;
         return Objects.equals(id, that.id);
     }
     @Override

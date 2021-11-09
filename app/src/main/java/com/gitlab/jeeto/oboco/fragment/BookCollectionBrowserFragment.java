@@ -30,6 +30,8 @@ import com.gitlab.jeeto.oboco.Constants;
 import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.MainActivity;
 import com.gitlab.jeeto.oboco.client.BookCollectionDto;
+import com.gitlab.jeeto.oboco.client.BookCollectionMarkDto;
+import com.gitlab.jeeto.oboco.client.BookMarkDto;
 import com.gitlab.jeeto.oboco.common.BaseViewModelProviderFactory;
 import com.gitlab.jeeto.oboco.common.Utils;
 import com.gitlab.jeeto.oboco.manager.DownloadBookCollectionWorker;
@@ -84,6 +86,14 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         return fragment;
     }
 
+    public static BookCollectionBrowserFragment createToRead() {
+        BookCollectionBrowserFragment fragment = new BookCollectionBrowserFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(BookCollectionBrowserViewModel.PARAM_MODE, BookCollectionBrowserViewModel.Mode.MODE_REMOTE_TO_READ);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     public static BookCollectionBrowserFragment createLatestRead() {
         BookCollectionBrowserFragment fragment = new BookCollectionBrowserFragment();
         Bundle args = new Bundle();
@@ -130,6 +140,8 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
             mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteFilteredBookCollectionBrowserViewModel.class);
         } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_NEW.equals(mMode)) {
             mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteFilteredBookCollectionBrowserViewModel.class);
+        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_TO_READ.equals(mMode)) {
+            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteFilteredBookCollectionBrowserViewModel.class);
         } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_LATEST_READ.equals(mMode)) {
             mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteFilteredBookCollectionBrowserViewModel.class);
         } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READ.equals(mMode)) {
@@ -159,6 +171,8 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
             title = getResources().getString(R.string.drawer_menu_book_collection_browser_all);
         } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_NEW.equals(mMode)) {
             title = getResources().getString(R.string.drawer_menu_book_collection_browser_new);
+        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_TO_READ.equals(mMode)) {
+            title = getResources().getString(R.string.drawer_menu_book_collection_browser_to_read);
         } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_LATEST_READ.equals(mMode)) {
             title = getResources().getString(R.string.drawer_menu_book_collection_browser_latest_read);
         } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READ.equals(mMode)) {
@@ -261,11 +275,23 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                     if(mMarkSelectedBookCollectionDialog == null) {
                         mMarkSelectedBookCollectionDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
                                 .setTitle(R.string.book_collection_browser_dialog_mark)
-                                .setMessage(mViewModel.getSelectedBookCollection().getName())
-                                .setPositiveButton(R.string.book_collection_browser_dialog_mark_positive, new DialogInterface.OnClickListener() {
+                                .setItems(R.array.book_collection_browser_dialog_mark_as_array, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        mViewModel.addBookMark();
+                                        if(which == 0) {
+                                            BookCollectionMarkDto bookCollectionMarkDto = new BookCollectionMarkDto();
+                                            bookCollectionMarkDto.setBookPage(0);
+
+                                            mViewModel.addBookMark(bookCollectionMarkDto);
+                                        } else if(which == 1) {
+                                            BookCollectionMarkDto bookCollectionMarkDto = new BookCollectionMarkDto();
+                                            bookCollectionMarkDto.setBookPage(-1);
+
+                                            mViewModel.addBookMark(bookCollectionMarkDto);
+                                        } else if(which == 2) {
+                                            mViewModel.removeBookMark();
+                                        }
+
                                         mViewModel.setShowMarkSelectedBookCollectionDialog(false);
 
                                         mMarkSelectedBookCollectionDialog = null;
@@ -274,15 +300,6 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                                 .setNegativeButton(R.string.book_collection_browser_dialog_mark_negative, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        mViewModel.setShowMarkSelectedBookCollectionDialog(false);
-
-                                        mMarkSelectedBookCollectionDialog = null;
-                                    }
-                                })
-                                .setNeutralButton(R.string.book_collection_browser_dialog_mark_neutral, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        mViewModel.removeBookMark();
                                         mViewModel.setShowMarkSelectedBookCollectionDialog(false);
 
                                         mMarkSelectedBookCollectionDialog = null;
@@ -494,7 +511,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
     private class BookCollectionViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private ImageView mBookCollectionImageView;
         private TextView mBookCollectionTextView;
-        private TextView mBookCollectionNumberOfBooksTextView;
+        private TextView mBookCollectionBookMarkTextView;
         private ImageView mBookCollectionBookMarkImageView;
         private ImageView mBookCollectionDownloadImageView;
 
@@ -516,6 +533,8 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                             filterType = "ALL";
                         } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_NEW.equals(mMode)) {
                             filterType = "NEW";
+                        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_TO_READ.equals(mMode)) {
+                            filterType = "TO_READ";
                         } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_LATEST_READ.equals(mMode)) {
                             filterType = "LATEST_READ";
                         } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READ.equals(mMode)) {
@@ -535,7 +554,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
 
                 mBookCollectionTextView = (TextView) itemView.findViewById(R.id.bookCollectionTextView);
 
-                mBookCollectionNumberOfBooksTextView = (TextView) itemView.findViewById(R.id.bookCollectionNumberOfBooksTextView);
+                mBookCollectionBookMarkTextView = (TextView) itemView.findViewById(R.id.bookCollectionBookMarkTextView);
 
                 mBookCollectionBookMarkImageView = (ImageView) itemView.findViewById(R.id.bookCollectionBookMarkImageView);
 
@@ -572,7 +591,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
 
             if(bookCollectionDto.getNumberOfBooks() != 0) {
                 mBookCollectionImageView.setVisibility(View.VISIBLE);
-                mBookCollectionNumberOfBooksTextView.setVisibility(View.VISIBLE);
+                mBookCollectionBookMarkTextView.setVisibility(View.VISIBLE);
                 mBookCollectionBookMarkImageView.setVisibility(View.VISIBLE);
                 mBookCollectionDownloadImageView.setVisibility(View.VISIBLE);
 
@@ -583,10 +602,15 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                         .tag(getActivity())
                         .into(mBookCollectionImageView);
 
-                mBookCollectionNumberOfBooksTextView.setText(bookCollectionDto.getNumberOfBooks().toString());
+                BookCollectionMarkDto bookCollectionMarkDto = bookCollectionDto.getBookCollectionMark();
+                if(bookCollectionMarkDto == null) {
+                    mBookCollectionBookMarkTextView.setText("0/0");
+                } else {
+                    mBookCollectionBookMarkTextView.setText(bookCollectionMarkDto.getBookPage() + "/" + bookCollectionMarkDto.getNumberOfBookPages());
+                }
             } else {
                 mBookCollectionImageView.setVisibility(View.GONE);
-                mBookCollectionNumberOfBooksTextView.setVisibility(View.GONE);
+                mBookCollectionBookMarkTextView.setVisibility(View.GONE);
                 mBookCollectionBookMarkImageView.setVisibility(View.GONE);
                 mBookCollectionDownloadImageView.setVisibility(View.GONE);
             }

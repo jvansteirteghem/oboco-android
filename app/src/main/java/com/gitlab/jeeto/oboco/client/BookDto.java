@@ -10,6 +10,8 @@ public class BookDto implements Serializable {
     @Expose()
     private Long id;
     @Expose()
+    private Date createDate;
+    @Expose()
     private Date updateDate;
     @Expose()
     private String name;
@@ -29,6 +31,12 @@ public class BookDto implements Serializable {
     }
     public void setId(Long id) {
         this.id = id;
+    }
+    public Date getCreateDate() {
+        return createDate;
+    }
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
     }
     public Date getUpdateDate() {
         return updateDate;

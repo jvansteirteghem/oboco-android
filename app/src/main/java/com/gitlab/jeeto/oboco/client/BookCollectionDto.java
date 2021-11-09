@@ -11,6 +11,8 @@ public class BookCollectionDto implements Serializable {
     @Expose()
     private Long id;
     @Expose()
+    private Date createDate;
+    @Expose()
     private Date updateDate;
     @Expose()
     private String name;
@@ -24,6 +26,8 @@ public class BookCollectionDto implements Serializable {
     private List<BookDto> books;
     @Expose()
     private Integer numberOfBooks;
+    @Expose()
+    private BookCollectionMarkDto bookCollectionMark;
     @Expose(serialize = false, deserialize = false)
     private String path;
     public BookCollectionDto() {
@@ -34,6 +38,12 @@ public class BookCollectionDto implements Serializable {
     }
     public void setId(Long id) {
         this.id = id;
+    }
+    public Date getCreateDate() {
+        return createDate;
+    }
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
     }
     public Date getUpdateDate() {
         return updateDate;
@@ -76,6 +86,12 @@ public class BookCollectionDto implements Serializable {
     }
     public void setNumberOfBooks(Integer numberOfBooks) {
         this.numberOfBooks = numberOfBooks;
+    }
+    public BookCollectionMarkDto getBookCollectionMark() {
+        return bookCollectionMark;
+    }
+    public void setBookCollectionMark(BookCollectionMarkDto bookCollectionMark) {
+        this.bookCollectionMark = bookCollectionMark;
     }
     public String getPath() {
         return path;

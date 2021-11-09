@@ -23,7 +23,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"/>
             <TextView
-                android:id="@+id/bookCollectionNumberOfBooksTextView"
+                android:id="@+id/bookCollectionBookMarkTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/card_padding"
@@ -40,17 +40,17 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentRight="true">
                 <ImageView
-                    android:id="@+id/bookCollectionDownloadImageView"
+                    android:id="@+id/bookCollectionBookMarkImageView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/card_padding"
                     android:clickable="true"
                     android:padding="@dimen/card_padding"
-                    android:src="@drawable/ic_file_download_black_24dp"
+                    android:src="@drawable/ic_bookmark_border_black_24dp"
                     android:background="@color/lightest"
                     android:foreground="?android:attr/selectableItemBackground" />
                 <ImageView
-                    android:id="@+id/bookCollectionBookMarkImageView"
+                    android:id="@+id/bookCollectionDownloadImageView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/card_padding"
@@ -58,7 +58,7 @@
                     android:layout_marginBottom="@dimen/card_padding"
                     android:clickable="true"
                     android:padding="@dimen/card_padding"
-                    android:src="@drawable/ic_bookmark_border_black_24dp"
+                    android:src="@drawable/ic_file_download_black_24dp"
                     android:background="@color/lightest"
                     android:foreground="?android:attr/selectableItemBackground"/>
             </LinearLayout>

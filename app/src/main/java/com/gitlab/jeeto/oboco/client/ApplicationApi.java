@@ -68,7 +68,7 @@ public interface ApplicationApi {
 
     @Headers("Content-Type: application/json")
     @PUT("/api/v1/bookCollections/{bookCollectionId}/bookMarks")
-    public Completable createOrUpdateBookMarksByBookCollection(@Path("bookCollectionId") Long bookCollectionId);
+    public Single<BookCollectionMarkDto> createOrUpdateBookMarksByBookCollection(@Path("bookCollectionId") Long bookCollectionId, @Body BookCollectionMarkDto bookCollectionMark);
 
     @Headers("Content-Type: application/json")
     @DELETE("/api/v1/bookCollections/{bookCollectionId}/bookMarks")

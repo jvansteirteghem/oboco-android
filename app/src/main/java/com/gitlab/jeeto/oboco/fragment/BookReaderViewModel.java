@@ -27,7 +27,7 @@ public abstract class BookReaderViewModel extends BaseViewModel {
     protected MutableLiveData<String> mMessageObservable;
     protected MutableLiveData<Boolean> mShowMessageObservable;
     protected MutableLiveData<BookDto> mSelectedBookObservable;
-    protected MutableLiveData<Boolean> mShowSwitchSelectedBookDialogObservable;
+    protected MutableLiveData<Boolean> mShowOpenSelectedBookDialogObservable;
     protected MutableLiveData<Boolean> mIsFullscreenObservable;
     protected MutableLiveData<Integer> mSelectedBookPageObservable;
 
@@ -40,7 +40,7 @@ public abstract class BookReaderViewModel extends BaseViewModel {
         mMessageObservable = new MutableLiveData<String>();
         mShowMessageObservable = new MutableLiveData<Boolean>();
         mSelectedBookObservable = new MutableLiveData<BookDto>();
-        mShowSwitchSelectedBookDialogObservable = new MutableLiveData<Boolean>();
+        mShowOpenSelectedBookDialogObservable = new MutableLiveData<Boolean>();
         mIsFullscreenObservable = new MutableLiveData<Boolean>();
         mSelectedBookPageObservable = new MutableLiveData<Integer>();
     }
@@ -90,14 +90,14 @@ public abstract class BookReaderViewModel extends BaseViewModel {
     public void setSelectedBook(BookDto book) {
         mSelectedBookObservable.setValue(book);
     }
-    public Boolean getShowSwitchSelectedBookDialog() {
-        return mShowSwitchSelectedBookDialogObservable.getValue();
+    public Boolean getShowOpenSelectedBookDialog() {
+        return mShowOpenSelectedBookDialogObservable.getValue();
     }
-    public LiveData<Boolean> getShowSwitchSelectedBookDialogObservable() {
-        return mShowSwitchSelectedBookDialogObservable;
+    public LiveData<Boolean> getShowOpenSelectedBookDialogObservable() {
+        return mShowOpenSelectedBookDialogObservable;
     }
-    public void setShowSwitchSelectedBookDialog(Boolean showSwitchSelectedBookDialog) {
-        mShowSwitchSelectedBookDialogObservable.setValue(showSwitchSelectedBookDialog);
+    public void setShowOpenSelectedBookDialog(Boolean showOpenSelectedBookDialog) {
+        mShowOpenSelectedBookDialogObservable.setValue(showOpenSelectedBookDialog);
     }
     public Boolean getIsFullscreen() {
         return mIsFullscreenObservable.getValue();

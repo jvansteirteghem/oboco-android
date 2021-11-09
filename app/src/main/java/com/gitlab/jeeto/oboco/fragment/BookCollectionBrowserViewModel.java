@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.gitlab.jeeto.oboco.client.BookCollectionDto;
+import com.gitlab.jeeto.oboco.client.BookCollectionMarkDto;
 import com.gitlab.jeeto.oboco.common.BaseViewModel;
 import com.squareup.picasso.Picasso;
 
@@ -19,6 +20,7 @@ public abstract class BookCollectionBrowserViewModel extends BaseViewModel {
         MODE_REMOTE,
         MODE_REMOTE_ALL,
         MODE_REMOTE_NEW,
+        MODE_REMOTE_TO_READ,
         MODE_REMOTE_LATEST_READ,
         MODE_REMOTE_READ,
         MODE_REMOTE_READING,
@@ -132,12 +134,32 @@ public abstract class BookCollectionBrowserViewModel extends BaseViewModel {
     public void setShowDownloadSelectedBookCollectionDialog(Boolean showDownloadSelectedBookCollectionDialog) {
         mShowDownloadSelectedBookCollectionDialogObservable.setValue(showDownloadSelectedBookCollectionDialog);
     }
+    public void updateBookCollectionList(List<BookCollectionDto> updatedBookCollectionListDto) {
+        if(updatedBookCollectionListDto.size() != 0) {
+            List<BookCollectionDto> bookCollectionList = mBookCollectionListObservable.getValue();
 
+            int index = 0;
+
+            while (index < bookCollectionList.size()) {
+                BookCollectionDto bookCollectionDto = bookCollectionList.get(index);
+
+                for (BookCollectionDto updatedBookCollectionDto : updatedBookCollectionListDto) {
+                    if (bookCollectionDto.equals(updatedBookCollectionDto)) {
+                        bookCollectionList.set(index, updatedBookCollectionDto);
+                    }
+                }
+
+                index = index + 1;
+            }
+
+            mBookCollectionListObservable.setValue(bookCollectionList);
+        }
+    }
     public abstract void load();
     public abstract void loadBookCollectionList();
     public abstract Boolean hasNextBookCollectionList();
     public abstract void loadNextBookCollectionList();
-    public abstract void addBookMark();
+    public abstract void addBookMark(BookCollectionMarkDto bookCollectionMarkDto);
     public abstract void removeBookMark();
     public abstract Uri getBookCollectionPageUri(BookCollectionDto bookCollectionDto, String scaleType, int scaleWidth, int scaleHeight);
     public abstract Picasso getPicasso();

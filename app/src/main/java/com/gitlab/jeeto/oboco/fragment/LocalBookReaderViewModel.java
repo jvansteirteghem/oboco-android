@@ -187,10 +187,12 @@ public class LocalBookReaderViewModel extends BookReaderViewModel {
 
     @Override
     public void addBookMark() {
+        BookDto bookDto = mBookObservable.getValue();
+
         BookMarkDto bookMarkDto = new BookMarkDto();
+        bookMarkDto.setNumberOfPages(bookDto.getNumberOfPages());
         bookMarkDto.setPage(mSelectedBookPageObservable.getValue());
 
-        BookDto bookDto = mBookObservable.getValue();
         bookDto.setBookMark(bookMarkDto);
 
         Single<List<Book>> single = mAppDatabase.bookDao().findByPath(mBookFile.getAbsolutePath());

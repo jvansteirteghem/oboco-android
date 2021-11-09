@@ -9,9 +9,11 @@ import android.os.Bundle;
 import com.gitlab.jeeto.oboco.client.ApplicationService;
 import com.gitlab.jeeto.oboco.client.AuthenticationManager;
 import com.gitlab.jeeto.oboco.client.BookCollectionDto;
+import com.gitlab.jeeto.oboco.client.BookCollectionMarkDto;
 import com.gitlab.jeeto.oboco.client.PageableListDto;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Completable;
@@ -115,7 +117,7 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
                 mBookCollectionId = bookCollectionDto.getId();
                 mBookCollectionObservable.setValue(bookCollectionDto);
 
-                Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollectionsByBookCollection(mBookCollectionId, mSearchTypeObservable.getValue(), mSearchObservable.getValue(), mPage, mPageSize, "()");
+                Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollectionsByBookCollection(mBookCollectionId, mSearchTypeObservable.getValue(), mSearchObservable.getValue(), mPage, mPageSize, "(bookCollectionMark)");
                 single = single.observeOn(AndroidSchedulers.mainThread());
                 single = single.subscribeOn(Schedulers.io());
                 single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
@@ -158,7 +160,7 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
     public void loadBookCollectionList() {
         mIsLoadingObservable.setValue(true);
 
-        Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollectionsByBookCollection(mBookCollectionId, mSearchTypeObservable.getValue(), mSearchObservable.getValue(), mPage, mPageSize, "()");
+        Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollectionsByBookCollection(mBookCollectionId, mSearchTypeObservable.getValue(), mSearchObservable.getValue(), mPage, mPageSize, "(bookCollectionMark)");
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
         single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
@@ -201,7 +203,7 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
         if(hasNextBookCollectionList()) {
             mIsLoadingObservable.setValue(true);
 
-            Single<PageableListDto<BookCollectionDto>> single = mApplicationService.getBookCollectionsByBookCollection(mBookCollectionId, mSearchTypeObservable.getValue(), mSearchObservable.getValue(), mNextPage, mNextPageSize, "()");
+            Single<PageableListDto<BookCollectionDto>> single = mApplicationService.getBookCollectionsByBookCollection(mBookCollectionId, mSearchTypeObservable.getValue(), mSearchObservable.getValue(), mNextPage, mNextPageSize, "(bookCollectionMark)");
             single = single.observeOn(AndroidSchedulers.mainThread());
             single = single.subscribeOn(Schedulers.io());
             single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
@@ -233,21 +235,26 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
     }
 
     @Override
-    public void addBookMark() {
+    public void addBookMark(BookCollectionMarkDto bookCollectionMarkDto) {
         BookCollectionDto selectedBookCollectionDto = mSelectedBookCollectionObservable.getValue();
 
-        Completable completable = mApplicationService.createOrUpdateBookMarksByBookCollection(selectedBookCollectionDto.getId());
-        completable = completable.observeOn(AndroidSchedulers.mainThread());
-        completable = completable.subscribeOn(Schedulers.io());
-        completable.subscribe(new CompletableObserver() {
+        Single<BookCollectionMarkDto> single = mApplicationService.createOrUpdateBookMarksByBookCollection(selectedBookCollectionDto.getId(), bookCollectionMarkDto);
+        single = single.observeOn(AndroidSchedulers.mainThread());
+        single = single.subscribeOn(Schedulers.io());
+        single.subscribe(new SingleObserver<BookCollectionMarkDto>() {
             @Override
             public void onSubscribe(Disposable d) {
 
             }
 
             @Override
-            public void onComplete() {
-                // do nothing
+            public void onSuccess(BookCollectionMarkDto bookCollectionMarkDto) {
+                selectedBookCollectionDto.setBookCollectionMark(bookCollectionMarkDto);
+
+                List<BookCollectionDto> updatedBookCollectionListDto = new ArrayList<BookCollectionDto>();
+                updatedBookCollectionListDto.add(selectedBookCollectionDto);
+
+                updateBookCollectionList(updatedBookCollectionListDto);
             }
 
             @Override
@@ -273,7 +280,12 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
 
             @Override
             public void onComplete() {
-                // do nothing
+                selectedBookCollectionDto.setBookCollectionMark(null);
+
+                List<BookCollectionDto> updatedBookCollectionListDto = new ArrayList<BookCollectionDto>();
+                updatedBookCollectionListDto.add(selectedBookCollectionDto);
+
+                updateBookCollectionList(updatedBookCollectionListDto);
             }
 
             @Override

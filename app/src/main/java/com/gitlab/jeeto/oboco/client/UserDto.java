@@ -17,6 +17,8 @@ public class UserDto implements Serializable {
     @Expose()
     private List<String> roles;
     @Expose()
+    private Date createDate;
+    @Expose()
     private Date updateDate;
     public UserDto() {
         super();
@@ -44,6 +46,12 @@ public class UserDto implements Serializable {
     }
     public void setRoles(List<String> roles) {
         this.roles = roles;
+    }
+    public Date getCreateDate() {
+        return createDate;
+    }
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
     }
     public Date getUpdateDate() {
         return updateDate;
