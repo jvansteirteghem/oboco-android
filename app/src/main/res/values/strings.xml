@@ -91,4 +91,10 @@
     <string name="download_manager_browser_dialog_download_stop">Stop download?</string>
     <string name="download_manager_browser_dialog_download_positive">Yes</string>
     <string name="download_manager_browser_dialog_download_negative">No</string>
+
+    <string name="download_book_collection_worker_download">Download books</string>
+    <string name="download_book_collection_worker_download_stop">Stop</string>
+
+    <string name="download_book_worker_download">Download book</string>
+    <string name="download_book_worker_download_stop">Stop</string>
 </resources>

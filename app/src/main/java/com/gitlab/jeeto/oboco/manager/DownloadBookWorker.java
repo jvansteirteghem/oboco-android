@@ -188,20 +188,23 @@ public class DownloadBookWorker extends Worker {
     private ForegroundInfo createForegroundInfo(@NonNull String info) {
         Context context = getApplicationContext();
 
+        String title = context.getResources().getString(R.string.download_book_worker_download);
+        String actionTitle = context.getResources().getString(R.string.download_book_worker_download_stop);
+
         // This PendingIntent can be used to cancel the worker
         PendingIntent intent = WorkManager.getInstance(context)
                 .createCancelPendingIntent(getId());
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setTicker("Download book")
-                .setContentTitle("Download book")
+                .setTicker(title)
+                .setContentTitle(title)
                 .setContentText(info)
                 .setSmallIcon(R.drawable.notification_action_background)
                 .setOngoing(true)
                 .setSilent(true)
                 // Add the cancel action to the notification which can
                 // be used to cancel the worker
-                .addAction(R.drawable.outline_remove_black_24, "Stop", intent);
+                .addAction(R.drawable.outline_remove_black_24, actionTitle, intent);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannel(notificationBuilder, CHANNEL_ID);
