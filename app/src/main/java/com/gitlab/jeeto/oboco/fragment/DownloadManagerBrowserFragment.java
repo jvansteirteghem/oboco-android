@@ -57,8 +57,6 @@ public class DownloadManagerBrowserFragment extends Fragment {
         mWorkManager = WorkManager.getInstance(getContext().getApplicationContext());
 
         mDownloadWorkList = new ArrayList<DownloadWork>();
-
-        getActivity().setTitle(R.string.drawer_menu_download_manager_browser);
     }
 
     @Override
@@ -69,6 +67,8 @@ public class DownloadManagerBrowserFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_browser, container, false);
+
+        getActivity().setTitle(R.string.drawer_menu_download_manager_browser);
 
         ViewGroup toolbar = (ViewGroup) getActivity().findViewById(R.id.toolbar);
         ViewGroup breadcrumbLayout = (ViewGroup) inflater.inflate(R.layout.browser_breadcrumb, toolbar, false);

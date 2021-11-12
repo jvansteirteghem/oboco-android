@@ -57,8 +57,6 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
 
         mObjectList = new ArrayList<Object>();
 
-        getActivity().setTitle(R.string.drawer_menu_download_browser);
-
         mBookReaderActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
@@ -102,6 +100,8 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_browser, container, false);
+
+        getActivity().setTitle(R.string.drawer_menu_download_browser);
 
         ViewGroup toolbar = (ViewGroup) getActivity().findViewById(R.id.toolbar);
         ViewGroup breadcrumbLayout = (ViewGroup) inflater.inflate(R.layout.browser_breadcrumb, toolbar, false);

@@ -115,8 +115,6 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        getActivity().setTitle("");
-
         setHasOptionsMenu(true);
 
         final View view = inflater.inflate(R.layout.fragment_book_browser, container, false);
@@ -166,10 +164,10 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         mEmptyView = view.findViewById(R.id.bookBrowserEmpty);
         mEmptyView.setVisibility(View.GONE);
 
-        mViewModel.getBookCollectionObservable().observe(getViewLifecycleOwner(), new Observer<BookCollectionDto>() {
+        mViewModel.getTitleObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
-            public void onChanged(BookCollectionDto bookCollection) {
-                getActivity().setTitle(bookCollection.getName());
+            public void onChanged(String title) {
+                getActivity().setTitle(title);
             }
         });
         mViewModel.getBookListObservable().observe(getViewLifecycleOwner(), new Observer<List<BookDto>>() {

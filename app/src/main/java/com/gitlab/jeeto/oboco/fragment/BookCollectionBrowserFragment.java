@@ -164,29 +164,6 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        String title;
-        if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE.equals(mMode)) {
-            title = getResources().getString(R.string.drawer_menu_book_collection_browser);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL.equals(mMode)) {
-            title = getResources().getString(R.string.drawer_menu_book_collection_browser_all);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_NEW.equals(mMode)) {
-            title = getResources().getString(R.string.drawer_menu_book_collection_browser_new);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_TO_READ.equals(mMode)) {
-            title = getResources().getString(R.string.drawer_menu_book_collection_browser_to_read);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_LATEST_READ.equals(mMode)) {
-            title = getResources().getString(R.string.drawer_menu_book_collection_browser_latest_read);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READ.equals(mMode)) {
-            title = getResources().getString(R.string.drawer_menu_book_collection_browser_read);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READING.equals(mMode)) {
-            title = getResources().getString(R.string.drawer_menu_book_collection_browser_reading);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_UNREAD.equals(mMode)) {
-            title = getResources().getString(R.string.drawer_menu_book_collection_browser_unread);
-        } else {
-            title = getResources().getString(R.string.drawer_menu_book_collection_browser);
-        }
-
-        getActivity().setTitle(title);
-
         setHasOptionsMenu(true);
 
         final View view = inflater.inflate(R.layout.fragment_book_collection_browser, container, false);
@@ -236,12 +213,10 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         mEmptyView = view.findViewById(R.id.bookCollectionBrowserEmpty);
         mEmptyView.setVisibility(View.GONE);
 
-        mViewModel.getBookCollectionObservable().observe(getViewLifecycleOwner(), new Observer<BookCollectionDto>() {
+        mViewModel.getTitleObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
-            public void onChanged(BookCollectionDto bookCollection) {
-                if(bookCollection.getParentBookCollection() != null) {
-                    getActivity().setTitle(bookCollection.getName());
-                }
+            public void onChanged(String title) {
+                getActivity().setTitle(title);
             }
         });
         mViewModel.getBookCollectionListObservable().observe(getViewLifecycleOwner(), new Observer<List<BookCollectionDto>>() {

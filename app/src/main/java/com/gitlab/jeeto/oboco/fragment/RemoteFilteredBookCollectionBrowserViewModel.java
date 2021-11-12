@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 
+import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.client.ApplicationService;
 import com.gitlab.jeeto.oboco.client.AuthenticationManager;
 import com.gitlab.jeeto.oboco.client.BookCollectionDto;
@@ -91,14 +92,49 @@ public class RemoteFilteredBookCollectionBrowserViewModel extends BookCollection
         mAuthenticationManagerDisposable.dispose();
     }
 
+    private void setTitle() {
+        String title = "";
+
+        BookCollectionDto bookCollection = mBookCollectionObservable.getValue();
+
+        if(bookCollection != null && bookCollection.getParentBookCollection() != null) {
+            title = bookCollection.getName();
+        } else {
+            if (BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL.equals(mMode)) {
+                title = getApplication().getResources().getString(R.string.drawer_menu_book_collection_browser_all);
+            } else if (BookCollectionBrowserViewModel.Mode.MODE_REMOTE_NEW.equals(mMode)) {
+                title = getApplication().getResources().getString(R.string.drawer_menu_book_collection_browser_new);
+            } else if (BookCollectionBrowserViewModel.Mode.MODE_REMOTE_TO_READ.equals(mMode)) {
+                title = getApplication().getResources().getString(R.string.drawer_menu_book_collection_browser_to_read);
+            } else if (BookCollectionBrowserViewModel.Mode.MODE_REMOTE_LATEST_READ.equals(mMode)) {
+                title = getApplication().getResources().getString(R.string.drawer_menu_book_collection_browser_latest_read);
+            } else if (BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READ.equals(mMode)) {
+                title = getApplication().getResources().getString(R.string.drawer_menu_book_collection_browser_read);
+            } else if (BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READING.equals(mMode)) {
+                title = getApplication().getResources().getString(R.string.drawer_menu_book_collection_browser_reading);
+            } else if (BookCollectionBrowserViewModel.Mode.MODE_REMOTE_UNREAD.equals(mMode)) {
+                title = getApplication().getResources().getString(R.string.drawer_menu_book_collection_browser_unread);
+            }
+        }
+
+        Integer bookCollectionListSize = mBookCollectionListSizeObservable.getValue();
+
+        if(bookCollectionListSize != null) {
+            title = title + " (" + bookCollectionListSize + ")";
+        }
+
+        mTitleObservable.setValue(title);
+    }
+
     @Override
     public void load() {
+        setTitle();
+
         mSearchTypeObservable.setValue("NAME");
         mSearchObservable.setValue("");
 
         BookCollectionDto bookCollection = new BookCollectionDto();
         bookCollection.setName("");
-
         mBookCollectionObservable.setValue(bookCollection);
 
         loadBookCollectionList();
@@ -148,6 +184,11 @@ public class RemoteFilteredBookCollectionBrowserViewModel extends BookCollection
                 List<BookCollectionDto> bookCollectionList = bookCollectionPageableListDto.getElements();
                 mBookCollectionListObservable.setValue(bookCollectionList);
 
+                Integer bookCollectionListSize = bookCollectionPageableListDto.getNumberOfElements().intValue();
+                mBookCollectionListSizeObservable.setValue(bookCollectionListSize);
+
+                setTitle();
+
                 mIsLoadingObservable.setValue(false);
             }
 
@@ -193,6 +234,11 @@ public class RemoteFilteredBookCollectionBrowserViewModel extends BookCollection
                     List<BookCollectionDto> bookCollectionList = mBookCollectionListObservable.getValue();
                     bookCollectionList.addAll(bookCollectionPageableListDto.getElements());
                     mBookCollectionListObservable.setValue(bookCollectionList);
+
+                    Integer bookCollectionListSize = bookCollectionPageableListDto.getNumberOfElements().intValue();
+                    mBookCollectionListSizeObservable.setValue(bookCollectionListSize);
+
+                    setTitle();
 
                     mIsLoadingObservable.setValue(false);
                 }

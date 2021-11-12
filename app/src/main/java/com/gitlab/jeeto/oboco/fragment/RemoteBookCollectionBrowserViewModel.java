@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 
+import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.client.ApplicationService;
 import com.gitlab.jeeto.oboco.client.AuthenticationManager;
 import com.gitlab.jeeto.oboco.client.BookCollectionDto;
@@ -91,8 +92,30 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
         mAuthenticationManagerDisposable.dispose();
     }
 
+    private void setTitle() {
+        String title = "";
+
+        BookCollectionDto bookCollection = mBookCollectionObservable.getValue();
+
+        if(bookCollection != null && bookCollection.getParentBookCollection() != null) {
+            title = bookCollection.getName();
+        } else {
+            title = getApplication().getResources().getString(R.string.drawer_menu_book_collection_browser);
+        }
+
+        Integer bookCollectionListSize = mBookCollectionListSizeObservable.getValue();
+
+        if(bookCollectionListSize != null) {
+            title = title + " (" + bookCollectionListSize + ")";
+        }
+
+        mTitleObservable.setValue(title);
+    }
+
     @Override
     public void load() {
+        setTitle();
+
         mSearchTypeObservable.setValue("NAME");
         mSearchObservable.setValue("");
 
@@ -117,6 +140,8 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
                 mBookCollectionId = bookCollectionDto.getId();
                 mBookCollectionObservable.setValue(bookCollectionDto);
 
+                setTitle();
+
                 Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollectionsByBookCollection(mBookCollectionId, mSearchTypeObservable.getValue(), mSearchObservable.getValue(), mPage, mPageSize, "(bookCollectionMark)");
                 single = single.observeOn(AndroidSchedulers.mainThread());
                 single = single.subscribeOn(Schedulers.io());
@@ -132,6 +157,11 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
 
                         List<BookCollectionDto> bookCollectionList = bookCollectionPageableListDto.getElements();
                         mBookCollectionListObservable.setValue(bookCollectionList);
+
+                        Integer bookCollectionListSize = bookCollectionPageableListDto.getNumberOfElements().intValue();
+                        mBookCollectionListSizeObservable.setValue(bookCollectionListSize);
+
+                        setTitle();
 
                         mIsLoadingObservable.setValue(false);
                     }
@@ -176,6 +206,11 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
                 List<BookCollectionDto> bookCollectionList = bookCollectionPageableListDto.getElements();
                 mBookCollectionListObservable.setValue(bookCollectionList);
 
+                Integer bookCollectionListSize = bookCollectionPageableListDto.getNumberOfElements().intValue();
+                mBookCollectionListSizeObservable.setValue(bookCollectionListSize);
+
+                setTitle();
+
                 mIsLoadingObservable.setValue(false);
             }
 
@@ -219,6 +254,11 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
                     List<BookCollectionDto> bookCollectionList = mBookCollectionListObservable.getValue();
                     bookCollectionList.addAll(bookCollectionPageableListDto.getElements());
                     mBookCollectionListObservable.setValue(bookCollectionList);
+
+                    Integer bookCollectionListSize = bookCollectionPageableListDto.getNumberOfElements().intValue();
+                    mBookCollectionListSizeObservable.setValue(bookCollectionListSize);
+
+                    setTitle();
 
                     mIsLoadingObservable.setValue(false);
                 }

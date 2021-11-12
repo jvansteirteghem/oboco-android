@@ -55,6 +55,8 @@ public class AccountLogoutFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_account_logout, container, false);
 
+        getActivity().setTitle(R.string.drawer_menu_account);
+
         mLogoutButton = (Button) view.findViewById(R.id.account_logout_btn_logout);
         mPasswordEditText = (EditText) view.findViewById(R.id.account_logout_et_password);
         mUpdatePasswordEditText = (EditText) view.findViewById(R.id.account_logout_et_update_password);

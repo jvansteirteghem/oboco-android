@@ -56,6 +56,8 @@ public class AccountLoginFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_account_login, container, false);
 
+        getActivity().setTitle(R.string.drawer_menu_account);
+
         mBaseUrlEditText = (EditText) view.findViewById(R.id.account_login_et_baseUrl);
         mNameEditText = (EditText) view.findViewById(R.id.account_login_et_name);
         mPasswordEditText = (EditText) view.findViewById(R.id.account_login_et_password);

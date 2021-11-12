@@ -67,8 +67,6 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         SharedPreferences preferences = getSharedPreferences("application", Context.MODE_PRIVATE);
 
         if (savedInstanceState == null) {
-            setTitle(R.string.drawer_menu_account);
-
             Intent intent = getIntent();
             Uri data = intent.getData();
             if (data != null) {
@@ -221,8 +219,6 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
 
                 switch (menuItem.getItemId()) {
                     case R.id.drawer_menu_account:
-                        setTitle(R.string.drawer_menu_account);
-
                         SharedPreferences sp = getSharedPreferences("application", Context.MODE_PRIVATE);
                         String accessToken = sp.getString("accessToken", "");
 
@@ -263,7 +259,6 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                         setFragment(new DownloadManagerBrowserFragment());
                         break;
                     case R.id.drawer_menu_about:
-                        setTitle(R.string.drawer_menu_about);
                         setFragment(new AboutFragment());
                         break;
                 }

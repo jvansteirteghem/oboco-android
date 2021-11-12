@@ -94,8 +94,28 @@ public class RemoteBookBrowserViewModel extends BookBrowserViewModel {
         mAuthenticationManagerDisposable.dispose();
     }
 
+    private void setTitle() {
+        String title = "";
+
+        BookCollectionDto bookCollection = mBookCollectionObservable.getValue();
+
+        if(bookCollection != null) {
+            title = bookCollection.getName();
+
+            Integer bookListSize = mBookListSizeObservable.getValue();
+
+            if(bookListSize != null) {
+                title = title + " (" + bookListSize + ")";
+            }
+        }
+
+        mTitleObservable.setValue(title);
+    }
+
     @Override
     public void load() {
+        setTitle();
+
         mFilterTypeObservable.setValue(mFilterType);
 
         mIsLoadingObservable.setValue(true);
@@ -119,6 +139,8 @@ public class RemoteBookBrowserViewModel extends BookBrowserViewModel {
                 mBookCollectionId = bookCollectionDto.getId();
                 mBookCollectionObservable.setValue(bookCollectionDto);
 
+                setTitle();
+
                 Single<PageableListDto<BookDto>> single = mApplicationService.getBooksByBookCollection(mBookCollectionId, mFilterTypeObservable.getValue(), mPage, mPageSize, "(bookMark)");
                 single = single.observeOn(AndroidSchedulers.mainThread());
                 single = single.subscribeOn(Schedulers.io());
@@ -134,6 +156,11 @@ public class RemoteBookBrowserViewModel extends BookBrowserViewModel {
 
                         List<BookDto> bookList = bookPageableListDto.getElements();
                         mBookListObservable.setValue(bookList);
+
+                        Integer bookListSize = bookPageableListDto.getNumberOfElements().intValue();
+                        mBookListSizeObservable.setValue(bookListSize);
+
+                        setTitle();
 
                         mIsLoadingObservable.setValue(false);
                     }
@@ -178,6 +205,11 @@ public class RemoteBookBrowserViewModel extends BookBrowserViewModel {
                 List<BookDto> bookList = bookPageableListDto.getElements();
                 mBookListObservable.setValue(bookList);
 
+                Integer bookListSize = bookPageableListDto.getNumberOfElements().intValue();
+                mBookListSizeObservable.setValue(bookListSize);
+
+                setTitle();
+
                 mIsLoadingObservable.setValue(false);
             }
 
@@ -221,6 +253,11 @@ public class RemoteBookBrowserViewModel extends BookBrowserViewModel {
                     List<BookDto> bookList = mBookListObservable.getValue();
                     bookList.addAll(bookPageableListDto.getElements());
                     mBookListObservable.setValue(bookList);
+
+                    Integer bookListSize = bookPageableListDto.getNumberOfElements().intValue();
+                    mBookListSizeObservable.setValue(bookListSize);
+
+                    setTitle();
 
                     mIsLoadingObservable.setValue(false);
                 }

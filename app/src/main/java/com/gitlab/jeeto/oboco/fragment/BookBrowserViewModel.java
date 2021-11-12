@@ -18,8 +18,10 @@ import java.util.List;
 public abstract class BookBrowserViewModel extends BaseViewModel {
     public static final String PARAM_BOOK_COLLECTION_ID = "PARAM_BOOK_COLLECTION_ID";
     public static final String PARAM_FILTER_TYPE = "PARAM_FILTER_TYPE";
+    protected MutableLiveData<String> mTitleObservable;
     protected MutableLiveData<BookCollectionDto> mBookCollectionObservable;
     protected MutableLiveData<List<BookDto>> mBookListObservable;
+    protected MutableLiveData<Integer> mBookListSizeObservable;
     protected MutableLiveData<String> mFilterTypeObservable;
     protected MutableLiveData<Boolean> mIsLoadingObservable;
     protected MutableLiveData<String> mMessageObservable;
@@ -31,8 +33,10 @@ public abstract class BookBrowserViewModel extends BaseViewModel {
     public BookBrowserViewModel(Application application, Bundle arguments) {
         super(application, arguments);
 
+        mTitleObservable = new MutableLiveData<String>();
         mBookCollectionObservable = new MutableLiveData<BookCollectionDto>();
         mBookListObservable= new MutableLiveData<List<BookDto>>();
+        mBookListSizeObservable= new MutableLiveData<Integer>();
         mFilterTypeObservable = new MutableLiveData<String>();
         mIsLoadingObservable = new MutableLiveData<Boolean>();
         mMessageObservable = new MutableLiveData<String>();
@@ -42,6 +46,12 @@ public abstract class BookBrowserViewModel extends BaseViewModel {
         mShowDownloadSelectedBookDialogObservable = new MutableLiveData<Boolean>();
     }
 
+    public String getTitle() {
+        return mTitleObservable.getValue();
+    }
+    public LiveData<String> getTitleObservable() {
+        return mTitleObservable;
+    }
     public BookCollectionDto getBookCollection() {
         return mBookCollectionObservable.getValue();
     }
@@ -53,6 +63,12 @@ public abstract class BookBrowserViewModel extends BaseViewModel {
     }
     public LiveData<List<BookDto>> getBookListObservable() {
         return mBookListObservable;
+    }
+    public Integer getBookListSize() {
+        return mBookListSizeObservable.getValue();
+    }
+    public LiveData<Integer> getBookListSizeObservable() {
+        return mBookListSizeObservable;
     }
     public String getFilterType() {
         return mFilterTypeObservable.getValue();

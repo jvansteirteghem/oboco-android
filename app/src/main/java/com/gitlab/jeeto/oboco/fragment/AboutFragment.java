@@ -46,6 +46,8 @@ public class AboutFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_about, container, false);
 
+        getActivity().setTitle(R.string.drawer_menu_about);
+
         LinearLayout libsLayout = (LinearLayout) view.findViewById(R.id.about_libraries);
 
         ((TextView) view.findViewById(R.id.aboutVersion)).setText(getVersionString());
