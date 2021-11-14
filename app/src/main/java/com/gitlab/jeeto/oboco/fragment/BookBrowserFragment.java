@@ -511,7 +511,6 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
             super(itemView);
             mBookImageView = (ImageView) itemView.findViewById(R.id.bookImageView);
             mBookImageView.setOnClickListener(new View.OnClickListener() {
-
                 @Override
                 public void onClick(View view) {
                     int i = getAdapterPosition();

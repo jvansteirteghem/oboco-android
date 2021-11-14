@@ -31,7 +31,6 @@ import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.MainActivity;
 import com.gitlab.jeeto.oboco.client.BookCollectionDto;
 import com.gitlab.jeeto.oboco.client.BookCollectionMarkDto;
-import com.gitlab.jeeto.oboco.client.BookMarkDto;
 import com.gitlab.jeeto.oboco.common.BaseViewModelProviderFactory;
 import com.gitlab.jeeto.oboco.common.Utils;
 import com.gitlab.jeeto.oboco.manager.DownloadBookCollectionWorker;
@@ -483,7 +482,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         }
     }
 
-    private class BookCollectionViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private class BookCollectionViewHolder extends RecyclerView.ViewHolder {
         private ImageView mBookCollectionImageView;
         private TextView mBookCollectionTextView;
         private TextView mBookCollectionBookMarkTextView;
@@ -495,7 +494,6 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
             if(mViewModel.getBookCollectionList().size() > 0) {
                 mBookCollectionImageView = (ImageView) itemView.findViewById(R.id.bookCollectionImageView);
                 mBookCollectionImageView.setOnClickListener(new View.OnClickListener() {
-
                     @Override
                     public void onClick(View view) {
                         int i = getAdapterPosition();
@@ -558,7 +556,16 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                 });
             }
 
-            itemView.setOnClickListener(this);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int i = getAdapterPosition();
+                    BookCollectionDto bookCollectionDto = mViewModel.getBookCollectionList().get(i);
+
+                    BookCollectionBrowserFragment fragment = BookCollectionBrowserFragment.create(bookCollectionDto.getId());
+                    ((MainActivity)getActivity()).pushFragment(fragment);
+                }
+            });
         }
 
         public void setupBookCollection(BookCollectionDto bookCollectionDto) {
@@ -589,15 +596,6 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                 mBookCollectionBookMarkImageView.setVisibility(View.GONE);
                 mBookCollectionDownloadImageView.setVisibility(View.GONE);
             }
-        }
-
-        @Override
-        public void onClick(View view) {
-            int i = getAdapterPosition();
-            BookCollectionDto bookCollectionDto = mViewModel.getBookCollectionList().get(i);
-
-            BookCollectionBrowserFragment fragment = BookCollectionBrowserFragment.create(bookCollectionDto.getId());
-            ((MainActivity)getActivity()).pushFragment(fragment);
         }
     }
 }
