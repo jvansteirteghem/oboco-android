@@ -234,15 +234,8 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
             public void onChanged(Boolean showOpenSelectedBookDialog) {
                 if(showOpenSelectedBookDialog) {
                     if(mOpenBookDialog == null) {
-                        int titleResource = -1;
-                        if(mViewModel.getSelectedBook().equals(mViewModel.getBookLinkable().getPreviousElement())) {
-                            titleResource = R.string.book_reader_dialog_open_previous;
-                        } else if(mViewModel.getSelectedBook().equals(mViewModel.getBookLinkable().getNextElement())) {
-                            titleResource = R.string.book_reader_dialog_open_next;
-                        }
-
                         mOpenBookDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                                .setTitle(titleResource)
+                                .setTitle(R.string.book_reader_dialog_open)
                                 .setMessage(mViewModel.getSelectedBook().getName())
                                 .setPositiveButton(R.string.book_reader_dialog_open_positive, new DialogInterface.OnClickListener() {
                                     @Override

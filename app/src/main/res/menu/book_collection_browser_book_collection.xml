@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_book_collection_browser_book_collection_mark"
+        android:title="@string/book_browser_menu_book_mark" />
+    <item android:id="@+id/menu_book_collection_browser_book_collection_download"
+        android:title="@string/book_browser_menu_book_download" />
+</menu>

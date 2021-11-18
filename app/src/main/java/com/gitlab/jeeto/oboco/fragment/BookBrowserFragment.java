@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,7 +35,6 @@ import androidx.work.WorkRequest;
 import com.gitlab.jeeto.oboco.Constants;
 import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.BookReaderActivity;
-import com.gitlab.jeeto.oboco.client.BookCollectionDto;
 import com.gitlab.jeeto.oboco.client.BookDto;
 import com.gitlab.jeeto.oboco.client.BookMarkDto;
 import com.gitlab.jeeto.oboco.common.BaseViewModelProviderFactory;
@@ -111,6 +111,11 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         }
 
         super.onDestroyView();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
     }
 
     @Override
@@ -490,22 +495,10 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         }
     }
 
-    private class HeaderViewHolder extends RecyclerView.ViewHolder {
-        public HeaderViewHolder(View itemView) {
-            super(itemView);
-        }
-
-        public void setTitle(int titleRes) {
-            ((TextView) itemView).setText(titleRes);
-        }
-    }
-
-    private class BookViewHolder extends RecyclerView.ViewHolder {
+    private class BookViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener, MenuItem.OnMenuItemClickListener {
         private ImageView mBookImageView;
         private TextView mBookTextView;
         private TextView mBookBookMarkTextView;
-        private ImageView mBookBookMarkImageView;
-        private ImageView mBookDownloadImageView;
 
         public BookViewHolder(View itemView) {
             super(itemView);
@@ -518,34 +511,11 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                     openBook(bookDto);
                 }
             });
+            mBookImageView.setOnCreateContextMenuListener(this);
 
             mBookTextView = (TextView) itemView.findViewById(R.id.bookTextView);
+
             mBookBookMarkTextView = (TextView) itemView.findViewById(R.id.bookBookMarkTextView);
-            mBookBookMarkImageView = (ImageView) itemView.findViewById(R.id.bookBookMarkImageView);
-
-            mBookBookMarkImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    int i = getAdapterPosition();
-                    BookDto selectedBookDto = getBookAtPosition(i);
-
-                    mViewModel.setSelectedBook(selectedBookDto);
-                    mViewModel.setShowMarkSelectedBookDialog(true);
-                }
-            });
-
-            mBookDownloadImageView = (ImageView) itemView.findViewById(R.id.bookDownloadImageView);
-
-            mBookDownloadImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    int i = getAdapterPosition();
-                    BookDto selectedBookDto = getBookAtPosition(i);
-
-                    mViewModel.setSelectedBook(selectedBookDto);
-                    mViewModel.setShowDownloadSelectedBookDialog(true);
-                }
-            });
         }
 
         public void setupBook(BookDto bookDto) {
@@ -553,8 +523,9 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
 
             BookMarkDto bookMarkDto = bookDto.getBookMark();
             if(bookMarkDto == null) {
-                mBookBookMarkTextView.setText("0/0");
+                mBookBookMarkTextView.setVisibility(View.GONE);
             } else {
+                mBookBookMarkTextView.setVisibility(View.VISIBLE);
                 mBookBookMarkTextView.setText(bookMarkDto.getPage() + "/" + bookMarkDto.getNumberOfPages());
             }
 
@@ -563,6 +534,33 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
             Uri uri = mViewModel.getBookPageUri(bookDto, "DEFAULT", Constants.COVER_THUMBNAIL_WIDTH, Constants.COVER_THUMBNAIL_HEIGHT);
             mViewModel.getPicasso().load(uri)
                     .into(mBookImageView);
+        }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
+            MenuItem menuItem = menu.add(Menu.NONE,R.id.menu_book_browser_book_mark,1,R.string.book_browser_menu_book_mark);
+            menuItem.setOnMenuItemClickListener(this);
+
+            menuItem = menu.add(Menu.NONE,R.id.menu_book_browser_book_download,2,R.string.book_browser_menu_book_download);
+            menuItem.setOnMenuItemClickListener(this);
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem menuItem) {
+            int i = getAdapterPosition();
+            BookDto selectedBookDto = getBookAtPosition(i);
+
+            mViewModel.setSelectedBook(selectedBookDto);
+
+            switch (menuItem.getItemId()){
+                case R.id.menu_book_browser_book_mark:
+                    mViewModel.setShowMarkSelectedBookDialog(true);
+                    return true;
+                case R.id.menu_book_browser_book_download:
+                    mViewModel.setShowDownloadSelectedBookDialog(true);
+                    return true;
+            }
+            return false;
         }
     }
 }

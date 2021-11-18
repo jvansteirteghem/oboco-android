@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="MyCommonAppTheme">
+        <item name="android:contextPopupMenuStyle">@style/MyPopupMenuTheme</item>
+        <item name="actionOverflowMenuStyle">@style/MyPopupMenuOverflowTheme</item>
+    </style>
+
+    <style name="MyToolbarTheme" parent="MyCommonToolbarTheme">
+        <item name="android:contextPopupMenuStyle">@style/MyPopupMenuTheme</item>
+        <item name="actionOverflowMenuStyle">@style/MyPopupMenuOverflowTheme</item>
+    </style>
+
+    <style name="MyPopupMenuTheme" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:popupEnterTransition">@null</item>
+        <item name="android:popupExitTransition">@null</item>
+        <item name="android:overlapAnchor">true</item>
+    </style>
+
+    <style name="MyPopupMenuOverflowTheme" parent="Widget.AppCompat.PopupMenu.Overflow">
+        <item name="android:popupEnterTransition">@null</item>
+        <item name="android:popupExitTransition">@null</item>
+    </style>
+</resources>

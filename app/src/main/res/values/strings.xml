@@ -40,8 +40,7 @@
     <string name="book_reader_menu_reading_mode">Reading mode</string>
     <string name="book_reader_menu_reading_mode_left_to_right">Left to right</string>
     <string name="book_reader_menu_reading_mode_right_to_left">Right to left</string>
-    <string name="book_reader_dialog_open_next">Open next book?</string>
-    <string name="book_reader_dialog_open_previous">Open previous book?</string>
+    <string name="book_reader_dialog_open">Open book?</string>
     <string name="book_reader_dialog_open_positive">Yes</string>
     <string name="book_reader_dialog_open_negative">No</string>
 
@@ -53,6 +52,8 @@
     <string name="book_browser_menu_filter_read">Read</string>
     <string name="book_browser_menu_filter_reading">Reading</string>
     <string name="book_browser_menu_filter_unread">Unread</string>
+    <string name="book_browser_menu_book_mark">Mark</string>
+    <string name="book_browser_menu_book_download">Download</string>
     <string name="book_browser_dialog_mark">Mark book?</string>
     <string-array name="book_browser_dialog_mark_as_array">
         <item>To read</item>
@@ -66,6 +67,8 @@
     <string name="book_browser_empty">There are no books in this book collection.</string>
 
     <string name="book_collection_browser_menu_search">Search</string>
+    <string name="book_collection_browser_menu_book_collection_mark">Mark</string>
+    <string name="book_collection_browser_menu_book_collection_download">Download</string>
     <string name="book_collection_browser_dialog_mark">Mark books?</string>
     <string-array name="book_collection_browser_dialog_mark_as_array">
         <item>To read</item>
