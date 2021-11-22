@@ -560,7 +560,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                     mBookCollectionBookCollectionMarkTextView.setVisibility(View.GONE);
                 } else {
                     mBookCollectionBookCollectionMarkTextView.setVisibility(View.VISIBLE);
-                    mBookCollectionBookCollectionMarkTextView.setText(bookCollectionMarkDto.getBookPage() + "/" + bookCollectionMarkDto.getNumberOfBookPages());
+                    mBookCollectionBookCollectionMarkTextView.setText(bookCollectionMarkDto.getProgress() + "%");
                 }
             } else {
                 mBookCollectionImageView.setVisibility(View.GONE);

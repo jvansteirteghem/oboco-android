@@ -64,7 +64,7 @@
     <string name="book_browser_dialog_download">Download book?</string>
     <string name="book_browser_dialog_download_positive">Yes</string>
     <string name="book_browser_dialog_download_negative">No</string>
-    <string name="book_browser_empty">There are no books in this book collection.</string>
+    <string name="book_browser_empty">No books.</string>
 
     <string name="book_collection_browser_menu_search">Search</string>
     <string name="book_collection_browser_menu_book_collection_mark">Mark</string>
@@ -79,7 +79,7 @@
     <string name="book_collection_browser_dialog_download">Download books?</string>
     <string name="book_collection_browser_dialog_download_positive">Yes</string>
     <string name="book_collection_browser_dialog_download_negative">No</string>
-    <string name="book_collection_browser_empty">There are no book collections in this book collection.</string>
+    <string name="book_collection_browser_empty">No book collections.</string>
 
     <string name="download_browser_dialog_delete_book_collection">Delete books?</string>
     <string name="download_browser_dialog_delete_book">Delete book?</string>

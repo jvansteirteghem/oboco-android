@@ -19,6 +19,8 @@ public class BookCollectionMarkDto implements Serializable {
     private Integer bookPage;
     @Expose()
     private BookCollectionDto bookCollection;
+    @Expose(serialize = false, deserialize = false)
+    private Integer progress;
     public BookCollectionMarkDto() {
         super();
     }
@@ -45,18 +47,41 @@ public class BookCollectionMarkDto implements Serializable {
     }
     public void setNumberOfBookPages(Integer numberOfBookPages) {
         this.numberOfBookPages = numberOfBookPages;
+        progress = calculateProgress();
     }
     public Integer getBookPage() {
         return bookPage;
     }
     public void setBookPage(Integer bookPage) {
         this.bookPage = bookPage;
+        progress = calculateProgress();
     }
     public BookCollectionDto getBookCollection() {
         return bookCollection;
     }
     public void setBookCollection(BookCollectionDto bookCollection) {
         this.bookCollection = bookCollection;
+    }
+    public Integer getProgress() {
+        if(progress == null) {
+            progress = calculateProgress();
+        }
+        return progress;
+    }
+    private Integer calculateProgress() {
+        Integer progress = 0;
+
+        if(bookPage != null && numberOfBookPages != null) {
+            if(numberOfBookPages != 0) {
+                progress = (bookPage * 100) / numberOfBookPages;
+
+                if(progress == 0 && bookPage != 0) {
+                    progress = 1;
+                }
+            }
+        }
+
+        return progress;
     }
     @Override
     public boolean equals(Object o) {

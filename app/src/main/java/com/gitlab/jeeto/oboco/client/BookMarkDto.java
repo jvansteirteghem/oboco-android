@@ -19,6 +19,8 @@ public class BookMarkDto implements Serializable {
     private Integer page;
     @Expose()
     private BookDto book;
+    @Expose(serialize = false, deserialize = false)
+    private Integer progress;
     public BookMarkDto() {
         super();
     }
@@ -45,18 +47,41 @@ public class BookMarkDto implements Serializable {
     }
     public void setNumberOfPages(Integer numberOfPages) {
         this.numberOfPages = numberOfPages;
+        progress = calculateProgress();
     }
     public Integer getPage() {
         return page;
     }
     public void setPage(Integer page) {
         this.page = page;
+        progress = calculateProgress();
     }
     public BookDto getBook() {
         return book;
     }
     public void setBook(BookDto book) {
         this.book = book;
+    }
+    public Integer getProgress() {
+        if(progress == null) {
+            progress = calculateProgress();
+        }
+        return progress;
+    }
+    private Integer calculateProgress() {
+        Integer progress = 0;
+
+        if(page != null && numberOfPages != null) {
+            if(numberOfPages != 0) {
+                progress = (page * 100) / numberOfPages;
+
+                if(progress == 0 && page != 0) {
+                    progress = 1;
+                }
+            }
+        }
+
+        return progress;
     }
     @Override
     public boolean equals(Object o) {

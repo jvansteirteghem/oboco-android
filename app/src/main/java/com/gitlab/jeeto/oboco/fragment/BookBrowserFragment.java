@@ -526,7 +526,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                 mBookBookMarkTextView.setVisibility(View.GONE);
             } else {
                 mBookBookMarkTextView.setVisibility(View.VISIBLE);
-                mBookBookMarkTextView.setText(bookMarkDto.getPage() + "/" + bookMarkDto.getNumberOfPages());
+                mBookBookMarkTextView.setText(bookMarkDto.getProgress() + "%");
             }
 
             mBookImageView.setImageResource(android.R.color.transparent);
