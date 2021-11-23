@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 def repositoryUrl = "ssh://git@gitlab.com/jeeto/oboco-android.git"
-def releaseVersionName = "1.7.1"
-def releaseVersionCode = 10701
-def developmentVersionName = "1.7.2-SNAPSHOT"
-def developmentVersionCode = 10702
+def releaseVersionName = "1.8.0"
+def releaseVersionCode = 10800
+def developmentVersionName = "1.8.1-SNAPSHOT"
+def developmentVersionCode = 10801
 
 repositories {
     mavenCentral()
