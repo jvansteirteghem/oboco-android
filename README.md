@@ -28,7 +28,7 @@ oboco for android started as a fork of [bubble](https://github.com/nkanaev/bubbl
 		- select "install unknown apps"
 		- select "chrome"
 		- select "allow from this source"
-- install [the latest release](https://gitlab.com/jeeto/oboco-android/-/jobs/artifacts/74a92c1d/raw/app/build/outputs/apk/release/app-release.apk?job=assembleRelease).
+- install [the latest release](https://gitlab.com/jeeto/oboco-android/-/jobs/artifacts/12475cd9/raw/app/build/outputs/apk/release/app-release.apk?job=assembleRelease).
 
 ## configuration
 
