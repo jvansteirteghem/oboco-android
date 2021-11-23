@@ -16,8 +16,7 @@
                     android:title="@string/book_collection_browser_menu_filter_root"
                     android:checked="true"/>
                 <item android:id="@+id/menu_book_collection_browser_filter_all"
-                    android:title="@string/book_collection_browser_menu_filter_all"
-                    android:checked="true"/>
+                    android:title="@string/book_collection_browser_menu_filter_all"/>
                 <item android:id="@+id/menu_book_collection_browser_filter_new"
                     android:title="@string/book_collection_browser_menu_filter_new"/>
                 <item android:id="@+id/menu_book_collection_browser_filter_to_read"
