@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -39,6 +40,8 @@ import com.gitlab.jeeto.oboco.manager.DownloadBookCollectionWorker;
 import java.util.List;
 import java.util.Objects;
 
+import static androidx.appcompat.content.res.AppCompatResources.getDrawable;
+
 public class BookCollectionBrowserFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     final int ITEM_VIEW_TYPE_BOOK_COLLECTION = 1;
 
@@ -46,10 +49,9 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
     private View mEmptyView;
     private View mNotEmptyView;
     private SwipeRefreshLayout mRefreshView;
+    private Menu mMenu;
     private SearchView mSearchView;
-    private String mSearch;
-
-    private BookCollectionBrowserViewModel.Mode mMode;
+    private String mFilterType;
 
     private BookCollectionBrowserViewModel mViewModel;
 
@@ -61,67 +63,11 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         super.onDestroy();
     }
 
-    public static BookCollectionBrowserFragment create(Long bookCollectionId) {
+    public static BookCollectionBrowserFragment create(Long bookCollectionId, String filterType) {
         BookCollectionBrowserFragment fragment = new BookCollectionBrowserFragment();
         Bundle args = new Bundle();
-        args.putSerializable(BookCollectionBrowserViewModel.PARAM_MODE, BookCollectionBrowserViewModel.Mode.MODE_REMOTE);
         args.putLong(BookCollectionBrowserViewModel.PARAM_BOOK_COLLECTION_ID, bookCollectionId);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public static BookCollectionBrowserFragment createAll() {
-        BookCollectionBrowserFragment fragment = new BookCollectionBrowserFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(BookCollectionBrowserViewModel.PARAM_MODE, BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public static BookCollectionBrowserFragment createNew() {
-        BookCollectionBrowserFragment fragment = new BookCollectionBrowserFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(BookCollectionBrowserViewModel.PARAM_MODE, BookCollectionBrowserViewModel.Mode.MODE_REMOTE_NEW);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public static BookCollectionBrowserFragment createToRead() {
-        BookCollectionBrowserFragment fragment = new BookCollectionBrowserFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(BookCollectionBrowserViewModel.PARAM_MODE, BookCollectionBrowserViewModel.Mode.MODE_REMOTE_TO_READ);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public static BookCollectionBrowserFragment createLatestRead() {
-        BookCollectionBrowserFragment fragment = new BookCollectionBrowserFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(BookCollectionBrowserViewModel.PARAM_MODE, BookCollectionBrowserViewModel.Mode.MODE_REMOTE_LATEST_READ);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public static BookCollectionBrowserFragment createRead() {
-        BookCollectionBrowserFragment fragment = new BookCollectionBrowserFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(BookCollectionBrowserViewModel.PARAM_MODE, BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READ);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public static BookCollectionBrowserFragment createReading() {
-        BookCollectionBrowserFragment fragment = new BookCollectionBrowserFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(BookCollectionBrowserViewModel.PARAM_MODE, BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READING);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public static BookCollectionBrowserFragment createUnread() {
-        BookCollectionBrowserFragment fragment = new BookCollectionBrowserFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(BookCollectionBrowserViewModel.PARAM_MODE, BookCollectionBrowserViewModel.Mode.MODE_REMOTE_UNREAD);
+        args.putString(BookBrowserViewModel.PARAM_FILTER_TYPE, filterType);
         fragment.setArguments(args);
         return fragment;
     }
@@ -132,25 +78,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mMode = (BookCollectionBrowserViewModel.Mode) getArguments().getSerializable(BookCollectionBrowserViewModel.PARAM_MODE);
-
-        if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE.equals(mMode)) {
-            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteBookCollectionBrowserViewModel.class);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL.equals(mMode)) {
-            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteFilteredBookCollectionBrowserViewModel.class);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_NEW.equals(mMode)) {
-            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteFilteredBookCollectionBrowserViewModel.class);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_TO_READ.equals(mMode)) {
-            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteFilteredBookCollectionBrowserViewModel.class);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_LATEST_READ.equals(mMode)) {
-            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteFilteredBookCollectionBrowserViewModel.class);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READ.equals(mMode)) {
-            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteFilteredBookCollectionBrowserViewModel.class);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READING.equals(mMode)) {
-            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteFilteredBookCollectionBrowserViewModel.class);
-        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_UNREAD.equals(mMode)) {
-            mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteFilteredBookCollectionBrowserViewModel.class);
-        }
+        mViewModel = new ViewModelProvider(this, new BaseViewModelProviderFactory(getActivity().getApplication(), getArguments())).get(RemoteBookCollectionBrowserViewModel.class);
     }
 
     @Override
@@ -374,15 +302,17 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
 
         inflater.inflate(R.menu.book_collection_browser, menu);
 
-        MenuItem searchMenuItem = menu.findItem(R.id.search);
+        mMenu = menu;
+
+        MenuItem searchMenuItem = menu.findItem(R.id.menu_book_collection_browser_search);
 
         mSearchView = (SearchView) searchMenuItem.getActionView();
+        mSearchView.setMaxWidth(Integer.MAX_VALUE);
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextChange(String search) {
-                mSearch = search;
-
-                mViewModel.setSearch(mSearch);
+                mViewModel.setSearchType("NAME");
+                mViewModel.setSearch(search);
                 mViewModel.loadBookCollectionList();
 
                 return true;
@@ -396,20 +326,102 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
             }
         });
 
-        mSearch = "";
+        String search = mViewModel.getSearch();
+        mViewModel.setSearchType("NAME");
+        mViewModel.setSearch("");
+        if(search != null && search.equals("") == false) {
+            mViewModel.loadBookCollectionList();
+        }
 
-        mViewModel.getSearchObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
+        MenuItem menuItem = mMenu.findItem(R.id.menu_book_collection_browser_filter_root);
+        menuItem.setChecked(true);
+
+        mFilterType = "ROOT";
+
+        mViewModel.getFilterTypeObservable().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
-            public void onChanged(String search) {
-                if(!Objects.equals(mSearch, search)) {
-                    mSearch = search;
+            public void onChanged(String filterType) {
+                if(!Objects.equals(mFilterType, filterType)) {
+                    mFilterType = filterType;
 
-                    mSearchView.setQuery(mSearch, false);
+                    int menuItemId;
+                    if (filterType.equals("ROOT")) {
+                        menuItemId = R.id.menu_book_collection_browser_filter_root;
+                    } else if (filterType.equals("ALL")) {
+                        menuItemId = R.id.menu_book_collection_browser_filter_all;
+                    } else if (filterType.equals("NEW")) {
+                        menuItemId = R.id.menu_book_collection_browser_filter_new;
+                    } else if (filterType.equals("TO_READ")) {
+                        menuItemId = R.id.menu_book_collection_browser_filter_to_read;
+                    } else if (filterType.equals("LATEST_READ")) {
+                        menuItemId = R.id.menu_book_collection_browser_filter_latest_read;
+                    } else if (filterType.equals("READ")) {
+                        menuItemId = R.id.menu_book_collection_browser_filter_read;
+                    } else if (filterType.equals("READING")) {
+                        menuItemId = R.id.menu_book_collection_browser_filter_reading;
+                    } else if (filterType.equals("UNREAD")) {
+                        menuItemId = R.id.menu_book_collection_browser_filter_unread;
+                    } else {
+                        menuItemId = R.id.menu_book_collection_browser_filter_root;
+                    }
+                    MenuItem menuItem = mMenu.findItem(menuItemId);
+                    menuItem.setChecked(true);
                 }
             }
         });
 
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        int menuItemId = menuItem.getItemId();
+
+        switch (menuItemId) {
+            case R.id.menu_book_collection_browser_filter_root:
+            case R.id.menu_book_collection_browser_filter_all:
+            case R.id.menu_book_collection_browser_filter_new:
+            case R.id.menu_book_collection_browser_filter_to_read:
+            case R.id.menu_book_collection_browser_filter_latest_read:
+            case R.id.menu_book_collection_browser_filter_read:
+            case R.id.menu_book_collection_browser_filter_reading:
+            case R.id.menu_book_collection_browser_filter_unread:
+                menuItem.setChecked(true);
+
+                String filterType;
+                if (menuItemId == R.id.menu_book_collection_browser_filter_root) {
+                    filterType = "ROOT";
+                } else if (menuItemId == R.id.menu_book_collection_browser_filter_all) {
+                    filterType = "ALL";
+                } else if (menuItemId == R.id.menu_book_collection_browser_filter_new) {
+                    filterType = "NEW";
+                } else if (menuItemId == R.id.menu_book_collection_browser_filter_to_read) {
+                    filterType = "TO_READ";
+                } else if (menuItemId == R.id.menu_book_collection_browser_filter_latest_read) {
+                    filterType = "LATEST_READ";
+                } else if (menuItemId == R.id.menu_book_collection_browser_filter_read) {
+                    filterType = "READ";
+                } else if (menuItemId == R.id.menu_book_collection_browser_filter_reading) {
+                    filterType = "READING";
+                } else if (menuItemId == R.id.menu_book_collection_browser_filter_unread) {
+                    filterType = "UNREAD";
+                } else {
+                    filterType = "ROOT";
+                }
+
+                if(mFilterType.equals("ROOT") || filterType.equals("ROOT")) {
+                    BookCollectionBrowserFragment fragment = BookCollectionBrowserFragment.create(-1L, filterType);
+                    ((MainActivity)getActivity()).setFragment(fragment);
+                } else {
+                    mFilterType = filterType;
+
+                    mViewModel.setFilterType(mFilterType);
+                    mViewModel.loadBookCollectionList();
+                }
+                return true;
+        }
+
+        return super.onOptionsItemSelected(menuItem);
     }
 
     private int calculateNumColumns() {
@@ -499,24 +511,10 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                         BookCollectionDto bookCollectionDto = mViewModel.getBookCollectionList().get(i);
 
                         String filterType;
-                        if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE.equals(mMode)) {
+                        if(mViewModel.getFilterType().equals("ROOT")) {
                             filterType = "ALL";
-                        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_ALL.equals(mMode)) {
-                            filterType = "ALL";
-                        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_NEW.equals(mMode)) {
-                            filterType = "NEW";
-                        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_TO_READ.equals(mMode)) {
-                            filterType = "TO_READ";
-                        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_LATEST_READ.equals(mMode)) {
-                            filterType = "LATEST_READ";
-                        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READ.equals(mMode)) {
-                            filterType = "READ";
-                        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_READING.equals(mMode)) {
-                            filterType = "READING";
-                        } else if(BookCollectionBrowserViewModel.Mode.MODE_REMOTE_UNREAD.equals(mMode)) {
-                            filterType = "UNREAD";
                         } else {
-                            filterType = "ALL";
+                            filterType = mViewModel.getFilterType();
                         }
 
                         BookBrowserFragment fragment = BookBrowserFragment.create(bookCollectionDto.getId(), filterType);
@@ -530,16 +528,22 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                 mBookCollectionBookCollectionMarkTextView = (TextView) itemView.findViewById(R.id.bookCollectionBookCollectionMarkTextView);
             }
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    int i = getAdapterPosition();
-                    BookCollectionDto bookCollectionDto = mViewModel.getBookCollectionList().get(i);
+            if(mViewModel.getFilterType().equals("ROOT")) {
+                TypedValue outValue = new TypedValue();
+                getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+                itemView.setForeground(getDrawable(getContext(), outValue.resourceId));
+                itemView.setClickable(true);
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        int i = getAdapterPosition();
+                        BookCollectionDto bookCollectionDto = mViewModel.getBookCollectionList().get(i);
 
-                    BookCollectionBrowserFragment fragment = BookCollectionBrowserFragment.create(bookCollectionDto.getId());
-                    ((MainActivity)getActivity()).pushFragment(fragment);
-                }
-            });
+                        BookCollectionBrowserFragment fragment = BookCollectionBrowserFragment.create(bookCollectionDto.getId(), "ROOT");
+                        ((MainActivity) getActivity()).pushFragment(fragment);
+                    }
+                });
+            }
         }
 
         public void setupBookCollection(BookCollectionDto bookCollectionDto) {

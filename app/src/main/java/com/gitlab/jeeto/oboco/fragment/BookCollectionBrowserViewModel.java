@@ -15,24 +15,16 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 public abstract class BookCollectionBrowserViewModel extends BaseViewModel {
-    public static final String PARAM_MODE = "PARAM_MODE";
-    public enum Mode {
-        MODE_REMOTE,
-        MODE_REMOTE_ALL,
-        MODE_REMOTE_NEW,
-        MODE_REMOTE_TO_READ,
-        MODE_REMOTE_LATEST_READ,
-        MODE_REMOTE_READ,
-        MODE_REMOTE_READING,
-        MODE_REMOTE_UNREAD;
-    }
     public static final String PARAM_BOOK_COLLECTION_ID = "PARAM_BOOK_COLLECTION_ID";
+    public static final String PARAM_FILTER_TYPE = "PARAM_FILTER_TYPE";
     protected MutableLiveData<String> mTitleObservable;
+    protected MutableLiveData<Long> mBookCollectionIdObservable;
     protected MutableLiveData<BookCollectionDto> mBookCollectionObservable;
     protected MutableLiveData<List<BookCollectionDto>> mBookCollectionListObservable;
     protected MutableLiveData<Integer> mBookCollectionListSizeObservable;
     protected MutableLiveData<String> mSearchTypeObservable;
     protected MutableLiveData<String> mSearchObservable;
+    protected MutableLiveData<String> mFilterTypeObservable;
     protected MutableLiveData<Boolean> mIsLoadingObservable;
     protected MutableLiveData<String> mMessageObservable;
     protected MutableLiveData<Boolean> mShowMessageObservable;
@@ -44,11 +36,13 @@ public abstract class BookCollectionBrowserViewModel extends BaseViewModel {
         super(application, arguments);
 
         mTitleObservable = new MutableLiveData<String>();
+        mBookCollectionIdObservable = new MutableLiveData<Long>();
         mBookCollectionObservable = new MutableLiveData<BookCollectionDto>();
         mBookCollectionListObservable= new MutableLiveData<List<BookCollectionDto>>();
         mBookCollectionListSizeObservable= new MutableLiveData<Integer>();
         mSearchTypeObservable = new MutableLiveData<String>();
         mSearchObservable = new MutableLiveData<String>();
+        mFilterTypeObservable = new MutableLiveData<String>();
         mIsLoadingObservable = new MutableLiveData<Boolean>();
         mMessageObservable = new MutableLiveData<String>();
         mShowMessageObservable = new MutableLiveData<Boolean>();
@@ -62,6 +56,12 @@ public abstract class BookCollectionBrowserViewModel extends BaseViewModel {
     }
     public LiveData<String> getTitleObservable() {
         return mTitleObservable;
+    }
+    public Long getBookCollectionId() {
+        return mBookCollectionIdObservable.getValue();
+    }
+    public LiveData<Long> getBookCollectionIdObservable() {
+        return mBookCollectionIdObservable;
     }
     public BookCollectionDto getBookCollection() {
         return mBookCollectionObservable.getValue();
@@ -98,6 +98,15 @@ public abstract class BookCollectionBrowserViewModel extends BaseViewModel {
     }
     public void setSearch(String search) {
         mSearchObservable.setValue(search);
+    }
+    public String getFilterType() {
+        return mFilterTypeObservable.getValue();
+    }
+    public LiveData<String> getFilterTypeObservable() {
+        return mFilterTypeObservable;
+    }
+    public void setFilterType(String filterType) {
+        mFilterTypeObservable.setValue(filterType);
     }
     public Boolean getIsLoading() {
         return mIsLoadingObservable.getValue();

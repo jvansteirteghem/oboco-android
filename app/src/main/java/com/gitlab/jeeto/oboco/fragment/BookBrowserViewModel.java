@@ -19,6 +19,7 @@ public abstract class BookBrowserViewModel extends BaseViewModel {
     public static final String PARAM_BOOK_COLLECTION_ID = "PARAM_BOOK_COLLECTION_ID";
     public static final String PARAM_FILTER_TYPE = "PARAM_FILTER_TYPE";
     protected MutableLiveData<String> mTitleObservable;
+    protected MutableLiveData<Long> mBookCollectionIdObservable;
     protected MutableLiveData<BookCollectionDto> mBookCollectionObservable;
     protected MutableLiveData<List<BookDto>> mBookListObservable;
     protected MutableLiveData<Integer> mBookListSizeObservable;
@@ -34,6 +35,7 @@ public abstract class BookBrowserViewModel extends BaseViewModel {
         super(application, arguments);
 
         mTitleObservable = new MutableLiveData<String>();
+        mBookCollectionIdObservable = new MutableLiveData<Long>();
         mBookCollectionObservable = new MutableLiveData<BookCollectionDto>();
         mBookListObservable= new MutableLiveData<List<BookDto>>();
         mBookListSizeObservable= new MutableLiveData<Integer>();
@@ -51,6 +53,12 @@ public abstract class BookBrowserViewModel extends BaseViewModel {
     }
     public LiveData<String> getTitleObservable() {
         return mTitleObservable;
+    }
+    public Long getBookCollectionId() {
+        return mBookCollectionIdObservable.getValue();
+    }
+    public LiveData<Long> getBookCollectionIdObservable() {
+        return mBookCollectionIdObservable;
     }
     public BookCollectionDto getBookCollection() {
         return mBookCollectionObservable.getValue();

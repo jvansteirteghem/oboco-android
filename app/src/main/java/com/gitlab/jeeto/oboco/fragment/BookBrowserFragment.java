@@ -366,7 +366,9 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
-        switch (menuItem.getItemId()) {
+        int menuItemId = menuItem.getItemId();
+
+        switch (menuItemId) {
             case R.id.menu_book_browser_filter_all:
             case R.id.menu_book_browser_filter_new:
             case R.id.menu_book_browser_filter_to_read:
@@ -375,8 +377,6 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
             case R.id.menu_book_browser_filter_reading:
             case R.id.menu_book_browser_filter_unread:
                 menuItem.setChecked(true);
-
-                int menuItemId = menuItem.getItemId();
 
                 if (menuItemId == R.id.menu_book_browser_filter_all) {
                     mFilterType = "ALL";

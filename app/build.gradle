@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         applicationId "com.gitlab.jeeto.oboco"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 30
 
         versionName "1.7.2-SNAPSHOT"

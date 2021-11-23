@@ -17,7 +17,7 @@ oboco for android started as a fork of [bubble](https://github.com/nkanaev/bubbl
 ## requirements
 
 - [oboco](https://gitlab.com/jeeto/oboco)
-- android >= 5.0
+- android >= 6.0
 
 ## installation
 

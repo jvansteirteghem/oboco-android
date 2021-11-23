@@ -118,30 +118,16 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
 
                 if(accessToken.equals("")) {
                     navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser).setVisible(false);
-                    navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_all).setVisible(false);
-                    navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_new).setVisible(false);
-                    navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_to_read).setVisible(false);
-                    navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_latest_read).setVisible(false);
-                    navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_read).setVisible(false);
-                    navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_reading).setVisible(false);
-                    navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_unread).setVisible(false);
 
                     setFragment(new AccountLoginFragment());
 
                     mCurrentNavItem = R.id.drawer_menu_account;
                 } else {
                     navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser).setVisible(true);
-                    navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_all).setVisible(true);
-                    navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_new).setVisible(true);
-                    navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_to_read).setVisible(true);
-                    navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_latest_read).setVisible(true);
-                    navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_read).setVisible(true);
-                    navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_reading).setVisible(true);
-                    navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_unread).setVisible(true);
 
-                    setFragment(BookCollectionBrowserFragment.createLatestRead());
+                    setFragment(BookCollectionBrowserFragment.create(-1L, "LATEST_READ"));
 
-                    mCurrentNavItem = R.id.drawer_menu_book_collection_browser_latest_read;
+                    mCurrentNavItem = R.id.drawer_menu_book_collection_browser;
                 }
             }
 
@@ -179,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-    private void setFragment(Fragment fragment) {
+    public void setFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (fragmentManager.getBackStackEntryCount() >= 1) {
             fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -199,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                 .commit();
     }
 
-    private boolean popFragment() {
+    public boolean popFragment() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (fragmentManager.getBackStackEntryCount() > 0) {
             fragmentManager.popBackStack();
@@ -229,28 +215,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                         }
                         break;
                     case R.id.drawer_menu_book_collection_browser:
-                        setFragment(BookCollectionBrowserFragment.create(-1L));
-                        break;
-                    case R.id.drawer_menu_book_collection_browser_all:
-                        setFragment(BookCollectionBrowserFragment.createAll());
-                        break;
-                    case R.id.drawer_menu_book_collection_browser_new:
-                        setFragment(BookCollectionBrowserFragment.createNew());
-                        break;
-                    case R.id.drawer_menu_book_collection_browser_to_read:
-                        setFragment(BookCollectionBrowserFragment.createToRead());
-                        break;
-                    case R.id.drawer_menu_book_collection_browser_latest_read:
-                        setFragment(BookCollectionBrowserFragment.createLatestRead());
-                        break;
-                    case R.id.drawer_menu_book_collection_browser_read:
-                        setFragment(BookCollectionBrowserFragment.createRead());
-                        break;
-                    case R.id.drawer_menu_book_collection_browser_reading:
-                        setFragment(BookCollectionBrowserFragment.createReading());
-                        break;
-                    case R.id.drawer_menu_book_collection_browser_unread:
-                        setFragment(BookCollectionBrowserFragment.createUnread());
+                        setFragment(BookCollectionBrowserFragment.create(-1L, "ROOT"));
                         break;
                     case R.id.drawer_menu_download_browser:
                         setFragment(new DownloadBrowserFragment());
@@ -300,20 +265,6 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
 
         MenuItem menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser);
         menuItem.setVisible(true);
-        menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_all);
-        menuItem.setVisible(true);
-        menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_new);
-        menuItem.setVisible(true);
-        menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_to_read);
-        menuItem.setVisible(true);
-        menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_latest_read);
-        menuItem.setVisible(true);
-        menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_read);
-        menuItem.setVisible(true);
-        menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_reading);
-        menuItem.setVisible(true);
-        menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_unread);
-        menuItem.setVisible(true);
 
         setFragment(new AccountLogoutFragment());
 
@@ -327,20 +278,6 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
 
         MenuItem menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser);
-        menuItem.setVisible(false);
-        menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_all);
-        menuItem.setVisible(false);
-        menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_new);
-        menuItem.setVisible(false);
-        menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_to_read);
-        menuItem.setVisible(false);
-        menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_latest_read);
-        menuItem.setVisible(false);
-        menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_read);
-        menuItem.setVisible(false);
-        menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_reading);
-        menuItem.setVisible(false);
-        menuItem = navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser_unread);
         menuItem.setVisible(false);
 
         setFragment(new AccountLoginFragment());

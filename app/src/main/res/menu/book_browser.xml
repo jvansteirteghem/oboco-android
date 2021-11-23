@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/menuReaderAspectRatio"
+    <item android:id="@+id/menu_book_browser_filter"
           android:title="@string/book_browser_menu_filter"
           android:icon="@drawable/ic_filter_list_white_24dp"
           app:showAsAction="always">

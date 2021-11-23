@@ -28,7 +28,6 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserViewModel {
-    private Long mBookCollectionId;
     private Integer mPage;
     private Integer mPageSize;
     private Integer mNextPage;
@@ -45,12 +44,6 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
 
     public RemoteBookCollectionBrowserViewModel(Application application, Bundle arguments) {
         super(application, arguments);
-
-        mBookCollectionId = getArguments().getLong(BookCollectionBrowserViewModel.PARAM_BOOK_COLLECTION_ID);
-        mPage = 1;
-        mPageSize = 100;
-        mNextPage = null;
-        mNextPageSize = 100;
 
         SharedPreferences sp = getApplication().getSharedPreferences("application", Context.MODE_PRIVATE);
         mBaseUrl = sp.getString("baseUrl", "");
@@ -84,6 +77,10 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
                 //.indicatorsEnabled(true)
                 .build();
 
+        mBookCollectionIdObservable.setValue(getArguments().getLong(BookCollectionBrowserViewModel.PARAM_BOOK_COLLECTION_ID));
+
+        mFilterTypeObservable.setValue(getArguments().getString(BookCollectionBrowserViewModel.PARAM_FILTER_TYPE));
+
         load();
     }
 
@@ -93,14 +90,31 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
     }
 
     private void setTitle() {
-        String title = "";
+        String title = getApplication().getResources().getString(R.string.drawer_menu_book_collection_browser);
 
         BookCollectionDto bookCollection = mBookCollectionObservable.getValue();
 
-        if(bookCollection != null && bookCollection.getParentBookCollection() != null) {
-            title = bookCollection.getName();
-        } else {
-            title = getApplication().getResources().getString(R.string.drawer_menu_book_collection_browser);
+        String filterType = mFilterTypeObservable.getValue();
+
+        if(filterType.equals("ROOT")) {
+            if(bookCollection != null && bookCollection.getParentBookCollection() != null) {
+                title = title + " " + bookCollection.getName();
+            }
+            title = title + " - " + getApplication().getResources().getString(R.string.book_collection_browser_menu_filter_root);
+        } else if(filterType.equals("ALL")) {
+            title = title + " - " + getApplication().getResources().getString(R.string.book_collection_browser_menu_filter_all);
+        } else if(filterType.equals("NEW")) {
+            title = title + " - " + getApplication().getResources().getString(R.string.book_collection_browser_menu_filter_new);
+        } else if(filterType.equals("TO_READ")) {
+            title = title + " - " + getApplication().getResources().getString(R.string.book_collection_browser_menu_filter_to_read);
+        } else if(filterType.equals("LATEST_READ")) {
+            title = title + " - " + getApplication().getResources().getString(R.string.book_collection_browser_menu_filter_latest_read);
+        } else if(filterType.equals("READ")) {
+            title = title + " - " + getApplication().getResources().getString(R.string.book_collection_browser_menu_filter_read);
+        } else if(filterType.equals("READING")) {
+            title = title + " - " + getApplication().getResources().getString(R.string.book_collection_browser_menu_filter_reading);
+        } else if(filterType.equals("UNREAD")) {
+            title = title + " - " + getApplication().getResources().getString(R.string.book_collection_browser_menu_filter_unread);
         }
 
         Integer bookCollectionListSize = mBookCollectionListSizeObservable.getValue();
@@ -116,81 +130,67 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
     public void load() {
         setTitle();
 
-        mSearchTypeObservable.setValue("NAME");
-        mSearchObservable.setValue("");
-
         mIsLoadingObservable.setValue(true);
 
-        Single<BookCollectionDto> single;
-        if(mBookCollectionId == -1L) {
-            single = mApplicationService.getRootBookCollection("(parentBookCollection)");
+        if(mFilterTypeObservable.getValue().equals("ROOT")) {
+            Single<BookCollectionDto> single;
+            if (mBookCollectionIdObservable.getValue() == -1L) {
+                single = mApplicationService.getRootBookCollection("(parentBookCollection)");
+            } else {
+                single = mApplicationService.getBookCollection(mBookCollectionIdObservable.getValue(), "(parentBookCollection)");
+            }
+            single = single.observeOn(AndroidSchedulers.mainThread());
+            single = single.subscribeOn(Schedulers.io());
+            single.subscribe(new SingleObserver<BookCollectionDto>() {
+                @Override
+                public void onSubscribe(Disposable d) {
+
+                }
+
+                @Override
+                public void onSuccess(BookCollectionDto bookCollectionDto) {
+                    mBookCollectionIdObservable.setValue(bookCollectionDto.getId());
+                    mBookCollectionObservable.setValue(bookCollectionDto);
+
+                    setTitle();
+
+                    loadBookCollectionList();
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    mMessageObservable.setValue(toMessage(e));
+                    mShowMessageObservable.setValue(true);
+
+                    mIsLoadingObservable.setValue(false);
+                }
+            });
         } else {
-            single = mApplicationService.getBookCollection(mBookCollectionId, "(parentBookCollection)");
+            BookCollectionDto bookCollection = new BookCollectionDto();
+            bookCollection.setName("");
+            mBookCollectionObservable.setValue(bookCollection);
+
+            setTitle();
+
+            loadBookCollectionList();
         }
-        single = single.observeOn(AndroidSchedulers.mainThread());
-        single = single.subscribeOn(Schedulers.io());
-        single.subscribe(new SingleObserver<BookCollectionDto>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-
-            }
-
-            @Override
-            public void onSuccess(BookCollectionDto bookCollectionDto) {
-                mBookCollectionId = bookCollectionDto.getId();
-                mBookCollectionObservable.setValue(bookCollectionDto);
-
-                setTitle();
-
-                Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollectionsByBookCollection(mBookCollectionId, mSearchTypeObservable.getValue(), mSearchObservable.getValue(), mPage, mPageSize, "(bookCollectionMark)");
-                single = single.observeOn(AndroidSchedulers.mainThread());
-                single = single.subscribeOn(Schedulers.io());
-                single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onSuccess(PageableListDto<BookCollectionDto> bookCollectionPageableListDto) {
-                        mNextPage = bookCollectionPageableListDto.getNextPage();
-
-                        List<BookCollectionDto> bookCollectionList = bookCollectionPageableListDto.getElements();
-                        mBookCollectionListObservable.setValue(bookCollectionList);
-
-                        Integer bookCollectionListSize = bookCollectionPageableListDto.getNumberOfElements().intValue();
-                        mBookCollectionListSizeObservable.setValue(bookCollectionListSize);
-
-                        setTitle();
-
-                        mIsLoadingObservable.setValue(false);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        mMessageObservable.setValue(toMessage(e));
-                        mShowMessageObservable.setValue(true);
-
-                        mIsLoadingObservable.setValue(false);
-                    }
-                });
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                mMessageObservable.setValue(toMessage(e));
-                mShowMessageObservable.setValue(true);
-
-                mIsLoadingObservable.setValue(false);
-            }
-        });
     }
 
     @Override
     public void loadBookCollectionList() {
+        mPage = 1;
+        mPageSize = 100;
+        mNextPage = null;
+        mNextPageSize = 100;
+
         mIsLoadingObservable.setValue(true);
 
-        Single<PageableListDto<BookCollectionDto>> single =  mApplicationService.getBookCollectionsByBookCollection(mBookCollectionId, mSearchTypeObservable.getValue(), mSearchObservable.getValue(), mPage, mPageSize, "(bookCollectionMark)");
+        Single<PageableListDto<BookCollectionDto>> single;
+        if(mFilterTypeObservable.getValue().equals("ROOT")) {
+            single =  mApplicationService.getBookCollectionsByBookCollection(mBookCollectionIdObservable.getValue(), mSearchTypeObservable.getValue(), mSearchObservable.getValue(), mPage, mPageSize, "(bookCollectionMark)");
+        } else {
+            single =  mApplicationService.getBookCollections(mSearchTypeObservable.getValue(), mSearchObservable.getValue(), mFilterTypeObservable.getValue(), mPage, mPageSize, "(bookCollectionMark)");
+        }
         single = single.observeOn(AndroidSchedulers.mainThread());
         single = single.subscribeOn(Schedulers.io());
         single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
@@ -238,7 +238,12 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
         if(hasNextBookCollectionList()) {
             mIsLoadingObservable.setValue(true);
 
-            Single<PageableListDto<BookCollectionDto>> single = mApplicationService.getBookCollectionsByBookCollection(mBookCollectionId, mSearchTypeObservable.getValue(), mSearchObservable.getValue(), mNextPage, mNextPageSize, "(bookCollectionMark)");
+            Single<PageableListDto<BookCollectionDto>> single;
+            if(mFilterTypeObservable.getValue().equals("ROOT")) {
+                single = mApplicationService.getBookCollectionsByBookCollection(mBookCollectionIdObservable.getValue(), mSearchTypeObservable.getValue(), mSearchObservable.getValue(), mNextPage, mNextPageSize, "(bookCollectionMark)");
+            } else {
+                single =  mApplicationService.getBookCollections(mSearchTypeObservable.getValue(), mSearchObservable.getValue(), mFilterTypeObservable.getValue(), mNextPage, mNextPageSize, "(bookCollectionMark)");
+            }
             single = single.observeOn(AndroidSchedulers.mainThread());
             single = single.subscribeOn(Schedulers.io());
             single.subscribe(new SingleObserver<PageableListDto<BookCollectionDto>>() {
