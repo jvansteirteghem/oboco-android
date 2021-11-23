@@ -24,8 +24,8 @@ android {
         minSdkVersion 23
         targetSdkVersion 30
 
-        versionName "1.7.2-SNAPSHOT"
-        versionCode 10702
+        versionName "1.8.0"
+        versionCode 10800
     }
 
     buildTypes {
