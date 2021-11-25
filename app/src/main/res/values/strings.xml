@@ -16,15 +16,15 @@
     <string name="account_login_password_hint">Password</string>
     <string name="account_login_show_password">Show password</string>
     <string name="account_login_log_in">Log in</string>
-    <string name="account_login_logged_in">You are logged in.</string>
+    <string name="account_login_logged_in">Logged in.</string>
 
     <string name="account_logout_log_out">Log out</string>
-    <string name="account_logout_logged_out">You are logged out.</string>
+    <string name="account_logout_logged_out">Logged out.</string>
     <string name="account_logout_password_hint">Password</string>
     <string name="account_logout_update_password_hint">Update password</string>
     <string name="account_logout_show_password">Show password</string>
     <string name="account_logout_update_password">Update password</string>
-    <string name="account_logout_updated_password">Your password is updated.</string>
+    <string name="account_logout_updated_password">Password is updated.</string>
 
     <string name="book_reader_menu_view_mode">View mode</string>
     <string name="book_reader_menu_view_mode_aspect_fill">Aspect fill</string>
