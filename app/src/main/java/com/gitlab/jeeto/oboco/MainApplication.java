@@ -12,7 +12,5 @@ public class MainApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        AppInitializer.getInstance(getApplicationContext())
-                .initializeComponent(DownloadWorkManagerInitializer.class);
     }
 }

@@ -57,7 +57,7 @@
                 android:value="androidx.startup"
                 tools:node="remove" />
             <meta-data android:name="com.gitlab.jeeto.oboco.manager.DownloadWorkManagerInitializer"
-                tools:node="remove" />
+                android:value="androidx.startup" />
         </provider>
     </application>
 
