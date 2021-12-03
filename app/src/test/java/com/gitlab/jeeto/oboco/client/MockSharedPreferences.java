@@ -26,6 +26,7 @@ public class MockSharedPreferences implements SharedPreferences {
         return (String) preferenceMap.get(s);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Set<String> getStringSet(final String s, final Set<String> set) {
         return (Set<String>) preferenceMap.get(s);
