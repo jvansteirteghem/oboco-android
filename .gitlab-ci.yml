@@ -60,6 +60,7 @@ before_script:
 stages:
   - build
   - test
+  - prepare
   - release
 
 lintDebug:
@@ -78,7 +79,7 @@ debugTests:
     - ./gradlew -Pci --console=plain :app:testDebug
 
 assembleRelease:
-  stage: release
+  stage: prepare
   script:
     # install ssh agent if ssh agent is not installed
     - '(which ssh-agent) || ( apt-get update -y && apt-get install openssh-client -y )'
@@ -125,9 +126,37 @@ assembleRelease:
     - git add app/build.gradle
     - git commit -m "[skip ci] $developmentVersionName ($developmentVersionCode)"
     - git push origin master
+    - echo $CI_JOB_ID
+    - echo RELEASE_JOB_ID=$CI_JOB_ID >> release.env
+    - echo $releaseVersionName
+    - echo RELEASE_VERSION=$releaseVersionName >> release.env
+    - mkdir release
+    - mv app/build/outputs/apk/release/app-release.apk release/oboco-android-${releaseVersionName}.apk
   artifacts:
     paths:
-    - app/build/outputs/
+      - release/
+    reports:
+      dotenv: release.env
   when: manual
   only:
      - master
+
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  script:
+    - echo $RELEASE_JOB_ID
+    - echo $RELEASE_VERSION
+  needs:
+    - job: assembleRelease
+      artifacts: true
+  release:
+    name: "oboco-android-${RELEASE_VERSION}"
+    description: "oboco-android-${RELEASE_VERSION}"
+    tag_name: "${RELEASE_VERSION}"
+    assets:
+      links:
+        - name: "oboco-android-${RELEASE_VERSION}"
+          url: "https://gitlab.com/jeeto/oboco-android/-/jobs/${RELEASE_JOB_ID}/artifacts/file/release/oboco-android-${RELEASE_VERSION}.apk"
+  only:
+    - master
