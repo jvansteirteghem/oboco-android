@@ -144,6 +144,9 @@ assembleRelease:
 release:
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
+  # override global before_script
+  before_script:
+    - echo "release"
   script:
     - echo $RELEASE_JOB_ID
     - echo $RELEASE_VERSION
