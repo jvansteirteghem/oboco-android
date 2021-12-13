@@ -7,8 +7,8 @@ oboco for android is a client for [oboco](https://gitlab.com/jeeto/oboco).
 [oboco](https://gitlab.com/jeeto/oboco) is short for "open book collection".
 
 you can:
-- read your books and book collections.
-- search your books and book collections.
+- read your books.
+- search your books.
 - download your books.
 - manage your book marks.
 
