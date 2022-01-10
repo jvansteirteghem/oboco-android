@@ -13,7 +13,6 @@
     <style name="MyPopupMenuTheme" parent="Widget.AppCompat.PopupMenu">
         <item name="android:popupEnterTransition">@null</item>
         <item name="android:popupExitTransition">@null</item>
-        <item name="android:overlapAnchor">true</item>
     </style>
 
     <style name="MyPopupMenuOverflowTheme" parent="Widget.AppCompat.PopupMenu.Overflow">

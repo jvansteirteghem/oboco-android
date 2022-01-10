@@ -264,23 +264,23 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                                             activity.setFragment(BookReaderFragment.create(mViewModel.getSelectedBook().getPath()));
                                         }
                                         mViewModel.setShowOpenSelectedBookDialog(false);
-
-                                        mOpenBookDialog = null;
                                     }
                                 })
                                 .setNegativeButton(R.string.book_reader_dialog_open_negative, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.setShowOpenSelectedBookDialog(false);
-
-                                        mOpenBookDialog = null;
                                     }
                                 })
                                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                                     @Override
                                     public void onCancel(DialogInterface dialog) {
                                         mViewModel.setShowOpenSelectedBookDialog(false);
-
+                                    }
+                                })
+                                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                    @Override
+                                    public void onDismiss(DialogInterface dialogInterface) {
                                         mOpenBookDialog = null;
                                     }
                                 })
@@ -362,7 +362,6 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
     public void onDestroyView() {
         if(mOpenBookDialog != null) {
             mOpenBookDialog.dismiss();
-            mOpenBookDialog = null;
         }
 
         super.onDestroyView();

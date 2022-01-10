@@ -8,6 +8,7 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,6 +24,8 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -52,6 +55,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
     private View mNotEmptyView;
     private SwipeRefreshLayout mRefreshView;
     private Menu mMenu;
+    private PopupMenu mPopupMenu;
     private String mFilterType;
 
     private ActivityResultLauncher<Intent> mBookReaderActivityResultLauncher;
@@ -100,14 +104,16 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
 
     @Override
     public void onDestroyView() {
+        if(mPopupMenu != null) {
+            mPopupMenu.dismiss();
+        }
+
         if(mMarkSelectedBookDialog != null) {
             mMarkSelectedBookDialog.dismiss();
-            mMarkSelectedBookDialog = null;
         }
 
         if(mDownloadSelectedBookDialog != null) {
             mDownloadSelectedBookDialog.dismiss();
-            mDownloadSelectedBookDialog = null;
         }
 
         super.onDestroyView();
@@ -224,23 +230,23 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                                         }
 
                                         mViewModel.setShowMarkSelectedBookDialog(false);
-
-                                        mMarkSelectedBookDialog = null;
                                     }
                                 })
                                 .setNegativeButton(R.string.book_browser_dialog_mark_negative, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.setShowMarkSelectedBookDialog(false);
-
-                                        mMarkSelectedBookDialog = null;
                                     }
                                 })
                                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                                     @Override
                                     public void onCancel(DialogInterface dialog) {
                                         mViewModel.setShowMarkSelectedBookDialog(false);
-
+                                    }
+                                })
+                                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                    @Override
+                                    public void onDismiss(DialogInterface dialogInterface) {
                                         mMarkSelectedBookDialog = null;
                                     }
                                 })
@@ -268,23 +274,23 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                                                 .enqueue(downloadWorkRequest);
 
                                         mViewModel.setShowDownloadSelectedBookDialog(false);
-
-                                        mDownloadSelectedBookDialog = null;
                                     }
                                 })
                                 .setNegativeButton(R.string.book_browser_dialog_download_negative, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.setShowDownloadSelectedBookDialog(false);
-
-                                        mDownloadSelectedBookDialog = null;
                                     }
                                 })
                                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                                     @Override
                                     public void onCancel(DialogInterface dialog) {
                                         mViewModel.setShowDownloadSelectedBookDialog(false);
-
+                                    }
+                                })
+                                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                    @Override
+                                    public void onDismiss(DialogInterface dialogInterface) {
                                         mDownloadSelectedBookDialog = null;
                                     }
                                 })
@@ -495,10 +501,11 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         }
     }
 
-    private class BookViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener, MenuItem.OnMenuItemClickListener {
+    private class BookViewHolder extends RecyclerView.ViewHolder {
         private ImageView mBookImageView;
         private TextView mBookTextView;
         private TextView mBookBookMarkTextView;
+        private ImageView mBookMenuImageView;
 
         public BookViewHolder(View itemView) {
             super(itemView);
@@ -511,11 +518,47 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                     openBook(bookDto);
                 }
             });
-            mBookImageView.setOnCreateContextMenuListener(this);
 
             mBookTextView = (TextView) itemView.findViewById(R.id.bookTextView);
 
             mBookBookMarkTextView = (TextView) itemView.findViewById(R.id.bookBookMarkTextView);
+
+            mBookMenuImageView = (ImageView) itemView.findViewById(R.id.bookMenuImageView);
+            mBookMenuImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(mPopupMenu == null) {
+                        Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.MyPopupMenuTheme);
+                        mPopupMenu = new PopupMenu(contextThemeWrapper, mBookMenuImageView, Gravity.NO_GRAVITY, 0, R.style.MyPopupMenuOverflowTheme);
+                        mPopupMenu.getMenuInflater().inflate(R.menu.book_browser_book, mPopupMenu.getMenu());
+                        mPopupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                            public boolean onMenuItemClick(MenuItem menuItem) {
+                                int i = getAdapterPosition();
+                                BookDto selectedBookDto = getBookAtPosition(i);
+
+                                mViewModel.setSelectedBook(selectedBookDto);
+
+                                switch (menuItem.getItemId()){
+                                    case R.id.menu_book_browser_book_mark:
+                                        mViewModel.setShowMarkSelectedBookDialog(true);
+                                        return true;
+                                    case R.id.menu_book_browser_book_download:
+                                        mViewModel.setShowDownloadSelectedBookDialog(true);
+                                        return true;
+                                }
+                                return false;
+                            }
+                        });
+                        mPopupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+                            @Override
+                            public void onDismiss(PopupMenu menu) {
+                                mPopupMenu = null;
+                            }
+                        });
+                        mPopupMenu.show();
+                    }
+                }
+            });
         }
 
         public void setupBook(BookDto bookDto) {
@@ -533,34 +576,9 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
 
             Uri uri = mViewModel.getBookPageUri(bookDto, "DEFAULT", Constants.COVER_THUMBNAIL_WIDTH, Constants.COVER_THUMBNAIL_HEIGHT);
             mViewModel.getPicasso().load(uri)
+                    .resize(Constants.COVER_THUMBNAIL_WIDTH, Constants.COVER_THUMBNAIL_HEIGHT)
+                    .centerCrop(Gravity.CENTER)
                     .into(mBookImageView);
-        }
-
-        @Override
-        public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
-            MenuItem menuItem = menu.add(Menu.NONE,R.id.menu_book_browser_book_mark,1,R.string.book_browser_menu_book_mark);
-            menuItem.setOnMenuItemClickListener(this);
-
-            menuItem = menu.add(Menu.NONE,R.id.menu_book_browser_book_download,2,R.string.book_browser_menu_book_download);
-            menuItem.setOnMenuItemClickListener(this);
-        }
-
-        @Override
-        public boolean onMenuItemClick(MenuItem menuItem) {
-            int i = getAdapterPosition();
-            BookDto selectedBookDto = getBookAtPosition(i);
-
-            mViewModel.setSelectedBook(selectedBookDto);
-
-            switch (menuItem.getItemId()){
-                case R.id.menu_book_browser_book_mark:
-                    mViewModel.setShowMarkSelectedBookDialog(true);
-                    return true;
-                case R.id.menu_book_browser_book_download:
-                    mViewModel.setShowDownloadSelectedBookDialog(true);
-                    return true;
-            }
-            return false;
         }
     }
 }

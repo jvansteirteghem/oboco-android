@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,6 +19,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -33,6 +36,7 @@ import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.MainActivity;
 import com.gitlab.jeeto.oboco.client.BookCollectionDto;
 import com.gitlab.jeeto.oboco.client.BookCollectionMarkDto;
+import com.gitlab.jeeto.oboco.client.BookDto;
 import com.gitlab.jeeto.oboco.common.BaseViewModelProviderFactory;
 import com.gitlab.jeeto.oboco.common.Utils;
 import com.gitlab.jeeto.oboco.manager.DownloadBookCollectionWorker;
@@ -50,6 +54,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
     private View mNotEmptyView;
     private SwipeRefreshLayout mRefreshView;
     private Menu mMenu;
+    private PopupMenu mPopupMenu;
     private SearchView mSearchView;
     private String mFilterType;
 
@@ -196,23 +201,23 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                                         }
 
                                         mViewModel.setShowMarkSelectedBookCollectionDialog(false);
-
-                                        mMarkSelectedBookCollectionDialog = null;
                                     }
                                 })
                                 .setNegativeButton(R.string.book_collection_browser_dialog_mark_negative, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.setShowMarkSelectedBookCollectionDialog(false);
-
-                                        mMarkSelectedBookCollectionDialog = null;
                                     }
                                 })
                                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                                     @Override
                                     public void onCancel(DialogInterface dialog) {
                                         mViewModel.setShowMarkSelectedBookCollectionDialog(false);
-
+                                    }
+                                })
+                                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                    @Override
+                                    public void onDismiss(DialogInterface dialogInterface) {
                                         mMarkSelectedBookCollectionDialog = null;
                                     }
                                 })
@@ -240,23 +245,23 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                                                 .enqueue(downloadWorkRequest);
 
                                         mViewModel.setShowDownloadSelectedBookCollectionDialog(false);
-
-                                        mDownloadSelectedBookCollectionDialog = null;
                                     }
                                 })
                                 .setNegativeButton(R.string.book_collection_browser_dialog_download_negative, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.setShowDownloadSelectedBookCollectionDialog(false);
-
-                                        mDownloadSelectedBookCollectionDialog = null;
                                     }
                                 })
                                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                                     @Override
                                     public void onCancel(DialogInterface dialog) {
                                         mViewModel.setShowDownloadSelectedBookCollectionDialog(false);
-
+                                    }
+                                })
+                                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                    @Override
+                                    public void onDismiss(DialogInterface dialogInterface) {
                                         mDownloadSelectedBookCollectionDialog = null;
                                     }
                                 })
@@ -283,14 +288,16 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
 
     @Override
     public void onDestroyView() {
+        if(mPopupMenu != null) {
+            mPopupMenu.dismiss();
+        }
+
         if(mMarkSelectedBookCollectionDialog != null) {
             mMarkSelectedBookCollectionDialog.dismiss();
-            mMarkSelectedBookCollectionDialog = null;
         }
 
         if(mDownloadSelectedBookCollectionDialog != null) {
             mDownloadSelectedBookCollectionDialog.dismiss();
-            mDownloadSelectedBookCollectionDialog = null;
         }
 
         super.onDestroyView();
@@ -495,10 +502,11 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         }
     }
 
-    private class BookCollectionViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener, MenuItem.OnMenuItemClickListener {
+    private class BookCollectionViewHolder extends RecyclerView.ViewHolder {
         private ImageView mBookCollectionImageView;
         private TextView mBookCollectionTextView;
         private TextView mBookCollectionBookCollectionMarkTextView;
+        private ImageView mBookCollectionMenuImageView;
 
         public BookCollectionViewHolder(View itemView) {
             super(itemView);
@@ -510,22 +518,51 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                         int i = getAdapterPosition();
                         BookCollectionDto bookCollectionDto = mViewModel.getBookCollectionList().get(i);
 
-                        String filterType;
-                        if(mViewModel.getFilterType().equals("ROOT")) {
-                            filterType = "ALL";
-                        } else {
-                            filterType = mViewModel.getFilterType();
-                        }
-
-                        BookBrowserFragment fragment = BookBrowserFragment.create(bookCollectionDto.getId(), filterType);
+                        BookBrowserFragment fragment = BookBrowserFragment.create(bookCollectionDto.getId(), "ALL");
                         ((MainActivity) getActivity()).pushFragment(fragment);
                     }
                 });
-                mBookCollectionImageView.setOnCreateContextMenuListener(this);
 
                 mBookCollectionTextView = (TextView) itemView.findViewById(R.id.bookCollectionTextView);
 
                 mBookCollectionBookCollectionMarkTextView = (TextView) itemView.findViewById(R.id.bookCollectionBookCollectionMarkTextView);
+
+                mBookCollectionMenuImageView = (ImageView) itemView.findViewById(R.id.bookCollectionMenuImageView);
+                mBookCollectionMenuImageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(mPopupMenu == null) {
+                            Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.MyPopupMenuTheme);
+                            mPopupMenu = new PopupMenu(contextThemeWrapper, mBookCollectionMenuImageView, Gravity.NO_GRAVITY, 0, R.style.MyPopupMenuOverflowTheme);
+                            mPopupMenu.getMenuInflater().inflate(R.menu.book_collection_browser_book_collection, mPopupMenu.getMenu());
+                            mPopupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                                public boolean onMenuItemClick(MenuItem menuItem) {
+                                    int i = getAdapterPosition();
+                                    BookCollectionDto selectedBookCollectionDto = mViewModel.getBookCollectionList().get(i);
+
+                                    mViewModel.setSelectedBookCollection(selectedBookCollectionDto);
+
+                                    switch (menuItem.getItemId()){
+                                        case R.id.menu_book_collection_browser_book_collection_mark:
+                                            mViewModel.setShowMarkSelectedBookCollectionDialog(true);
+                                            return true;
+                                        case R.id.menu_book_collection_browser_book_collection_download:
+                                            mViewModel.setShowDownloadSelectedBookCollectionDialog(true);
+                                            return true;
+                                    }
+                                    return false;
+                                }
+                            });
+                            mPopupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+                                @Override
+                                public void onDismiss(PopupMenu menu) {
+                                    mPopupMenu = null;
+                                }
+                            });
+                            mPopupMenu.show();
+                        }
+                    }
+                });
             }
 
             if(mViewModel.getFilterType().equals("ROOT")) {
@@ -557,6 +594,8 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                 Uri uri = mViewModel.getBookCollectionPageUri(bookCollectionDto, "DEFAULT", Constants.COVER_THUMBNAIL_HEIGHT, Constants.COVER_THUMBNAIL_WIDTH);
                 mViewModel.getPicasso().load(uri)
                         .tag(getActivity())
+                        .resize(Constants.COVER_THUMBNAIL_HEIGHT, Constants.COVER_THUMBNAIL_WIDTH)
+                        .centerCrop(Gravity.TOP)
                         .into(mBookCollectionImageView);
 
                 BookCollectionMarkDto bookCollectionMarkDto = bookCollectionDto.getBookCollectionMark();
@@ -570,33 +609,6 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                 mBookCollectionImageView.setVisibility(View.GONE);
                 mBookCollectionBookCollectionMarkTextView.setVisibility(View.GONE);
             }
-        }
-
-        @Override
-        public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
-            MenuItem menuItem = menu.add(Menu.NONE,R.id.menu_book_collection_browser_book_collection_mark,1,R.string.book_collection_browser_menu_book_collection_mark);
-            menuItem.setOnMenuItemClickListener(this);
-
-            menuItem = menu.add(Menu.NONE,R.id.menu_book_collection_browser_book_collection_download,2,R.string.book_collection_browser_menu_book_collection_download);
-            menuItem.setOnMenuItemClickListener(this);
-        }
-
-        @Override
-        public boolean onMenuItemClick(MenuItem menuItem) {
-            int i = getAdapterPosition();
-            BookCollectionDto selectedBookCollectionDto = mViewModel.getBookCollectionList().get(i);
-
-            mViewModel.setSelectedBookCollection(selectedBookCollectionDto);
-
-            switch (menuItem.getItemId()){
-                case R.id.menu_book_collection_browser_book_collection_mark:
-                    mViewModel.setShowMarkSelectedBookCollectionDialog(true);
-                    return true;
-                case R.id.menu_book_collection_browser_book_collection_download:
-                    mViewModel.setShowDownloadSelectedBookCollectionDialog(true);
-                    return true;
-            }
-            return false;
         }
     }
 }

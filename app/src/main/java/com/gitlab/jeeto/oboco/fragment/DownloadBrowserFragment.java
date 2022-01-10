@@ -151,23 +151,23 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.deleteSelectedBookCollection();
                                         mViewModel.setShowDeleteSelectedBookCollectionDialog(false);
-
-                                        mDeleteSelectedBookCollectionDialog = null;
                                     }
                                 })
                                 .setNegativeButton(R.string.download_browser_dialog_delete_negative, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.setShowDeleteSelectedBookCollectionDialog(false);
-
-                                        mDeleteSelectedBookCollectionDialog = null;
                                     }
                                 })
                                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                                     @Override
                                     public void onCancel(DialogInterface dialog) {
                                         mViewModel.setShowDeleteSelectedBookCollectionDialog(false);
-
+                                    }
+                                })
+                                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                    @Override
+                                    public void onDismiss(DialogInterface dialogInterface) {
                                         mDeleteSelectedBookCollectionDialog = null;
                                     }
                                 })
@@ -190,23 +190,23 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.deleteSelectedBook();
                                         mViewModel.setShowDeleteSelectedBookDialog(false);
-
-                                        mDeleteSelectedBookDialog = null;
                                     }
                                 })
                                 .setNegativeButton(R.string.download_browser_dialog_delete_negative, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mViewModel.setShowDeleteSelectedBookDialog(false);
-
-                                        mDeleteSelectedBookDialog = null;
                                     }
                                 })
                                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                                     @Override
                                     public void onCancel(DialogInterface dialog) {
                                         mViewModel.setShowDeleteSelectedBookDialog(false);
-
+                                    }
+                                })
+                                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                    @Override
+                                    public void onDismiss(DialogInterface dialogInterface) {
                                         mDeleteSelectedBookDialog = null;
                                     }
                                 })
@@ -240,12 +240,10 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
 
         if(mDeleteSelectedBookCollectionDialog != null) {
             mDeleteSelectedBookCollectionDialog.dismiss();
-            mDeleteSelectedBookCollectionDialog = null;
         }
 
         if(mDeleteSelectedBookDialog != null) {
             mDeleteSelectedBookDialog.dismiss();
-            mDeleteSelectedBookDialog = null;
         }
 
         super.onDestroyView();

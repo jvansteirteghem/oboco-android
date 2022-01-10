@@ -131,23 +131,23 @@ public class DownloadManagerBrowserFragment extends Fragment {
                                             .enqueue(downloadWorkRequest);
 
                                     mViewModel.setShowStartSelectedDownloadWorkDialog(false);
-
-                                    mStartDownloadWorkDialog = null;
                                 }
                             })
                             .setNegativeButton(R.string.download_manager_browser_dialog_download_negative, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     mViewModel.setShowStartSelectedDownloadWorkDialog(false);
-
-                                    mStartDownloadWorkDialog = null;
                                 }
                             })
                             .setOnCancelListener(new DialogInterface.OnCancelListener() {
                                 @Override
                                 public void onCancel(DialogInterface dialog) {
                                     mViewModel.setShowStartSelectedDownloadWorkDialog(false);
-
+                                }
+                            })
+                            .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                @Override
+                                public void onDismiss(DialogInterface dialogInterface) {
                                     mStartDownloadWorkDialog = null;
                                 }
                             })
@@ -169,23 +169,23 @@ public class DownloadManagerBrowserFragment extends Fragment {
                                     mWorkManager.cancelWorkById(mViewModel.getSelectedDownloadWork().getId());
 
                                     mViewModel.setShowStopSelectedDownloadWorkDialog(false);
-
-                                    mStopDownloadWorkDialog = null;
                                 }
                             })
                             .setNegativeButton(R.string.download_manager_browser_dialog_download_negative, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     mViewModel.setShowStopSelectedDownloadWorkDialog(false);
-
-                                    mStopDownloadWorkDialog = null;
                                 }
                             })
                             .setOnCancelListener(new DialogInterface.OnCancelListener() {
                                 @Override
                                 public void onCancel(DialogInterface dialog) {
                                     mViewModel.setShowStopSelectedDownloadWorkDialog(false);
-
+                                }
+                            })
+                            .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                @Override
+                                public void onDismiss(DialogInterface dialogInterface) {
                                     mStopDownloadWorkDialog = null;
                                 }
                             })
@@ -217,12 +217,10 @@ public class DownloadManagerBrowserFragment extends Fragment {
 
         if(mStartDownloadWorkDialog != null) {
             mStartDownloadWorkDialog.dismiss();
-            mStartDownloadWorkDialog = null;
         }
 
         if(mStopDownloadWorkDialog != null) {
             mStopDownloadWorkDialog.dismiss();
-            mStopDownloadWorkDialog = null;
         }
 
         super.onDestroyView();
