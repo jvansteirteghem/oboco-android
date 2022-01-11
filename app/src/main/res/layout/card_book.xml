@@ -13,11 +13,26 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:background="@color/lightest">
-        <com.gitlab.jeeto.oboco.view.BookImageView
-            android:id="@+id/bookImageView"
-            android:foreground="?android:attr/selectableItemBackground"
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
-            android:layout_height="0dp"/>
+            android:layout_height="wrap_content">
+            <com.gitlab.jeeto.oboco.view.BookImageView
+                android:id="@+id/bookImageView"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"/>
+            <TextView
+                android:id="@+id/bookBookMarkTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_margin="@dimen/card_padding"
+                android:padding="@dimen/card_padding"
+                android:singleLine="true"
+                android:textSize="@dimen/card_text"
+                android:background="@color/lightest"/>
+        </RelativeLayout>
         <TextView
             android:id="@+id/bookTextView"
             android:layout_width="match_parent"
@@ -30,17 +45,6 @@
             android:layout_marginBottom="@dimen/card_padding"
             android:layout_marginLeft="@dimen/card_padding"
             android:layout_marginRight="@dimen/card_padding">
-            <TextView
-                android:id="@+id/bookBookMarkTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentLeft="true"
-                android:paddingTop="@dimen/card_padding"
-                android:paddingBottom="@dimen/card_padding"
-                android:singleLine="true"
-                android:textSize="@dimen/card_text"
-                android:background="@color/lightest"/>
             <ImageView
                 android:id="@+id/bookMenuImageView"
                 android:layout_width="wrap_content"

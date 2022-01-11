@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -55,13 +54,13 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
     private View mNotEmptyView;
     private SwipeRefreshLayout mRefreshView;
     private Menu mMenu;
-    private PopupMenu mPopupMenu;
     private String mFilterType;
 
     private ActivityResultLauncher<Intent> mBookReaderActivityResultLauncher;
 
     private BookBrowserViewModel mViewModel;
 
+    private PopupMenu mSelectedBookMenu;
     private AlertDialog mMarkSelectedBookDialog;
     private AlertDialog mDownloadSelectedBookDialog;
 
@@ -104,8 +103,8 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
 
     @Override
     public void onDestroyView() {
-        if(mPopupMenu != null) {
-            mPopupMenu.dismiss();
+        if(mSelectedBookMenu != null) {
+            mSelectedBookMenu.dismiss();
         }
 
         if(mMarkSelectedBookDialog != null) {
@@ -527,11 +526,11 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
             mBookMenuImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(mPopupMenu == null) {
+                    if(mSelectedBookMenu == null) {
                         Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.MyPopupMenuTheme);
-                        mPopupMenu = new PopupMenu(contextThemeWrapper, mBookMenuImageView, Gravity.NO_GRAVITY, 0, R.style.MyPopupMenuOverflowTheme);
-                        mPopupMenu.getMenuInflater().inflate(R.menu.book_browser_book, mPopupMenu.getMenu());
-                        mPopupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        mSelectedBookMenu = new PopupMenu(contextThemeWrapper, mBookMenuImageView, Gravity.NO_GRAVITY, 0, R.style.MyPopupMenuOverflowTheme);
+                        mSelectedBookMenu.getMenuInflater().inflate(R.menu.book_browser_book, mSelectedBookMenu.getMenu());
+                        mSelectedBookMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                             public boolean onMenuItemClick(MenuItem menuItem) {
                                 int i = getAdapterPosition();
                                 BookDto selectedBookDto = getBookAtPosition(i);
@@ -549,13 +548,13 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                                 return false;
                             }
                         });
-                        mPopupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+                        mSelectedBookMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
                             @Override
                             public void onDismiss(PopupMenu menu) {
-                                mPopupMenu = null;
+                                mSelectedBookMenu = null;
                             }
                         });
-                        mPopupMenu.show();
+                        mSelectedBookMenu.show();
                     }
                 }
             });

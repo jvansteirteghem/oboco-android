@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_download_manager_browser_download_start"
+        android:title="@string/download_browser_menu_book_delete" />
+    <item android:id="@+id/menu_download_manager_browser_download_stop"
+        android:title="@string/download_browser_menu_book_collection_delete" />
+</menu>

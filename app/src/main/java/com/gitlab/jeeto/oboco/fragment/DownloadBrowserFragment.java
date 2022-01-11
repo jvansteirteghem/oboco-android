@@ -1,11 +1,15 @@
 package com.gitlab.jeeto.oboco.fragment;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -20,6 +24,8 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -46,6 +52,7 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
 
     private DownloadBrowserViewModel mViewModel;
 
+    private PopupMenu mSelectedMenu;
     private AlertDialog mDeleteSelectedBookCollectionDialog;
     private AlertDialog mDeleteSelectedBookDialog;
 
@@ -238,6 +245,10 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
         ViewGroup breadcrumb = (ViewGroup) toolbar.findViewById(R.id.browser_breadcrumb_layout);
         toolbar.removeView(breadcrumb);
 
+        if(mSelectedMenu != null) {
+            mSelectedMenu.dismiss();
+        }
+
         if(mDeleteSelectedBookCollectionDialog != null) {
             mDeleteSelectedBookCollectionDialog.dismiss();
         }
@@ -336,23 +347,55 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
                     textView.setText(bookDto.getName());
                 }
 
-                imageView.setImageResource(R.drawable.outline_remove_black_24);
+                imageView.setImageResource(R.drawable.ic_dots_vertical_black_24dp);
                 imageView.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                        Object object = mObjectList.get(position);
+                        if(mSelectedMenu == null) {
+                            Object object = mObjectList.get(position);
 
-                        if(object instanceof BookCollectionDto) {
-                            BookCollectionDto bookCollectionDto = (BookCollectionDto) object;
-
-                            if(!(position == 0 && mViewModel.getCurrentBookCollection().getParentBookCollection() != null)) {
-                                mViewModel.setSelectedBookCollection(bookCollectionDto);
-                                mViewModel.setShowDeleteSelectedBookCollectionDialog(true);
+                            Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.MyPopupMenuTheme);
+                            mSelectedMenu = new PopupMenu(contextThemeWrapper, imageView, Gravity.NO_GRAVITY, 0, R.style.MyPopupMenuOverflowTheme);
+                            if(object instanceof BookCollectionDto) {
+                                mSelectedMenu.getMenu().add(Menu.NONE, R.id.menu_download_browser_book_collection_delete, 1, R.string.download_browser_menu_book_collection_delete);
+                            } else {
+                                mSelectedMenu.getMenu().add(Menu.NONE, R.id.menu_download_browser_book_delete, 1, R.string.download_browser_menu_book_delete);
                             }
-                        } else {
-                            BookDto bookDto = (BookDto) object;
+                            mSelectedMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                                public boolean onMenuItemClick(MenuItem menuItem) {
+                                    if(object instanceof BookCollectionDto) {
+                                        BookCollectionDto bookCollectionDto = (BookCollectionDto) object;
 
-                            mViewModel.setSelectedBook(bookDto);
-                            mViewModel.setShowDeleteSelectedBookDialog(true);
+                                        if(!(position == 0 && mViewModel.getCurrentBookCollection().getParentBookCollection() != null)) {
+                                            mViewModel.setSelectedBookCollection(bookCollectionDto);
+
+                                            switch (menuItem.getItemId()){
+                                                case R.id.menu_download_browser_book_collection_delete:
+                                                    mViewModel.setShowDeleteSelectedBookCollectionDialog(true);
+                                                    return true;
+                                            }
+                                        }
+                                    } else {
+                                        BookDto bookDto = (BookDto) object;
+
+                                        mViewModel.setSelectedBook(bookDto);
+
+                                        switch (menuItem.getItemId()){
+                                            case R.id.menu_download_browser_book_delete:
+                                                mViewModel.setShowDeleteSelectedBookDialog(true);
+                                                return true;
+                                        }
+                                    }
+
+                                    return false;
+                                }
+                            });
+                            mSelectedMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+                                @Override
+                                public void onDismiss(PopupMenu menu) {
+                                    mSelectedMenu = null;
+                                }
+                            });
+                            mSelectedMenu.show();
                         }
                     }
                 });

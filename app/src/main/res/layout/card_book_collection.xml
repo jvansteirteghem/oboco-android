@@ -12,11 +12,26 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:background="@color/lightest">
-        <com.gitlab.jeeto.oboco.view.BookCollectionImageView
-            android:id="@+id/bookCollectionImageView"
-            android:foreground="?android:attr/selectableItemBackground"
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
-            android:layout_height="0dp"/>
+            android:layout_height="wrap_content">
+            <com.gitlab.jeeto.oboco.view.BookCollectionImageView
+                android:id="@+id/bookCollectionImageView"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"/>
+            <TextView
+                android:id="@+id/bookCollectionBookCollectionMarkTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_margin="@dimen/card_padding"
+                android:padding="@dimen/card_padding"
+                android:singleLine="true"
+                android:textSize="@dimen/card_text"
+                android:background="@color/lightest"/>
+        </RelativeLayout>
         <TextView
             android:id="@+id/bookCollectionTextView"
             android:layout_width="match_parent"
@@ -30,7 +45,7 @@
             android:layout_marginLeft="@dimen/card_padding"
             android:layout_marginRight="@dimen/card_padding">
             <TextView
-                android:id="@+id/bookCollectionBookCollectionMarkTextView"
+                android:id="@+id/bookCollectionNumberOfTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"

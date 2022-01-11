@@ -1,9 +1,13 @@
 package com.gitlab.jeeto.oboco.fragment;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -13,6 +17,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -23,6 +29,8 @@ import androidx.work.WorkQuery;
 import androidx.work.WorkRequest;
 
 import com.gitlab.jeeto.oboco.R;
+import com.gitlab.jeeto.oboco.client.BookCollectionDto;
+import com.gitlab.jeeto.oboco.client.BookDto;
 import com.gitlab.jeeto.oboco.common.BaseViewModelProviderFactory;
 import com.gitlab.jeeto.oboco.manager.DownloadBookCollectionWorker;
 import com.gitlab.jeeto.oboco.manager.DownloadBookWorker;
@@ -41,8 +49,9 @@ public class DownloadManagerBrowserFragment extends Fragment {
 
     private DownloadManagerBrowserViewModel mViewModel;
 
-    private AlertDialog mStartDownloadWorkDialog;
-    private AlertDialog mStopDownloadWorkDialog;
+    private PopupMenu mSelectedDownloadWorkMenu;
+    private AlertDialog mStartSelectedDownloadWorkDialog;
+    private AlertDialog mStopSelectedDownloadWorkDialog;
 
     private List<DownloadWork> mDownloadWorkList;
 
@@ -111,8 +120,8 @@ public class DownloadManagerBrowserFragment extends Fragment {
         mViewModel.getShowStartSelectedDownloadWorkDialogObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean showStartSelectedDownloadWorkDialog) {
-                if(mStartDownloadWorkDialog == null) {
-                    mStartDownloadWorkDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
+                if(mStartSelectedDownloadWorkDialog == null) {
+                    mStartSelectedDownloadWorkDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
                             .setTitle(R.string.download_manager_browser_dialog_download_start)
                             .setMessage(mViewModel.getSelectedDownloadWork().getDownloadName())
                             .setPositiveButton(R.string.download_manager_browser_dialog_download_positive, new DialogInterface.OnClickListener() {
@@ -148,19 +157,19 @@ public class DownloadManagerBrowserFragment extends Fragment {
                             .setOnDismissListener(new DialogInterface.OnDismissListener() {
                                 @Override
                                 public void onDismiss(DialogInterface dialogInterface) {
-                                    mStartDownloadWorkDialog = null;
+                                    mStartSelectedDownloadWorkDialog = null;
                                 }
                             })
                             .create();
-                    mStartDownloadWorkDialog.show();
+                    mStartSelectedDownloadWorkDialog.show();
                 }
             }
         });
         mViewModel.getShowStopSelectedDownloadWorkDialogObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean showStopSelectedDownloadWorkDialog) {
-                if(mStopDownloadWorkDialog == null) {
-                    mStopDownloadWorkDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
+                if(mStopSelectedDownloadWorkDialog == null) {
+                    mStopSelectedDownloadWorkDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
                             .setTitle(R.string.download_manager_browser_dialog_download_stop)
                             .setMessage(mViewModel.getSelectedDownloadWork().getDownloadName())
                             .setPositiveButton(R.string.download_manager_browser_dialog_download_positive, new DialogInterface.OnClickListener() {
@@ -186,11 +195,11 @@ public class DownloadManagerBrowserFragment extends Fragment {
                             .setOnDismissListener(new DialogInterface.OnDismissListener() {
                                 @Override
                                 public void onDismiss(DialogInterface dialogInterface) {
-                                    mStopDownloadWorkDialog = null;
+                                    mStopSelectedDownloadWorkDialog = null;
                                 }
                             })
                             .create();
-                    mStopDownloadWorkDialog.show();
+                    mStopSelectedDownloadWorkDialog.show();
                 }
             }
         });
@@ -215,12 +224,16 @@ public class DownloadManagerBrowserFragment extends Fragment {
         ViewGroup breadcrumb = (ViewGroup) toolbar.findViewById(R.id.browser_breadcrumb_layout);
         toolbar.removeView(breadcrumb);
 
-        if(mStartDownloadWorkDialog != null) {
-            mStartDownloadWorkDialog.dismiss();
+        if(mSelectedDownloadWorkMenu != null) {
+            mSelectedDownloadWorkMenu.dismiss();
         }
 
-        if(mStopDownloadWorkDialog != null) {
-            mStopDownloadWorkDialog.dismiss();
+        if(mStartSelectedDownloadWorkDialog != null) {
+            mStartSelectedDownloadWorkDialog.dismiss();
+        }
+
+        if(mStopSelectedDownloadWorkDialog != null) {
+            mStopSelectedDownloadWorkDialog.dismiss();
         }
 
         super.onDestroyView();
@@ -285,24 +298,44 @@ public class DownloadManagerBrowserFragment extends Fragment {
             if(downloadWork.getState().equals(WorkInfo.State.SUCCEEDED)) {
                 imageView.setImageResource(android.R.color.transparent);
                 imageView.setOnClickListener(null);
-            } else if(downloadWork.getState().equals(WorkInfo.State.FAILED) || downloadWork.getState().equals(WorkInfo.State.CANCELLED)) {
-                imageView.setImageResource(R.drawable.outline_add_black_24);
-                imageView.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        DownloadWork downloadWork = mDownloadWorkList.get(position);
-
-                        mViewModel.setSelectedDownloadWork(downloadWork);
-                        mViewModel.setShowStartSelectedDownloadWorkDialog(true);
-                    }
-                });
             } else {
-                imageView.setImageResource(R.drawable.outline_remove_black_24);
+                imageView.setImageResource(R.drawable.ic_dots_vertical_black_24dp);
                 imageView.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                        DownloadWork downloadWork = mDownloadWorkList.get(position);
+                        if(mSelectedDownloadWorkMenu == null) {
+                            DownloadWork downloadWork = mDownloadWorkList.get(position);
 
-                        mViewModel.setSelectedDownloadWork(downloadWork);
-                        mViewModel.setShowStopSelectedDownloadWorkDialog(true);
+                            Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.MyPopupMenuTheme);
+                            mSelectedDownloadWorkMenu = new PopupMenu(contextThemeWrapper, imageView, Gravity.NO_GRAVITY, 0, R.style.MyPopupMenuOverflowTheme);
+                            if(downloadWork.getState().equals(WorkInfo.State.FAILED) || downloadWork.getState().equals(WorkInfo.State.CANCELLED)) {
+                                mSelectedDownloadWorkMenu.getMenu().add(Menu.NONE, R.id.menu_download_manager_browser_download_start, 1, R.string.download_manager_browser_menu_download_start);
+                            } else {
+                                mSelectedDownloadWorkMenu.getMenu().add(Menu.NONE, R.id.menu_download_manager_browser_download_stop, 1, R.string.download_manager_browser_menu_download_stop);
+                            }
+                            mSelectedDownloadWorkMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                                public boolean onMenuItemClick(MenuItem menuItem) {
+                                    mViewModel.setSelectedDownloadWork(downloadWork);
+
+                                    switch (menuItem.getItemId()){
+                                        case R.id.menu_download_manager_browser_download_start:
+                                            mViewModel.setShowStartSelectedDownloadWorkDialog(true);
+                                            return true;
+                                        case R.id.menu_download_manager_browser_download_stop:
+                                            mViewModel.setShowStopSelectedDownloadWorkDialog(true);
+                                            return true;
+                                    }
+
+                                    return false;
+                                }
+                            });
+                            mSelectedDownloadWorkMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+                                @Override
+                                public void onDismiss(PopupMenu menu) {
+                                    mSelectedDownloadWorkMenu = null;
+                                }
+                            });
+                            mSelectedDownloadWorkMenu.show();
+                        }
                     }
                 });
             }

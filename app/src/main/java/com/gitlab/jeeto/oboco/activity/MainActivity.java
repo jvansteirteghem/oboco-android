@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                 } else {
                     navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser).setVisible(true);
 
-                    setFragment(BookCollectionBrowserFragment.create(-1L, "LATEST_READ"));
+                    setFragment(BookCollectionBrowserFragment.create(-1L, "ROOT"));
 
                     mCurrentNavItem = R.id.drawer_menu_book_collection_browser;
                 }

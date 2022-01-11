@@ -6,7 +6,6 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.TypedValue;
-import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -36,7 +35,6 @@ import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.MainActivity;
 import com.gitlab.jeeto.oboco.client.BookCollectionDto;
 import com.gitlab.jeeto.oboco.client.BookCollectionMarkDto;
-import com.gitlab.jeeto.oboco.client.BookDto;
 import com.gitlab.jeeto.oboco.common.BaseViewModelProviderFactory;
 import com.gitlab.jeeto.oboco.common.Utils;
 import com.gitlab.jeeto.oboco.manager.DownloadBookCollectionWorker;
@@ -54,12 +52,12 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
     private View mNotEmptyView;
     private SwipeRefreshLayout mRefreshView;
     private Menu mMenu;
-    private PopupMenu mPopupMenu;
     private SearchView mSearchView;
     private String mFilterType;
 
     private BookCollectionBrowserViewModel mViewModel;
 
+    private PopupMenu mSelectedBookCollectionMenu;
     private AlertDialog mMarkSelectedBookCollectionDialog;
     private AlertDialog mDownloadSelectedBookCollectionDialog;
 
@@ -288,8 +286,8 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
 
     @Override
     public void onDestroyView() {
-        if(mPopupMenu != null) {
-            mPopupMenu.dismiss();
+        if(mSelectedBookCollectionMenu != null) {
+            mSelectedBookCollectionMenu.dismiss();
         }
 
         if(mMarkSelectedBookCollectionDialog != null) {
@@ -506,6 +504,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         private ImageView mBookCollectionImageView;
         private TextView mBookCollectionTextView;
         private TextView mBookCollectionBookCollectionMarkTextView;
+        private TextView mBookCollectionNumberOfTextView;
         private ImageView mBookCollectionMenuImageView;
 
         public BookCollectionViewHolder(View itemView) {
@@ -527,15 +526,17 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
 
                 mBookCollectionBookCollectionMarkTextView = (TextView) itemView.findViewById(R.id.bookCollectionBookCollectionMarkTextView);
 
+                mBookCollectionNumberOfTextView = (TextView) itemView.findViewById(R.id.bookCollectionNumberOfTextView);
+
                 mBookCollectionMenuImageView = (ImageView) itemView.findViewById(R.id.bookCollectionMenuImageView);
                 mBookCollectionMenuImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if(mPopupMenu == null) {
+                        if(mSelectedBookCollectionMenu == null) {
                             Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.MyPopupMenuTheme);
-                            mPopupMenu = new PopupMenu(contextThemeWrapper, mBookCollectionMenuImageView, Gravity.NO_GRAVITY, 0, R.style.MyPopupMenuOverflowTheme);
-                            mPopupMenu.getMenuInflater().inflate(R.menu.book_collection_browser_book_collection, mPopupMenu.getMenu());
-                            mPopupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                            mSelectedBookCollectionMenu = new PopupMenu(contextThemeWrapper, mBookCollectionMenuImageView, Gravity.NO_GRAVITY, 0, R.style.MyPopupMenuOverflowTheme);
+                            mSelectedBookCollectionMenu.getMenuInflater().inflate(R.menu.book_collection_browser_book_collection, mSelectedBookCollectionMenu.getMenu());
+                            mSelectedBookCollectionMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                                 public boolean onMenuItemClick(MenuItem menuItem) {
                                     int i = getAdapterPosition();
                                     BookCollectionDto selectedBookCollectionDto = mViewModel.getBookCollectionList().get(i);
@@ -553,13 +554,13 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                                     return false;
                                 }
                             });
-                            mPopupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+                            mSelectedBookCollectionMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
                                 @Override
                                 public void onDismiss(PopupMenu menu) {
-                                    mPopupMenu = null;
+                                    mSelectedBookCollectionMenu = null;
                                 }
                             });
-                            mPopupMenu.show();
+                            mSelectedBookCollectionMenu.show();
                         }
                     }
                 });
@@ -585,6 +586,22 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
 
         public void setupBookCollection(BookCollectionDto bookCollectionDto) {
             mBookCollectionTextView.setText(bookCollectionDto.getName());
+
+            String numberOfText = "";
+            Integer numberOfBooks = bookCollectionDto.getNumberOfBooks();
+            if(numberOfBooks != 0) {
+                numberOfText = numberOfText + getResources().getQuantityString(R.plurals.book_collection_browser_number_of_books, numberOfBooks, numberOfBooks);
+            }
+            Integer numberOfBookCollections = bookCollectionDto.getNumberOfBookCollections();
+            if(numberOfBookCollections != 0) {
+                if(numberOfText.equals("") == false) {
+                    numberOfText = numberOfText + " - ";
+                }
+
+                numberOfText = numberOfText + getResources().getQuantityString(R.plurals.book_collection_browser_number_of_book_collections, numberOfBookCollections, numberOfBookCollections);
+            }
+
+            mBookCollectionNumberOfTextView.setText(numberOfText);
 
             if(bookCollectionDto.getNumberOfBooks() != 0) {
                 mBookCollectionImageView.setVisibility(View.VISIBLE);

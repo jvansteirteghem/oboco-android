@@ -82,11 +82,21 @@
     <string name="book_collection_browser_dialog_download_positive">Yes</string>
     <string name="book_collection_browser_dialog_download_negative">No</string>
     <string name="book_collection_browser_empty">No book collections.</string>
+    <plurals name="book_collection_browser_number_of_books">
+        <item quantity="one">%d book</item>
+        <item quantity="other">%d books</item>
+    </plurals>
+    <plurals name="book_collection_browser_number_of_book_collections">
+        <item quantity="one">%d book collection</item>
+        <item quantity="other">%d book collections</item>
+    </plurals>
 
     <string name="download_browser_dialog_delete_book_collection">Delete books?</string>
     <string name="download_browser_dialog_delete_book">Delete book?</string>
     <string name="download_browser_dialog_delete_positive">Yes</string>
     <string name="download_browser_dialog_delete_negative">No</string>
+    <string name="download_browser_menu_book_delete">Delete</string>
+    <string name="download_browser_menu_book_collection_delete">Delete</string>
 
     <plurals name="download_manager_browser_number_of_downloads">
         <item quantity="one">%d download</item>
@@ -96,6 +106,8 @@
     <string name="download_manager_browser_dialog_download_stop">Stop download?</string>
     <string name="download_manager_browser_dialog_download_positive">Yes</string>
     <string name="download_manager_browser_dialog_download_negative">No</string>
+    <string name="download_manager_browser_menu_download_start">Start</string>
+    <string name="download_manager_browser_menu_download_stop">Stop</string>
 
     <string name="download_book_collection_worker_download">Download books</string>
     <string name="download_book_collection_worker_download_stop">Stop</string>
