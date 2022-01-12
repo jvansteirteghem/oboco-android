@@ -52,7 +52,6 @@
                 android:layout_alignParentLeft="true"
                 android:paddingTop="@dimen/card_padding"
                 android:paddingBottom="@dimen/card_padding"
-                android:singleLine="true"
                 android:textSize="@dimen/card_text"/>
             <ImageView
                 android:id="@+id/bookCollectionMenuImageView"

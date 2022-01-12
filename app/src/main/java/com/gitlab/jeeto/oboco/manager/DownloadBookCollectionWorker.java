@@ -225,7 +225,7 @@ public class DownloadBookCollectionWorker extends Worker {
                 .setSilent(true)
                 // Add the cancel action to the notification which can
                 // be used to cancel the worker
-                .addAction(R.drawable.outline_remove_black_24, actionTitle, intent);
+                .addAction(R.drawable.notification_action_background, actionTitle, intent);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannel(notificationBuilder, CHANNEL_ID);

@@ -587,19 +587,15 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         public void setupBookCollection(BookCollectionDto bookCollectionDto) {
             mBookCollectionTextView.setText(bookCollectionDto.getName());
 
-            String numberOfText = "";
+            String numberOfText;
+            if(mViewModel.getFilterType().equals("ROOT")) {
+                Integer numberOfBookCollections = bookCollectionDto.getNumberOfBookCollections();
+                numberOfText = getResources().getQuantityString(R.plurals.book_collection_browser_number_of_book_collections, numberOfBookCollections, numberOfBookCollections) + "\n";
+            } else {
+                numberOfText = "";
+            }
             Integer numberOfBooks = bookCollectionDto.getNumberOfBooks();
-            if(numberOfBooks != 0) {
-                numberOfText = numberOfText + getResources().getQuantityString(R.plurals.book_collection_browser_number_of_books, numberOfBooks, numberOfBooks);
-            }
-            Integer numberOfBookCollections = bookCollectionDto.getNumberOfBookCollections();
-            if(numberOfBookCollections != 0) {
-                if(numberOfText.equals("") == false) {
-                    numberOfText = numberOfText + " - ";
-                }
-
-                numberOfText = numberOfText + getResources().getQuantityString(R.plurals.book_collection_browser_number_of_book_collections, numberOfBookCollections, numberOfBookCollections);
-            }
+            numberOfText = numberOfText + getResources().getQuantityString(R.plurals.book_collection_browser_number_of_books, numberOfBooks, numberOfBooks);
 
             mBookCollectionNumberOfTextView.setText(numberOfText);
 

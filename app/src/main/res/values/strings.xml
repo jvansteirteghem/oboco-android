@@ -83,12 +83,10 @@
     <string name="book_collection_browser_dialog_download_negative">No</string>
     <string name="book_collection_browser_empty">No book collections.</string>
     <plurals name="book_collection_browser_number_of_books">
-        <item quantity="one">%d book</item>
-        <item quantity="other">%d books</item>
+        <item quantity="other">Books: %d</item>
     </plurals>
     <plurals name="book_collection_browser_number_of_book_collections">
-        <item quantity="one">%d book collection</item>
-        <item quantity="other">%d book collections</item>
+        <item quantity="other">Book collections: %d</item>
     </plurals>
 
     <string name="download_browser_dialog_delete_book_collection">Delete books?</string>
