@@ -24,8 +24,8 @@ android {
         minSdkVersion 23
         targetSdkVersion 30
 
-        versionName "1.8.3-SNAPSHOT"
-        versionCode 10803
+        versionName "1.9.0"
+        versionCode 10900
     }
 
     buildTypes {
