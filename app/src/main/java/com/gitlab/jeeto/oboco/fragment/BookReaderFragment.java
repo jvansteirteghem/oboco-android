@@ -30,6 +30,9 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
@@ -128,6 +131,23 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
         WindowCompat.setDecorFitsSystemWindows(window, true);
         WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(window, window.getDecorView());
         controller.show(WindowInsetsCompat.Type.systemBars());
+    }
+
+    private void registerSystemBarsListener(View view) {
+        ViewCompat.setOnApplyWindowInsetsListener(view, new OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(View view, WindowInsetsCompat windowInsets) {
+                Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+
+                View barsView = getActivity().findViewById(R.id.bars);
+                ViewGroup.MarginLayoutParams barsMarginLayoutParams = (ViewGroup.MarginLayoutParams) barsView.getLayoutParams();
+                barsMarginLayoutParams.topMargin = insets.top;
+                barsMarginLayoutParams.bottomMargin = insets.bottom;
+                barsView.setLayoutParams(barsMarginLayoutParams);
+
+                return WindowInsetsCompat.CONSUMED;
+            }
+        });
     }
 
     @Override
@@ -326,6 +346,8 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                 }
             }
         });
+
+        registerSystemBarsListener(view);
 
         return view;
     }

@@ -503,7 +503,8 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
     private class BookViewHolder extends RecyclerView.ViewHolder {
         private ImageView mBookImageView;
         private TextView mBookTextView;
-        private TextView mBookBookMarkTextView;
+        private TextView mBookProgressTextView;
+        private TextView mBookMarkTextView;
         private ImageView mBookMenuImageView;
 
         public BookViewHolder(View itemView) {
@@ -520,7 +521,9 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
 
             mBookTextView = (TextView) itemView.findViewById(R.id.bookTextView);
 
-            mBookBookMarkTextView = (TextView) itemView.findViewById(R.id.bookBookMarkTextView);
+            mBookProgressTextView = (TextView) itemView.findViewById(R.id.bookProgressTextView);
+
+            mBookMarkTextView = (TextView) itemView.findViewById(R.id.bookMarkTextView);
 
             mBookMenuImageView = (ImageView) itemView.findViewById(R.id.bookMenuImageView);
             mBookMenuImageView.setOnClickListener(new View.OnClickListener() {
@@ -563,13 +566,21 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         public void setupBook(BookDto bookDto) {
             mBookTextView.setText(bookDto.getName());
 
+            Integer page;
+
             BookMarkDto bookMarkDto = bookDto.getBookMark();
             if(bookMarkDto == null) {
-                mBookBookMarkTextView.setVisibility(View.GONE);
+                page = 0;
+
+                mBookProgressTextView.setVisibility(View.GONE);
             } else {
-                mBookBookMarkTextView.setVisibility(View.VISIBLE);
-                mBookBookMarkTextView.setText(bookMarkDto.getProgress() + "%");
+                page = bookMarkDto.getPage();
+
+                mBookProgressTextView.setVisibility(View.VISIBLE);
+                mBookProgressTextView.setText(bookMarkDto.getProgress().toString() + "%");
             }
+
+            mBookMarkTextView.setText(page.toString() + "/" + bookDto.getNumberOfPages().toString());
 
             mBookImageView.setImageResource(android.R.color.transparent);
 

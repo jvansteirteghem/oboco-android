@@ -503,7 +503,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
     private class BookCollectionViewHolder extends RecyclerView.ViewHolder {
         private ImageView mBookCollectionImageView;
         private TextView mBookCollectionTextView;
-        private TextView mBookCollectionBookCollectionMarkTextView;
+        private TextView mBookCollectionProgressTextView;
         private TextView mBookCollectionNumberOfTextView;
         private ImageView mBookCollectionMenuImageView;
 
@@ -524,7 +524,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
 
                 mBookCollectionTextView = (TextView) itemView.findViewById(R.id.bookCollectionTextView);
 
-                mBookCollectionBookCollectionMarkTextView = (TextView) itemView.findViewById(R.id.bookCollectionBookCollectionMarkTextView);
+                mBookCollectionProgressTextView = (TextView) itemView.findViewById(R.id.bookCollectionProgressTextView);
 
                 mBookCollectionNumberOfTextView = (TextView) itemView.findViewById(R.id.bookCollectionNumberOfTextView);
 
@@ -587,17 +587,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         public void setupBookCollection(BookCollectionDto bookCollectionDto) {
             mBookCollectionTextView.setText(bookCollectionDto.getName());
 
-            String numberOfText;
-            if(mViewModel.getFilterType().equals("ROOT")) {
-                Integer numberOfBookCollections = bookCollectionDto.getNumberOfBookCollections();
-                numberOfText = getResources().getQuantityString(R.plurals.book_collection_browser_number_of_book_collections, numberOfBookCollections, numberOfBookCollections) + "\n";
-            } else {
-                numberOfText = "";
-            }
-            Integer numberOfBooks = bookCollectionDto.getNumberOfBooks();
-            numberOfText = numberOfText + getResources().getQuantityString(R.plurals.book_collection_browser_number_of_books, numberOfBooks, numberOfBooks);
-
-            mBookCollectionNumberOfTextView.setText(numberOfText);
+            mBookCollectionNumberOfTextView.setText(bookCollectionDto.getNumberOfBooks().toString() + " (+ " + bookCollectionDto.getNumberOfBookCollections().toString() + ")");
 
             if(bookCollectionDto.getNumberOfBooks() != 0) {
                 mBookCollectionImageView.setVisibility(View.VISIBLE);
@@ -613,14 +603,14 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
 
                 BookCollectionMarkDto bookCollectionMarkDto = bookCollectionDto.getBookCollectionMark();
                 if(bookCollectionMarkDto == null) {
-                    mBookCollectionBookCollectionMarkTextView.setVisibility(View.GONE);
+                    mBookCollectionProgressTextView.setVisibility(View.GONE);
                 } else {
-                    mBookCollectionBookCollectionMarkTextView.setVisibility(View.VISIBLE);
-                    mBookCollectionBookCollectionMarkTextView.setText(bookCollectionMarkDto.getProgress() + "%");
+                    mBookCollectionProgressTextView.setVisibility(View.VISIBLE);
+                    mBookCollectionProgressTextView.setText(bookCollectionMarkDto.getProgress().toString() + "%");
                 }
             } else {
                 mBookCollectionImageView.setVisibility(View.GONE);
-                mBookCollectionBookCollectionMarkTextView.setVisibility(View.GONE);
+                mBookCollectionProgressTextView.setVisibility(View.GONE);
             }
         }
     }

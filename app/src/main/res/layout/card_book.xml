@@ -22,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"/>
             <TextView
-                android:id="@+id/bookBookMarkTextView"
+                android:id="@+id/bookProgressTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
@@ -45,6 +45,16 @@
             android:layout_marginBottom="@dimen/card_padding"
             android:layout_marginLeft="@dimen/card_padding"
             android:layout_marginRight="@dimen/card_padding">
+            <TextView
+                android:id="@+id/bookMarkTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:paddingTop="@dimen/card_padding"
+                android:paddingBottom="@dimen/card_padding"
+                android:singleLine="true"
+                android:textSize="@dimen/card_text"/>
             <ImageView
                 android:id="@+id/bookMenuImageView"
                 android:layout_width="wrap_content"
