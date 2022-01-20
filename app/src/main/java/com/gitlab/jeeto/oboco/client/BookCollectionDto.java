@@ -27,6 +27,8 @@ public class BookCollectionDto implements Serializable {
     @Expose()
     private Integer numberOfBooks;
     @Expose()
+    private Integer numberOfBookPages;
+    @Expose()
     private BookCollectionMarkDto bookCollectionMark;
     @Expose(serialize = false, deserialize = false)
     private String path;
@@ -86,6 +88,12 @@ public class BookCollectionDto implements Serializable {
     }
     public void setNumberOfBooks(Integer numberOfBooks) {
         this.numberOfBooks = numberOfBooks;
+    }
+    public Integer getNumberOfBookPages() {
+        return numberOfBookPages;
+    }
+    public void setNumberOfBookPages(Integer numberOfBookPages) {
+        this.numberOfBookPages = numberOfBookPages;
     }
     public BookCollectionMarkDto getBookCollectionMark() {
         return bookCollectionMark;

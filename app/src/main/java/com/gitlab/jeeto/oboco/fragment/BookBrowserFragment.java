@@ -504,7 +504,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         private ImageView mBookImageView;
         private TextView mBookTextView;
         private TextView mBookProgressTextView;
-        private TextView mBookMarkTextView;
+        private TextView mBookMenuTextView;
         private ImageView mBookMenuImageView;
 
         public BookViewHolder(View itemView) {
@@ -523,7 +523,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
 
             mBookProgressTextView = (TextView) itemView.findViewById(R.id.bookProgressTextView);
 
-            mBookMarkTextView = (TextView) itemView.findViewById(R.id.bookMarkTextView);
+            mBookMenuTextView = (TextView) itemView.findViewById(R.id.bookMenuTextView);
 
             mBookMenuImageView = (ImageView) itemView.findViewById(R.id.bookMenuImageView);
             mBookMenuImageView.setOnClickListener(new View.OnClickListener() {
@@ -566,21 +566,19 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         public void setupBook(BookDto bookDto) {
             mBookTextView.setText(bookDto.getName());
 
-            Integer page;
+            Integer page = 0;
 
             BookMarkDto bookMarkDto = bookDto.getBookMark();
             if(bookMarkDto == null) {
-                page = 0;
-
                 mBookProgressTextView.setVisibility(View.GONE);
             } else {
-                page = bookMarkDto.getPage();
-
                 mBookProgressTextView.setVisibility(View.VISIBLE);
                 mBookProgressTextView.setText(bookMarkDto.getProgress().toString() + "%");
+
+                page = bookMarkDto.getPage();
             }
 
-            mBookMarkTextView.setText(page.toString() + "/" + bookDto.getNumberOfPages().toString());
+            mBookMenuTextView.setText(page.toString() + "/" + bookDto.getNumberOfPages().toString());
 
             mBookImageView.setImageResource(android.R.color.transparent);
 

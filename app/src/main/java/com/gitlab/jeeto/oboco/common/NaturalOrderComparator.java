@@ -1,5 +1,6 @@
 package com.gitlab.jeeto.oboco.common;
 
+import java.text.Normalizer;
 import java.util.Comparator;
 
 /**
@@ -88,8 +89,9 @@ public class NaturalOrderComparator<T> implements Comparator<T> {
 
     @Override
     public int compare(final T o1, final T o2) {
-        String str1 = toString(o1);
-        String str2 = toString(o2);
+        // https://docs.oracle.com/javase/tutorial/i18n/text/normalizerapi.html
+        String str1 = Normalizer.normalize(toString(o1), Normalizer.Form.NFD);
+        String str2 = Normalizer.normalize(toString(o2), Normalizer.Form.NFD);
 
         int ndx1 = 0, ndx2 = 0;
         char char1, char2;

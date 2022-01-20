@@ -504,7 +504,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         private ImageView mBookCollectionImageView;
         private TextView mBookCollectionTextView;
         private TextView mBookCollectionProgressTextView;
-        private TextView mBookCollectionNumberOfTextView;
+        private TextView mBookCollectionMenuTextView;
         private ImageView mBookCollectionMenuImageView;
 
         public BookCollectionViewHolder(View itemView) {
@@ -526,7 +526,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
 
                 mBookCollectionProgressTextView = (TextView) itemView.findViewById(R.id.bookCollectionProgressTextView);
 
-                mBookCollectionNumberOfTextView = (TextView) itemView.findViewById(R.id.bookCollectionNumberOfTextView);
+                mBookCollectionMenuTextView = (TextView) itemView.findViewById(R.id.bookCollectionMenuTextView);
 
                 mBookCollectionMenuImageView = (ImageView) itemView.findViewById(R.id.bookCollectionMenuImageView);
                 mBookCollectionMenuImageView.setOnClickListener(new View.OnClickListener() {
@@ -587,7 +587,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         public void setupBookCollection(BookCollectionDto bookCollectionDto) {
             mBookCollectionTextView.setText(bookCollectionDto.getName());
 
-            mBookCollectionNumberOfTextView.setText(bookCollectionDto.getNumberOfBooks().toString() + " (+ " + bookCollectionDto.getNumberOfBookCollections().toString() + ")");
+            Integer bookPage = 0;
 
             if(bookCollectionDto.getNumberOfBooks() != 0) {
                 mBookCollectionImageView.setVisibility(View.VISIBLE);
@@ -607,11 +607,15 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                 } else {
                     mBookCollectionProgressTextView.setVisibility(View.VISIBLE);
                     mBookCollectionProgressTextView.setText(bookCollectionMarkDto.getProgress().toString() + "%");
+
+                    bookPage = bookCollectionMarkDto.getBookPage();
                 }
             } else {
                 mBookCollectionImageView.setVisibility(View.GONE);
                 mBookCollectionProgressTextView.setVisibility(View.GONE);
             }
+
+            mBookCollectionMenuTextView.setText(bookPage.toString() + "/" + bookCollectionDto.getNumberOfBookPages().toString() + " - " + bookCollectionDto.getNumberOfBooks().toString() + " - " + bookCollectionDto.getNumberOfBookCollections().toString());
         }
     }
 }
