@@ -501,14 +501,16 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
     }
 
     private class BookViewHolder extends RecyclerView.ViewHolder {
+        private TextView mBookMarkTextView;
         private ImageView mBookImageView;
-        private TextView mBookTextView;
-        private TextView mBookProgressTextView;
-        private TextView mBookMenuTextView;
+        private TextView mBookNameTextView;
+        private TextView mBookNumberOfTextView;
         private ImageView mBookMenuImageView;
 
         public BookViewHolder(View itemView) {
             super(itemView);
+            mBookMarkTextView = (TextView) itemView.findViewById(R.id.bookMarkTextView);
+
             mBookImageView = (ImageView) itemView.findViewById(R.id.bookImageView);
             mBookImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -519,11 +521,9 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                 }
             });
 
-            mBookTextView = (TextView) itemView.findViewById(R.id.bookTextView);
+            mBookNameTextView = (TextView) itemView.findViewById(R.id.bookNameTextView);
 
-            mBookProgressTextView = (TextView) itemView.findViewById(R.id.bookProgressTextView);
-
-            mBookMenuTextView = (TextView) itemView.findViewById(R.id.bookMenuTextView);
+            mBookNumberOfTextView = (TextView) itemView.findViewById(R.id.bookNumberOfTextView);
 
             mBookMenuImageView = (ImageView) itemView.findViewById(R.id.bookMenuImageView);
             mBookMenuImageView.setOnClickListener(new View.OnClickListener() {
@@ -564,21 +564,17 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         }
 
         public void setupBook(BookDto bookDto) {
-            mBookTextView.setText(bookDto.getName());
+            mBookNameTextView.setText(bookDto.getName());
 
-            Integer page = 0;
+            mBookNumberOfTextView.setText(bookDto.getNumberOfPages().toString());
 
             BookMarkDto bookMarkDto = bookDto.getBookMark();
             if(bookMarkDto == null) {
-                mBookProgressTextView.setVisibility(View.GONE);
+                mBookMarkTextView.setVisibility(View.GONE);
             } else {
-                mBookProgressTextView.setVisibility(View.VISIBLE);
-                mBookProgressTextView.setText(bookMarkDto.getProgress().toString() + "%");
-
-                page = bookMarkDto.getPage();
+                mBookMarkTextView.setVisibility(View.VISIBLE);
+                mBookMarkTextView.setText(bookMarkDto.getProgress().toString() + "%");
             }
-
-            mBookMenuTextView.setText(page.toString() + "/" + bookDto.getNumberOfPages().toString());
 
             mBookImageView.setImageResource(android.R.color.transparent);
 
