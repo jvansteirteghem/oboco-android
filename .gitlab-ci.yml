@@ -133,6 +133,7 @@ assembleRelease:
     - mkdir release
     - mv app/build/outputs/apk/release/app-release.apk release/oboco-android-${releaseVersionName}.apk
   artifacts:
+    expire_in: never
     paths:
       - release/
     reports:
