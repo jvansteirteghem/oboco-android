@@ -24,6 +24,9 @@ public abstract class BookCollectionBrowserViewModel extends BaseViewModel {
     protected MutableLiveData<Integer> mBookCollectionListSizeObservable;
     protected MutableLiveData<String> mSearchTypeObservable;
     protected MutableLiveData<String> mSearchObservable;
+    protected MutableLiveData<String> mSearchDialogSearchTypeObservable;
+    protected MutableLiveData<String> mSearchDialogSearchObservable;
+    protected MutableLiveData<Boolean> mShowSearchDialogObservable;
     protected MutableLiveData<String> mFilterTypeObservable;
     protected MutableLiveData<Boolean> mIsLoadingObservable;
     protected MutableLiveData<String> mMessageObservable;
@@ -42,6 +45,9 @@ public abstract class BookCollectionBrowserViewModel extends BaseViewModel {
         mBookCollectionListSizeObservable= new MutableLiveData<Integer>();
         mSearchTypeObservable = new MutableLiveData<String>();
         mSearchObservable = new MutableLiveData<String>();
+        mSearchDialogSearchTypeObservable = new MutableLiveData<String>();
+        mSearchDialogSearchObservable = new MutableLiveData<String>();
+        mShowSearchDialogObservable = new MutableLiveData<Boolean>();
         mFilterTypeObservable = new MutableLiveData<String>();
         mIsLoadingObservable = new MutableLiveData<Boolean>();
         mMessageObservable = new MutableLiveData<String>();
@@ -98,6 +104,33 @@ public abstract class BookCollectionBrowserViewModel extends BaseViewModel {
     }
     public void setSearch(String search) {
         mSearchObservable.setValue(search);
+    }
+    public String getSearchDialogSearchType() {
+        return mSearchDialogSearchTypeObservable.getValue();
+    }
+    public LiveData<String> getSearchDialogSearchTypeObservable() {
+        return mSearchDialogSearchTypeObservable;
+    }
+    public void setSearchDialogSearchType(String searchDialogSearchType) {
+        mSearchDialogSearchTypeObservable.setValue(searchDialogSearchType);
+    }
+    public String getSearchDialogSearch() {
+        return mSearchDialogSearchObservable.getValue();
+    }
+    public LiveData<String> getSearchDialogSearchObservable() {
+        return mSearchDialogSearchObservable;
+    }
+    public void setSearchDialogSearch(String searchDialogSearch) {
+        mSearchDialogSearchObservable.setValue(searchDialogSearch);
+    }
+    public Boolean getShowSearchDialog() {
+        return mShowSearchDialogObservable.getValue();
+    }
+    public LiveData<Boolean> getShowSearchDialogObservable() {
+        return mShowSearchDialogObservable;
+    }
+    public void setShowSearchDialog(Boolean showSearchDialog) {
+        mShowSearchDialogObservable.setValue(showSearchDialog);
     }
     public String getFilterType() {
         return mFilterTypeObservable.getValue();

@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -13,14 +15,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.PopupMenu;
-import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -52,7 +56,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
     private View mNotEmptyView;
     private SwipeRefreshLayout mRefreshView;
     private Menu mMenu;
-    private SearchView mSearchView;
+    private AlertDialog mSearchDialog;
     private String mFilterType;
 
     private BookCollectionBrowserViewModel mViewModel;
@@ -70,7 +74,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         BookCollectionBrowserFragment fragment = new BookCollectionBrowserFragment();
         Bundle args = new Bundle();
         args.putLong(BookCollectionBrowserViewModel.PARAM_BOOK_COLLECTION_ID, bookCollectionId);
-        args.putString(BookBrowserViewModel.PARAM_FILTER_TYPE, filterType);
+        args.putString(BookCollectionBrowserViewModel.PARAM_FILTER_TYPE, filterType);
         fragment.setArguments(args);
         return fragment;
     }
@@ -91,6 +95,14 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         } else {
             mViewModel.loadBookCollectionList();
         }
+    }
+
+    private static int getDimensionFromAttribute(Context context, int attributeId) {
+        final TypedValue value = new TypedValue();
+        if(context.getTheme().resolveAttribute(attributeId, value, true)) {
+            return TypedValue.complexToDimensionPixelSize(value.data, context.getResources().getDisplayMetrics());
+        }
+        return 0;
     }
 
     @Override
@@ -162,6 +174,94 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                 }
 
                 mBookCollectionListView.getAdapter().notifyDataSetChanged();
+            }
+        });
+        mViewModel.getShowSearchDialogObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean showSearchDialog) {
+                if(showSearchDialog) {
+                    if(mSearchDialog == null) {
+                        int searchDialogPadding = getDimensionFromAttribute(getActivity(), R.attr.dialogPreferredPadding);
+
+                        LinearLayout searchDialogLinearLayout = new LinearLayout(getActivity());
+                        searchDialogLinearLayout.setOrientation(LinearLayout.VERTICAL);
+                        searchDialogLinearLayout.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        searchDialogLinearLayout.setPadding(searchDialogPadding, 0, searchDialogPadding, 0);
+
+                        EditText searchDialogSearchEditText = new EditText(getActivity());
+                        searchDialogSearchEditText.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        searchDialogSearchEditText.setSingleLine(true);
+                        searchDialogSearchEditText.setText(mViewModel.getSearchDialogSearch());
+                        searchDialogSearchEditText.addTextChangedListener(new TextWatcher() {
+                            @Override
+                            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                                // do nothing
+                            }
+
+                            @Override
+                            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                                // do nothing
+                            }
+
+                            @Override
+                            public void afterTextChanged(Editable editable) {
+                                mViewModel.setSearchDialogSearch(editable.toString());
+                            }
+                        });
+
+                        searchDialogLinearLayout.addView(searchDialogSearchEditText);
+
+                        mSearchDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
+                                .setTitle(R.string.book_collection_browser_dialog_search)
+                                .setView(searchDialogLinearLayout)
+                                .setPositiveButton(R.string.book_collection_browser_dialog_search_positive, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        mViewModel.setSearchType(mViewModel.getSearchDialogSearchType());
+                                        mViewModel.setSearch(mViewModel.getSearchDialogSearch());
+                                        mViewModel.setShowSearchDialog(false);
+
+                                        mViewModel.loadBookCollectionList();
+                                    }
+                                })
+                                .setNegativeButton(R.string.book_collection_browser_dialog_search_negative, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        mViewModel.setSearchDialogSearchType(mViewModel.getSearchType());
+                                        mViewModel.setSearchDialogSearch(mViewModel.getSearch());
+                                        mViewModel.setShowSearchDialog(false);
+                                    }
+                                })
+                                .setNeutralButton(R.string.book_collection_browser_dialog_search_neutral, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        mViewModel.setSearchType("NAME");
+                                        mViewModel.setSearch("");
+                                        mViewModel.setSearchDialogSearchType(mViewModel.getSearchType());
+                                        mViewModel.setSearchDialogSearch(mViewModel.getSearch());
+                                        mViewModel.setShowSearchDialog(false);
+
+                                        mViewModel.loadBookCollectionList();
+                                    }
+                                })
+                                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                    @Override
+                                    public void onCancel(DialogInterface dialog) {
+                                        mViewModel.setSearchDialogSearchType(mViewModel.getSearchType());
+                                        mViewModel.setSearchDialogSearch(mViewModel.getSearch());
+                                        mViewModel.setShowSearchDialog(false);
+                                    }
+                                })
+                                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                    @Override
+                                    public void onDismiss(DialogInterface dialogInterface) {
+                                        mSearchDialog = null;
+                                    }
+                                })
+                                .create();
+                        mSearchDialog.show();
+                    }
+                }
             }
         });
         mViewModel.getIsLoadingObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
@@ -286,6 +386,10 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
 
     @Override
     public void onDestroyView() {
+        if(mSearchDialog != null) {
+            mSearchDialog.dismiss();
+        }
+
         if(mSelectedBookCollectionMenu != null) {
             mSelectedBookCollectionMenu.dismiss();
         }
@@ -310,35 +414,15 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         mMenu = menu;
 
         MenuItem searchMenuItem = menu.findItem(R.id.menu_book_collection_browser_search);
-
-        mSearchView = (SearchView) searchMenuItem.getActionView();
-        mSearchView.setMaxWidth(Integer.MAX_VALUE);
-        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        searchMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
-            public boolean onQueryTextChange(String search) {
-                mViewModel.setSearchType("NAME");
-                mViewModel.setSearch(search);
-                mViewModel.loadBookCollectionList();
-
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextSubmit(String queryText) {
-                mSearchView.clearFocus();
-
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                mViewModel.setShowSearchDialog(true);
                 return true;
             }
         });
 
-        String search = mViewModel.getSearch();
-        mViewModel.setSearchType("NAME");
-        mViewModel.setSearch("");
-        if(search != null && search.equals("") == false) {
-            mViewModel.loadBookCollectionList();
-        }
-
-        MenuItem menuItem = mMenu.findItem(R.id.menu_book_collection_browser_filter_root);
+        MenuItem menuItem = mMenu.findItem(R.id.menu_book_collection_browser_filter_type_root);
         menuItem.setChecked(true);
 
         mFilterType = "ROOT";
@@ -351,23 +435,23 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
 
                     int menuItemId;
                     if (filterType.equals("ROOT")) {
-                        menuItemId = R.id.menu_book_collection_browser_filter_root;
+                        menuItemId = R.id.menu_book_collection_browser_filter_type_root;
                     } else if (filterType.equals("ALL")) {
-                        menuItemId = R.id.menu_book_collection_browser_filter_all;
+                        menuItemId = R.id.menu_book_collection_browser_filter_type_all;
                     } else if (filterType.equals("NEW")) {
-                        menuItemId = R.id.menu_book_collection_browser_filter_new;
+                        menuItemId = R.id.menu_book_collection_browser_filter_type_new;
                     } else if (filterType.equals("TO_READ")) {
-                        menuItemId = R.id.menu_book_collection_browser_filter_to_read;
+                        menuItemId = R.id.menu_book_collection_browser_filter_type_to_read;
                     } else if (filterType.equals("LATEST_READ")) {
-                        menuItemId = R.id.menu_book_collection_browser_filter_latest_read;
+                        menuItemId = R.id.menu_book_collection_browser_filter_type_latest_read;
                     } else if (filterType.equals("READ")) {
-                        menuItemId = R.id.menu_book_collection_browser_filter_read;
+                        menuItemId = R.id.menu_book_collection_browser_filter_type_read;
                     } else if (filterType.equals("READING")) {
-                        menuItemId = R.id.menu_book_collection_browser_filter_reading;
+                        menuItemId = R.id.menu_book_collection_browser_filter_type_reading;
                     } else if (filterType.equals("UNREAD")) {
-                        menuItemId = R.id.menu_book_collection_browser_filter_unread;
+                        menuItemId = R.id.menu_book_collection_browser_filter_type_unread;
                     } else {
-                        menuItemId = R.id.menu_book_collection_browser_filter_root;
+                        menuItemId = R.id.menu_book_collection_browser_filter_type_root;
                     }
                     MenuItem menuItem = mMenu.findItem(menuItemId);
                     menuItem.setChecked(true);
@@ -383,32 +467,32 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         int menuItemId = menuItem.getItemId();
 
         switch (menuItemId) {
-            case R.id.menu_book_collection_browser_filter_root:
-            case R.id.menu_book_collection_browser_filter_all:
-            case R.id.menu_book_collection_browser_filter_new:
-            case R.id.menu_book_collection_browser_filter_to_read:
-            case R.id.menu_book_collection_browser_filter_latest_read:
-            case R.id.menu_book_collection_browser_filter_read:
-            case R.id.menu_book_collection_browser_filter_reading:
-            case R.id.menu_book_collection_browser_filter_unread:
+            case R.id.menu_book_collection_browser_filter_type_root:
+            case R.id.menu_book_collection_browser_filter_type_all:
+            case R.id.menu_book_collection_browser_filter_type_new:
+            case R.id.menu_book_collection_browser_filter_type_to_read:
+            case R.id.menu_book_collection_browser_filter_type_latest_read:
+            case R.id.menu_book_collection_browser_filter_type_read:
+            case R.id.menu_book_collection_browser_filter_type_reading:
+            case R.id.menu_book_collection_browser_filter_type_unread:
                 menuItem.setChecked(true);
 
                 String filterType;
-                if (menuItemId == R.id.menu_book_collection_browser_filter_root) {
+                if (menuItemId == R.id.menu_book_collection_browser_filter_type_root) {
                     filterType = "ROOT";
-                } else if (menuItemId == R.id.menu_book_collection_browser_filter_all) {
+                } else if (menuItemId == R.id.menu_book_collection_browser_filter_type_all) {
                     filterType = "ALL";
-                } else if (menuItemId == R.id.menu_book_collection_browser_filter_new) {
+                } else if (menuItemId == R.id.menu_book_collection_browser_filter_type_new) {
                     filterType = "NEW";
-                } else if (menuItemId == R.id.menu_book_collection_browser_filter_to_read) {
+                } else if (menuItemId == R.id.menu_book_collection_browser_filter_type_to_read) {
                     filterType = "TO_READ";
-                } else if (menuItemId == R.id.menu_book_collection_browser_filter_latest_read) {
+                } else if (menuItemId == R.id.menu_book_collection_browser_filter_type_latest_read) {
                     filterType = "LATEST_READ";
-                } else if (menuItemId == R.id.menu_book_collection_browser_filter_read) {
+                } else if (menuItemId == R.id.menu_book_collection_browser_filter_type_read) {
                     filterType = "READ";
-                } else if (menuItemId == R.id.menu_book_collection_browser_filter_reading) {
+                } else if (menuItemId == R.id.menu_book_collection_browser_filter_type_reading) {
                     filterType = "READING";
-                } else if (menuItemId == R.id.menu_book_collection_browser_filter_unread) {
+                } else if (menuItemId == R.id.menu_book_collection_browser_filter_type_unread) {
                     filterType = "UNREAD";
                 } else {
                     filterType = "ROOT";
@@ -421,6 +505,12 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                     mFilterType = filterType;
 
                     mViewModel.setFilterType(mFilterType);
+
+                    mViewModel.setSearchType("NAME");
+                    mViewModel.setSearch("");
+                    mViewModel.setSearchDialogSearchType(mViewModel.getSearchType());
+                    mViewModel.setSearchDialogSearch(mViewModel.getSearch());
+
                     mViewModel.loadBookCollectionList();
                 }
                 return true;
