@@ -60,7 +60,6 @@
     <string name="book_browser_empty">No books.</string>
 
     <string name="book_collection_browser_menu_search">Search</string>
-    <string name="book_collection_browser_menu_search_type_name">Name</string>
     <string name="book_collection_browser_menu_filter">Filter</string>
     <string name="book_collection_browser_menu_filter_type_root">Root</string>
     <string name="book_collection_browser_menu_filter_type_all">All</string>
@@ -86,7 +85,6 @@
     <string name="book_collection_browser_dialog_search">Search?</string>
     <string name="book_collection_browser_dialog_search_positive">Yes</string>
     <string name="book_collection_browser_dialog_search_negative">No</string>
-    <string name="book_collection_browser_dialog_search_neutral">Reset</string>
 
     <string name="download_browser_dialog_delete_book_collection">Delete books?</string>
     <string name="download_browser_dialog_delete_book">Delete book?</string>

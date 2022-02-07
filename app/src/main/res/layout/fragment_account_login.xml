@@ -18,9 +18,9 @@
             android:layout_marginRight="20dp"
             android:padding="15dp"
             android:inputType="text"
-            android:text=""
             android:layout_above="@id/account_login_et_name"
-            android:textSize="15sp" />
+            android:text=""
+            android:textSize="16sp"/>
 
         <EditText
             android:id="@+id/account_login_et_name"
@@ -31,9 +31,9 @@
             android:layout_marginRight="20dp"
             android:padding="15dp"
             android:inputType="text"
-            android:text=""
             android:layout_above="@id/account_login_et_password"
-            android:textSize="15sp" />
+            android:text=""
+            android:textSize="16sp"/>
 
         <EditText
             android:id="@+id/account_login_et_password"
@@ -45,9 +45,9 @@
             android:layout_marginTop="10dp"
             android:padding="15dp"
             android:inputType="textPassword"
-            android:text=""
             android:layout_centerInParent="true"
-            android:textSize="15sp" />
+            android:text=""
+            android:textSize="16sp"/>
 
         <CheckBox
             android:id="@+id/account_login_cb_show_password"
@@ -58,7 +58,8 @@
             android:layout_marginRight="20dp"
             android:layout_marginTop="10dp"
             android:padding="15dp"
-            android:text="@string/account_login_show_password" />
+            android:text="@string/account_login_show_password"
+            android:textSize="16sp"/>
 
         <Button
             android:id="@+id/account_login_btn_login"

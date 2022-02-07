@@ -3,12 +3,12 @@
     <style name="ReaderTheme" parent="AppTheme">
         <item name="colorPrimaryDark">@color/darkest_semitransparent</item>
         <item name="android:textColor">@color/lightest</item>
-        <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
+        <item name="alertDialogTheme">@style/MyDarkAlertDialogStyle</item>
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
-    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Dialog.Alert">
+    <style name="MyDarkAlertDialogStyle" parent="Theme.AppCompat.Dialog.Alert">
         <item name="colorAccent">@color/primary</item>
         <item name="android:textColorPrimary">@color/lightest</item>
         <item name="android:background">@color/primary_material_dark</item>
@@ -20,5 +20,10 @@
         <item name="android:colorBackground">@color/darkest</item>
         <item name="colorControlNormal">@color/lightest</item>
         <item name="colorControlHighlight">@color/darker</item>
+    </style>
+
+    <style name="MyDarkPopupMenuTheme" parent="Widget.AppCompat.PopupMenu">
+        <item name="colorAccent">@color/lightest</item>
+        <item name="colorControlNormal">@color/lightest</item>
     </style>
 </resources>

@@ -6,6 +6,14 @@
     <style name="MyToolbarTheme" parent="MyCommonToolbarTheme">
     </style>
 
+    <style name="MyPopupMenuTheme" parent="MyCommonPopupMenuTheme">
+    </style>
+
+    <style name="MyCommonPopupMenuTheme" parent="Widget.AppCompat.PopupMenu">
+        <item name="colorAccent">@color/darkest</item>
+        <item name="colorControlNormal">@color/darkest</item>
+    </style>
+
     <style name="MyCommonAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primaryDark</item>

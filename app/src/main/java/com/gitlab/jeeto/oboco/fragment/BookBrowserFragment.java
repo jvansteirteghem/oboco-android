@@ -343,19 +343,19 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                     mFilterType = filterType;
 
                     int menuItemId;
-                    if (filterType.equals("ALL")) {
+                    if ("ALL".equals(filterType)) {
                         menuItemId = R.id.menu_book_browser_filter_type_all;
-                    } else if (filterType.equals("NEW")) {
+                    } else if ("NEW".equals(filterType)) {
                         menuItemId = R.id.menu_book_browser_filter_type_new;
-                    } else if (filterType.equals("TO_READ")) {
+                    } else if ("TO_READ".equals(filterType)) {
                         menuItemId = R.id.menu_book_browser_filter_type_to_read;
-                    } else if (filterType.equals("LATEST_READ")) {
+                    } else if ("LATEST_READ".equals(filterType)) {
                         menuItemId = R.id.menu_book_browser_filter_type_latest_read;
-                    } else if (filterType.equals("READ")) {
+                    } else if ("READ".equals(filterType)) {
                         menuItemId = R.id.menu_book_browser_filter_type_read;
-                    } else if (filterType.equals("READING")) {
+                    } else if ("READING".equals(filterType)) {
                         menuItemId = R.id.menu_book_browser_filter_type_reading;
-                    } else if (filterType.equals("UNREAD")) {
+                    } else if ("UNREAD".equals(filterType)) {
                         menuItemId = R.id.menu_book_browser_filter_type_unread;
                     } else {
                         menuItemId = R.id.menu_book_browser_filter_type_all;
@@ -402,6 +402,9 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                 }
 
                 mViewModel.setFilterType(mFilterType);
+
+                mBookListView.scrollToPosition(0);
+
                 mViewModel.loadBookList();
                 return true;
         }

@@ -10,7 +10,7 @@
         <item name="actionOverflowMenuStyle">@style/MyPopupMenuOverflowTheme</item>
     </style>
 
-    <style name="MyPopupMenuTheme" parent="Widget.AppCompat.PopupMenu">
+    <style name="MyPopupMenuTheme" parent="MyCommonPopupMenuTheme">
         <item name="android:popupEnterTransition">@null</item>
         <item name="android:popupExitTransition">@null</item>
     </style>

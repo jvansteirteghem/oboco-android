@@ -20,7 +20,8 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:background="@color/darkest_semitransparent"
-            app:theme="@style/MyDarkToolbarTheme" />
+            app:theme="@style/MyDarkToolbarTheme"
+            app:popupTheme="@style/MyDarkPopupMenuTheme"/>
         <LinearLayout
                 android:id="@+id/pageNavLayout"
                 android:layout_width="match_parent"

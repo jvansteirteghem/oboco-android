@@ -16,6 +16,7 @@
                 android:background="?attr/colorPrimary"
                 android:minHeight="?attr/actionBarSize"
                 app:theme="@style/MyToolbarTheme"
+                app:popupTheme="@style/MyPopupMenuTheme"
                 app:contentInsetLeft="@dimen/toolbar_inset"
                 app:contentInsetStart="@dimen/toolbar_inset"/>
         <FrameLayout

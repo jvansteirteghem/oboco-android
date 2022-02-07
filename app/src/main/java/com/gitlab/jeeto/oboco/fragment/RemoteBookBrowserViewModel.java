@@ -96,32 +96,28 @@ public class RemoteBookBrowserViewModel extends BookBrowserViewModel {
         BookCollectionDto bookCollection = mBookCollectionObservable.getValue();
 
         if(bookCollection != null) {
-            title = title + ": " + bookCollection.getName();
-
-            String filterType = mFilterTypeObservable.getValue();
-
-            if(filterType != null) {
-                if (filterType.equals("ALL")) {
-                    title = title + " - " + getApplication().getResources().getString(R.string.book_browser_menu_filter_type_all);
-                } else if (filterType.equals("NEW")) {
-                    title = title + " - " + getApplication().getResources().getString(R.string.book_browser_menu_filter_type_new);
-                } else if (filterType.equals("TO_READ")) {
-                    title = title + " - " + getApplication().getResources().getString(R.string.book_browser_menu_filter_type_to_read);
-                } else if (filterType.equals("LATEST_READ")) {
-                    title = title + " - " + getApplication().getResources().getString(R.string.book_browser_menu_filter_type_latest_read);
-                } else if (filterType.equals("READ")) {
-                    title = title + " - " + getApplication().getResources().getString(R.string.book_browser_menu_filter_type_read);
-                } else if (filterType.equals("READING")) {
-                    title = title + " - " + getApplication().getResources().getString(R.string.book_browser_menu_filter_type_reading);
-                } else if (filterType.equals("UNREAD")) {
-                    title = title + " - " + getApplication().getResources().getString(R.string.book_browser_menu_filter_type_unread);
-                }
-            }
-
             Integer bookListSize = mBookListSizeObservable.getValue();
 
             if(bookListSize != null) {
-                title = title + " (" + bookListSize + ")";
+                String filterType = mFilterTypeObservable.getValue();
+
+                if("ALL".equals(filterType)) {
+                    title = title + ": " + getApplication().getResources().getString(R.string.book_browser_menu_filter_type_all);
+                } else if("NEW".equals(filterType)) {
+                    title = title + ": " + getApplication().getResources().getString(R.string.book_browser_menu_filter_type_new);
+                } else if("TO_READ".equals(filterType)) {
+                    title = title + ": " + getApplication().getResources().getString(R.string.book_browser_menu_filter_type_to_read);
+                } else if("LATEST_READ".equals(filterType)) {
+                    title = title + ": " + getApplication().getResources().getString(R.string.book_browser_menu_filter_type_latest_read);
+                } else if("READ".equals(filterType)) {
+                    title = title + ": " + getApplication().getResources().getString(R.string.book_browser_menu_filter_type_read);
+                } else if("READING".equals(filterType)) {
+                    title = title + ": " + getApplication().getResources().getString(R.string.book_browser_menu_filter_type_reading);
+                } else if("UNREAD".equals(filterType)) {
+                    title = title + ": " + getApplication().getResources().getString(R.string.book_browser_menu_filter_type_unread);
+                }
+
+                title = title + " (" + bookListSize + ") - " + bookCollection.getName();
             }
         }
 
