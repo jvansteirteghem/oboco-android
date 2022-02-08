@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:cardview="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    cardview:cardCornerRadius="2dp"
-    cardview:cardElevation="2dp"
-    cardview:cardBackgroundColor="@color/lightest">
+    app:cardCornerRadius="2dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/lightest">
     <LinearLayout
         android:id="@+id/bookLayout"
         android:layout_width="match_parent"
@@ -30,7 +30,7 @@
                 android:layout_margin="@dimen/card_padding"
                 android:padding="@dimen/card_padding"
                 android:singleLine="true"
-                android:textSize="@dimen/card_text"
+                android:textSize="16sp"
                 android:background="@color/lightest"/>
         </RelativeLayout>
         <TextView
@@ -59,7 +59,7 @@
                     android:paddingBottom="@dimen/card_padding"
                     android:paddingRight="@dimen/card_padding"
                     android:singleLine="true"
-                    android:textSize="@dimen/card_text"/>
+                    android:textSize="16sp"/>
                 <ImageView
                     android:id="@+id/bookMenuImageView"
                     android:layout_weight="0"
@@ -67,8 +67,9 @@
                     android:layout_height="wrap_content"
                     android:clickable="true"
                     android:padding="@dimen/card_padding"
-                    android:src="@drawable/ic_dots_vertical_black_24dp"
-                    android:foreground="?android:attr/selectableItemBackground"/>
+                    android:src="@drawable/ic_dots_vertical_grey600_24dp"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    app:tint="@color/darker"/>
             </LinearLayout>
         </RelativeLayout>
     </LinearLayout>

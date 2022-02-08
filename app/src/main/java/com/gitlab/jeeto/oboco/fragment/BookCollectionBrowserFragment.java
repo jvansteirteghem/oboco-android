@@ -147,6 +147,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         });
 
         mRefreshView = view.findViewById(R.id.bookCollectionBrowserRefresh);
+        mRefreshView.setColorSchemeResources(R.color.darker);
         mRefreshView.setOnRefreshListener(this);
         mRefreshView.setEnabled(true);
 

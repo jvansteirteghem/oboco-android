@@ -299,7 +299,7 @@ public class DownloadManagerBrowserFragment extends Fragment {
                 imageView.setImageResource(android.R.color.transparent);
                 imageView.setOnClickListener(null);
             } else {
-                imageView.setImageResource(R.drawable.ic_dots_vertical_black_24dp);
+                imageView.setImageResource(R.drawable.ic_dots_vertical_grey600_24dp);
                 imageView.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         if(mSelectedDownloadWorkMenu == null) {

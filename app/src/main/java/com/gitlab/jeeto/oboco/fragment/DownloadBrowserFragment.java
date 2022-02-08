@@ -347,7 +347,7 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
                     textView.setText(bookDto.getName());
                 }
 
-                imageView.setImageResource(R.drawable.ic_dots_vertical_black_24dp);
+                imageView.setImageResource(R.drawable.ic_dots_vertical_grey600_24dp);
                 imageView.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         if(mSelectedMenu == null) {

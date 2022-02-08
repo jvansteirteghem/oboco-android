@@ -10,8 +10,8 @@
     </style>
 
     <style name="MyCommonPopupMenuTheme" parent="Widget.AppCompat.PopupMenu">
-        <item name="colorAccent">@color/darkest</item>
-        <item name="colorControlNormal">@color/darkest</item>
+        <item name="colorAccent">@color/darker</item>
+        <item name="colorControlNormal">@color/darker</item>
     </style>
 
     <style name="MyCommonAppTheme" parent="Theme.AppCompat.Light.NoActionBar">

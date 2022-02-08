@@ -9,7 +9,6 @@ import androidx.room.Room;
 import com.gitlab.jeeto.oboco.client.BookDto;
 import com.gitlab.jeeto.oboco.client.BookMarkDto;
 import com.gitlab.jeeto.oboco.client.LinkableDto;
-import com.gitlab.jeeto.oboco.common.NaturalOrderComparator;
 import com.gitlab.jeeto.oboco.database.AppDatabase;
 import com.gitlab.jeeto.oboco.database.Book;
 import com.gitlab.jeeto.oboco.reader.BookReader;
@@ -17,8 +16,6 @@ import com.gitlab.jeeto.oboco.reader.ZipBookReader;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.Completable;
@@ -96,58 +93,12 @@ public class LocalBookReaderViewModel extends BookReaderViewModel {
         mIsFullscreenObservable.setValue(true);
 
         BookDto bookDto = new BookDto();
+        bookDto.setName(mBookFile.getName());
+        bookDto.setNumberOfPages(mBookReader.getNumberOfPages());
+        bookDto.setPath(mBookFile.getAbsolutePath());
+
         LinkableDto<BookDto> bookLinkableDto = new LinkableDto<BookDto>();
-
-        File[] files = mBookFile.getParentFile().listFiles();
-        List<File> bookFileList = new ArrayList<File>();
-        for(File file: files) {
-            if(file.isFile() && file.getName().endsWith(".cbz")) {
-                bookFileList.add(file);
-            }
-        }
-
-        Collections.sort(bookFileList, new NaturalOrderComparator<File>() {
-            @Override
-            public String toString(File o) {
-                return o.getName();
-            }
-        });
-
-        Integer index = 0;
-        while(index < bookFileList.size()) {
-            File bookFile = bookFileList.get(index);
-
-            if(bookFile.getName().equals(mBookFile.getName())) {
-                if(index - 1 >= 0) {
-                    File previousBookFile = bookFileList.get(index - 1);
-
-                    BookDto previousBookDto = new BookDto();
-                    previousBookDto.setName(previousBookFile.getName());
-                    previousBookDto.setNumberOfPages(0);
-                    previousBookDto.setPath(previousBookFile.getAbsolutePath());
-
-                    bookLinkableDto.setPreviousElement(previousBookDto);
-                }
-                bookDto.setName(bookFile.getName());
-                bookDto.setNumberOfPages(mBookReader.getNumberOfPages());
-                bookDto.setPath(bookFile.getAbsolutePath());
-
-                bookLinkableDto.setElement(bookDto);
-                if(index + 1 < bookFileList.size()) {
-                    File nextBookFile = bookFileList.get(index + 1);
-
-                    BookDto nextBookDto = new BookDto();
-                    nextBookDto.setName(nextBookFile.getName());
-                    nextBookDto.setNumberOfPages(0);
-                    nextBookDto.setPath(nextBookFile.getAbsolutePath());
-
-                    bookLinkableDto.setNextElement(nextBookDto);
-                }
-                break;
-            }
-
-            index = index + 1;
-        }
+        bookLinkableDto.setElement(bookDto);
 
         Single<List<Book>> single = mAppDatabase.bookDao().findByPath(mBookFile.getAbsolutePath());
         single = single.observeOn(AndroidSchedulers.mainThread());
