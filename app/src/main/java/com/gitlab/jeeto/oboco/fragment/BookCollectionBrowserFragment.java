@@ -197,6 +197,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                         EditText searchDialogSearchEditText = new EditText(getActivity());
                         searchDialogSearchEditText.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                         searchDialogSearchEditText.setSingleLine(true);
+                        searchDialogSearchEditText.setHint(R.string.book_collection_browser_dialog_search_hint);
                         searchDialogSearchEditText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
                         searchDialogSearchEditText.setText(mViewModel.getSearchDialogSearch());
                         searchDialogSearchEditText.addTextChangedListener(new TextWatcher() {

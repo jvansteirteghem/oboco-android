@@ -83,6 +83,7 @@
     <string name="book_collection_browser_dialog_download_negative">No</string>
     <string name="book_collection_browser_empty">No book collections.</string>
     <string name="book_collection_browser_dialog_search">Search?</string>
+    <string name="book_collection_browser_dialog_search_hint">Search</string>
     <string name="book_collection_browser_dialog_search_positive">Yes</string>
     <string name="book_collection_browser_dialog_search_negative">No</string>
 
