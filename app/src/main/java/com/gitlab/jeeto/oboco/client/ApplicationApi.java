@@ -24,7 +24,15 @@ public interface ApplicationApi {
 
     @Headers("Content-Type: application/json")
     @GET("/api/v1/bookCollections")
+    public Single<PageableListDto<BookCollectionDto>> getBookCollections(@Query("filterType") String filterType, @Query("page") Integer page, @Query("pageSize") Integer pageSize, @Query("graph") String graph);
+
+    @Headers("Content-Type: application/json")
+    @GET("/api/v1/bookCollections")
     public Single<PageableListDto<BookCollectionDto>> getBookCollections(@Query("searchType") String searchType, @Query("search") String search, @Query("filterType") String filterType, @Query("page") Integer page, @Query("pageSize") Integer pageSize, @Query("graph") String graph);
+
+    @Headers("Content-Type: application/json")
+    @GET("/api/v1/bookCollections/{bookCollectionId}/bookCollections")
+    public Single<PageableListDto<BookCollectionDto>> getBookCollectionsByBookCollection(@Path("bookCollectionId") Long bookCollectionId, @Query("page") Integer page, @Query("pageSize") Integer pageSize, @Query("graph") String graph);
 
     @Headers("Content-Type: application/json")
     @GET("/api/v1/bookCollections/{bookCollectionId}/bookCollections")
