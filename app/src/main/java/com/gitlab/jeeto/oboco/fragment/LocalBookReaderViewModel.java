@@ -43,8 +43,8 @@ public class LocalBookReaderViewModel extends BookReaderViewModel {
 
         mBookFile = new File(mBookPath);
 
+        mBookReader = new ZipBookReader(mBookFile);
         try {
-            mBookReader = new ZipBookReader(mBookFile);
             mBookReader.create();
         } catch(Exception e) {
             mMessageObservable.setValue(toMessage(e));
@@ -73,11 +73,10 @@ public class LocalBookReaderViewModel extends BookReaderViewModel {
 
     @Override
     protected void onCleared() {
-        if(mAppDatabase != null) {
-            if(mAppDatabase.isOpen()) {
-                mAppDatabase.close();
-            }
-            mAppDatabase = null;
+        mPicasso.shutdown();
+
+        if(mAppDatabase.isOpen()) {
+            mAppDatabase.close();
         }
 
         try {

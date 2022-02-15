@@ -584,6 +584,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
 
             Uri uri = mViewModel.getBookPageUri(bookDto, "DEFAULT", Constants.COVER_THUMBNAIL_WIDTH, Constants.COVER_THUMBNAIL_HEIGHT);
             mViewModel.getPicasso().load(uri)
+                    .tag(getActivity())
                     .resize(Constants.COVER_THUMBNAIL_WIDTH, Constants.COVER_THUMBNAIL_HEIGHT)
                     .centerCrop(Gravity.CENTER)
                     .into(mBookImageView);

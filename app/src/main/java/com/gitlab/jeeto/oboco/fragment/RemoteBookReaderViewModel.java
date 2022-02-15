@@ -75,6 +75,8 @@ public class RemoteBookReaderViewModel extends BookReaderViewModel {
 
     @Override
     protected void onCleared() {
+        mPicasso.shutdown();
+
         mAuthenticationManagerDisposable.dispose();
     }
 
