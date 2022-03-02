@@ -12,6 +12,7 @@ import com.gitlab.jeeto.oboco.client.AuthenticationManager;
 import com.gitlab.jeeto.oboco.client.BookCollectionDto;
 import com.gitlab.jeeto.oboco.client.BookCollectionMarkDto;
 import com.gitlab.jeeto.oboco.client.PageableListDto;
+import com.gitlab.jeeto.oboco.client.ProblemDto;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -55,7 +56,22 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
         mAuthenticationManagerDisposable = observable.subscribe(new Consumer<Throwable>() {
             @Override
             public void accept(Throwable e) throws Exception {
-                mMessageObservable.setValue(toMessage(e));
+                String message = null;
+
+                ProblemDto p = getProblem(e);
+                if(p != null) {
+                    if(400 == p.getStatusCode()) {
+                        if("PROBLEM_USER_TOKEN_INVALID".equals(p.getCode())) {
+                            message = getMessage(R.string.action_user_log_in_token_error);
+                        }
+                    }
+                }
+
+                if(message == null) {
+                    message = getMessage(e);
+                }
+
+                mMessageObservable.setValue(message);
                 mShowMessageObservable.setValue(true);
             }
         });
@@ -68,8 +84,23 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
                 .addRequestHandler(mRequestHandler)
                 .listener(new Picasso.Listener() {
                     @Override
-                    public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
-                        mMessageObservable.setValue(toMessage(exception));
+                    public void onImageLoadFailed(Picasso picasso, Uri uri, Exception e) {
+                        String message = null;
+
+                        ProblemDto p = getProblem(e);
+                        if(p != null) {
+                            if(404 == p.getStatusCode()) {
+                                if("PROBLEM_BOOK_NOT_FOUND".equals(p.getCode()) || "PROBLEM_BOOK_PAGE_NOT_FOUND".equals(p.getCode())) {
+                                    message = getMessage(R.string.action_book_page_get_error);
+                                }
+                            }
+                        }
+
+                        if(message == null) {
+                            message = getMessage(e);
+                        }
+
+                        mMessageObservable.setValue(message);
                         mShowMessageObservable.setValue(true);
                     }
                 })
@@ -180,7 +211,26 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
 
                 @Override
                 public void onError(Throwable e) {
-                    mMessageObservable.setValue(toMessage(e));
+                    String message = null;
+
+                    ProblemDto p = getProblem(e);
+                    if(p != null) {
+                        if(400 == p.getStatusCode()) {
+                            if("PROBLEM_GRAPH_INVALID".equals(p.getCode())) {
+                                message = getMessage(R.string.action_book_collection_get_error);
+                            }
+                        } else if(400 == p.getStatusCode()) {
+                            if("PROBLEM_BOOK_COLLECTION_NOT_FOUND".equals(p.getCode())) {
+                                message = getMessage(R.string.action_book_collection_get_error);
+                            }
+                        }
+                    }
+
+                    if(message == null) {
+                        message = getMessage(e);
+                    }
+
+                    mMessageObservable.setValue(message);
                     mShowMessageObservable.setValue(true);
 
                     mIsLoadingObservable.setValue(false);
@@ -245,7 +295,22 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
 
             @Override
             public void onError(Throwable e) {
-                mMessageObservable.setValue(toMessage(e));
+                String message = null;
+
+                ProblemDto p = getProblem(e);
+                if(p != null) {
+                    if(400 == p.getStatusCode()) {
+                        if("PROBLEM_PAGE_INVALID".equals(p.getCode()) || "PROBLEM_PAGE_SIZE_INVALID".equals(p.getCode()) || "PROBLEM_GRAPH_INVALID".equals(p.getCode())) {
+                            message = getMessage(R.string.action_book_collections_get_error);
+                        }
+                    }
+                }
+
+                if(message == null) {
+                    message = getMessage(e);
+                }
+
+                mMessageObservable.setValue(message);
                 mShowMessageObservable.setValue(true);
 
                 mIsLoadingObservable.setValue(false);
@@ -307,7 +372,22 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
 
                 @Override
                 public void onError(Throwable e) {
-                    mMessageObservable.setValue(toMessage(e));
+                    String message = null;
+
+                    ProblemDto p = getProblem(e);
+                    if(p != null) {
+                        if(400 == p.getStatusCode()) {
+                            if("PROBLEM_PAGE_INVALID".equals(p.getCode()) || "PROBLEM_PAGE_SIZE_INVALID".equals(p.getCode()) || "PROBLEM_GRAPH_INVALID".equals(p.getCode())) {
+                                message = getMessage(R.string.action_book_collections_get_error);
+                            }
+                        }
+                    }
+
+                    if(message == null) {
+                        message = getMessage(e);
+                    }
+
+                    mMessageObservable.setValue(message);
                     mShowMessageObservable.setValue(true);
 
                     mIsLoadingObservable.setValue(false);
@@ -341,7 +421,26 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
 
             @Override
             public void onError(Throwable e) {
-                mMessageObservable.setValue(toMessage(e));
+                String message = null;
+
+                ProblemDto p = getProblem(e);
+                if(p != null) {
+                    if(400 == p.getStatusCode()) {
+                        if("PROBLEM_BOOK_COLLECTION_MARK_BOOK_PAGE_INVALID".equals(p.getCode())) {
+                            message = getMessage(R.string.action_book_marks_create_update_error);
+                        }
+                    } else if(404 == p.getStatusCode()) {
+                        if("PROBLEM_BOOK_COLLECTION_NOT_FOUND".equals(p.getCode()) || "PROBLEM_BOOK_COLLECTION_BOOKS_NOT_FOUND".equals(p.getCode())) {
+                            message = getMessage(R.string.action_book_marks_create_update_error);
+                        }
+                    }
+                }
+
+                if(message == null) {
+                    message = getMessage(e);
+                }
+
+                mMessageObservable.setValue(message);
                 mShowMessageObservable.setValue(true);
             }
         });
@@ -372,7 +471,22 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
 
             @Override
             public void onError(Throwable e) {
-                mMessageObservable.setValue(toMessage(e));
+                String message = null;
+
+                ProblemDto p = getProblem(e);
+                if(p != null) {
+                    if(404 == p.getStatusCode()) {
+                        if("PROBLEM_BOOK_COLLECTION_NOT_FOUND".equals(p.getCode()) || "PROBLEM_BOOK_COLLECTION_BOOKS_NOT_FOUND".equals(p.getCode())) {
+                            message = getMessage(R.string.action_book_marks_delete_error);
+                        }
+                    }
+                }
+
+                if(message == null) {
+                    message = getMessage(e);
+                }
+
+                mMessageObservable.setValue(message);
                 mShowMessageObservable.setValue(true);
             }
         });

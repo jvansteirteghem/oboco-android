@@ -11,7 +11,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -172,8 +171,7 @@ public class AccountLogoutFragment extends Fragment {
                 if(showMessage) {
                     mViewModel.setShowMessage(false);
 
-                    Toast toast = Toast.makeText(getContext(), mViewModel.getMessage(), Toast.LENGTH_LONG);
-                    toast.show();
+                    ((MainActivity) getActivity()).showMessage(mViewModel.getMessage());
                 }
             }
         });

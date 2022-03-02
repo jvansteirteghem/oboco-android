@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.room.Room;
 
+import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.client.BookDto;
 import com.gitlab.jeeto.oboco.client.BookMarkDto;
 import com.gitlab.jeeto.oboco.client.LinkableDto;
@@ -47,8 +48,7 @@ public class LocalBookReaderViewModel extends BookReaderViewModel {
         try {
             mBookReader.create();
         } catch(Exception e) {
-            mMessageObservable.setValue(toMessage(e));
-            mShowMessageObservable.setValue(true);
+            //e.printStackTrace();
         }
 
         mAppDatabase = Room.databaseBuilder(getApplication().getApplicationContext(), AppDatabase.class, "database").build();
@@ -60,7 +60,9 @@ public class LocalBookReaderViewModel extends BookReaderViewModel {
                 .listener(new Picasso.Listener() {
                     @Override
                     public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
-                        mMessageObservable.setValue(toMessage(exception));
+                        String message = getMessage(R.string.action_book_page_get_error);
+
+                        mMessageObservable.setValue(message);
                         mShowMessageObservable.setValue(true);
                     }
                 })
@@ -82,8 +84,7 @@ public class LocalBookReaderViewModel extends BookReaderViewModel {
         try {
             mBookReader.destroy();
         } catch(Exception e) {
-            mMessageObservable.setValue(toMessage(e));
-            mShowMessageObservable.setValue(true);
+            //e.printStackTrace();
         }
     }
 
@@ -129,7 +130,9 @@ public class LocalBookReaderViewModel extends BookReaderViewModel {
 
             @Override
             public void onError(Throwable e) {
-                mMessageObservable.setValue(toMessage(e));
+                String message = getMessage(R.string.action_book_get_error);
+
+                mMessageObservable.setValue(message);
                 mShowMessageObservable.setValue(true);
             }
         });
@@ -176,7 +179,9 @@ public class LocalBookReaderViewModel extends BookReaderViewModel {
 
                         @Override
                         public void onError(Throwable e) {
-                            mMessageObservable.setValue(toMessage(e));
+                            String message = getMessage(R.string.action_book_mark_create_update_error);
+
+                            mMessageObservable.setValue(message);
                             mShowMessageObservable.setValue(true);
                         }
                     });
@@ -203,7 +208,9 @@ public class LocalBookReaderViewModel extends BookReaderViewModel {
 
                         @Override
                         public void onError(Throwable e) {
-                            mMessageObservable.setValue(toMessage(e));
+                            String message = getMessage(R.string.action_book_mark_create_update_error);
+
+                            mMessageObservable.setValue(message);
                             mShowMessageObservable.setValue(true);
                         }
                     });
@@ -212,7 +219,9 @@ public class LocalBookReaderViewModel extends BookReaderViewModel {
 
             @Override
             public void onError(Throwable e) {
-                mMessageObservable.setValue(toMessage(e));
+                String message = getMessage(R.string.action_book_mark_create_update_error);
+
+                mMessageObservable.setValue(message);
                 mShowMessageObservable.setValue(true);
             }
         });

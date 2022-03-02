@@ -4,10 +4,14 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.TextUtils;
 
 import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.client.AuthenticationManager;
+import com.gitlab.jeeto.oboco.client.ProblemDto;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
@@ -37,9 +41,22 @@ public class RemoteAccountLoginViewModel extends AccountLoginViewModel {
         mAuthenticationManagerDisposable = observable.subscribe(new Consumer<Throwable>() {
             @Override
             public void accept(Throwable e) throws Exception {
-                Log.v(TAG, "Error.", e);
+                String message = null;
 
-                mMessageObservable.setValue(toMessage(e));
+                ProblemDto p = getProblem(e);
+                if(p != null) {
+                    if(400 == p.getStatusCode()) {
+                        if("PROBLEM_USER_TOKEN_INVALID".equals(p.getCode())) {
+                            message = getMessage(R.string.action_user_log_in_token_error);
+                        }
+                    }
+                }
+
+                if(message == null) {
+                    message = getMessage(e);
+                }
+
+                mMessageObservable.setValue(message);
                 mShowMessageObservable.setValue(true);
             }
         });
@@ -72,15 +89,36 @@ public class RemoteAccountLoginViewModel extends AccountLoginViewModel {
     public void login() {
         mIsEnabledObservable.setValue(false);
 
+        List<String> messageList = new ArrayList<String>();
+
         String baseUrl = mBaseUrlObservable.getValue();
-        baseUrl = baseUrl.replaceAll("\\/+$", "");
 
-        try {
-            HttpUrl.get(baseUrl);
-        } catch(Exception e) {
-            Log.v(TAG, "Error.", e);
+        if(baseUrl == null || baseUrl.equals("")) {
+            messageList.add(getMessage(R.string.action_user_log_in_name_password_error_base_url));
+        } else {
+            try {
+                HttpUrl.get(baseUrl);
+            } catch (Exception e) {
+                messageList.add(getMessage(R.string.action_user_log_in_name_password_error_base_url));
+            }
+        }
 
-            mMessageObservable.setValue(toMessage(e));
+        String name = mNameObservable.getValue();
+
+        if(name == null || name.equals("")) {
+            messageList.add(getMessage(R.string.action_user_log_in_name_password_error_name));
+        }
+
+        String password = mPasswordObservable.getValue();
+
+        if(password == null || password.equals("")) {
+            messageList.add(getMessage(R.string.action_user_log_in_name_password_error_password));
+        }
+
+        if(messageList.size() != 0) {
+            String message = TextUtils.join("\n", messageList);
+
+            mMessageObservable.setValue(message);
             mShowMessageObservable.setValue(true);
 
             mIsEnabledObservable.setValue(true);
@@ -88,17 +126,19 @@ public class RemoteAccountLoginViewModel extends AccountLoginViewModel {
             return;
         }
 
+        baseUrl = baseUrl.replaceAll("\\/+$", "");
+
         mBaseUrlObservable.setValue(baseUrl);
 
         SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putString("baseUrl", mBaseUrlObservable.getValue());
-        editor.putString("name", mNameObservable.getValue());
+        editor.putString("baseUrl", baseUrl);
+        editor.putString("name", name);
         editor.putString("password", "");
         editor.putString("accessToken", "");
         editor.putString("refreshToken", "");
         editor.commit();
 
-        Completable completable = mAuthenticationManager.login(mNameObservable.getValue(), mPasswordObservable.getValue());
+        Completable completable = mAuthenticationManager.login(name, password);
         completable = completable.observeOn(AndroidSchedulers.mainThread());
         completable = completable.subscribeOn(Schedulers.io());
         completable.subscribe(new CompletableObserver() {
@@ -109,7 +149,7 @@ public class RemoteAccountLoginViewModel extends AccountLoginViewModel {
 
             @Override
             public void onComplete() {
-                mMessageObservable.setValue(getApplication().getResources().getString(R.string.account_login_logged_in));
+                mMessageObservable.setValue(getMessage(R.string.action_user_log_in_name_password));
                 mShowMessageObservable.setValue(true);
 
                 mPasswordObservable.setValue("");
@@ -123,9 +163,22 @@ public class RemoteAccountLoginViewModel extends AccountLoginViewModel {
 
             @Override
             public void onError(Throwable e) {
-                Log.v(TAG, "Error.", e);
+                String message = null;
 
-                mMessageObservable.setValue(toMessage(e));
+                ProblemDto p = getProblem(e);
+                if(p != null) {
+                    if(400 == p.getStatusCode()) {
+                        if("PROBLEM_USER_NAME_PASSWORD_INVALID".equals(p.getCode())) {
+                            message = getMessage(R.string.action_user_log_in_name_password_error);
+                        }
+                    }
+                }
+
+                if(message == null) {
+                    message = getMessage(e);
+                }
+
+                mMessageObservable.setValue(message);
                 mShowMessageObservable.setValue(true);
 
                 mIsEnabledObservable.setValue(true);

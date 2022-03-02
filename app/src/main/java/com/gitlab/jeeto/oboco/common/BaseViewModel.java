@@ -1,17 +1,13 @@
 package com.gitlab.jeeto.oboco.common;
 
 import android.app.Application;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.Toast;
 
 import androidx.lifecycle.AndroidViewModel;
 
+import com.gitlab.jeeto.oboco.R;
+import com.gitlab.jeeto.oboco.client.ProblemDto;
 import com.gitlab.jeeto.oboco.client.ProblemException;
-
-import java.io.IOException;
 
 public class BaseViewModel extends AndroidViewModel {
     private Bundle mArguments;
@@ -25,25 +21,62 @@ public class BaseViewModel extends AndroidViewModel {
     public Bundle getArguments() {
         return mArguments;
     }
-    public static String toMessage(Throwable e) {
-        String message;
+
+    public ProblemDto getProblem(Throwable e) {
+        ProblemDto p = null;
 
         if(e instanceof RuntimeException) {
             if(e.getCause() instanceof ProblemException) {
-                e = e.getCause();
-            } else if(e.getCause() instanceof IOException) {
                 e = e.getCause();
             }
         }
 
         if(e instanceof ProblemException) {
             ProblemException pe = (ProblemException) e;
-            message = "ApiError: " + pe.getProblem().getDescription() + " [" + pe.getProblem().getCode() + "].";
-        } else if(e instanceof IOException) {
-            message = "NetworkError: " + e.getMessage() + ".";
-        } else {
-            message = "Error: " + e.getMessage() + ".";
+
+            p = pe.getProblem();
         }
+
+        return p;
+    }
+
+    public String getMessage(Throwable e) {
+        String message = null;
+
+        ProblemDto p = getProblem(e);
+        if(p != null) {
+            if(401 == p.getStatusCode()) {
+                if("PROBLEM_USER_NOT_AUTHENTICATED".equals(p.getCode())) {
+                    message = getMessage(R.string.action_error_user_not_authenticated);
+                }
+            } else if(403 == p.getStatusCode()) {
+                if("PROBLEM_USER_NOT_AUTHORIZED".equals(p.getCode())) {
+                    message = getMessage(R.string.action_error_user_not_authorized);
+                }
+            } else if(404 == p.getStatusCode()) {
+                if("PROBLEM_USER_ROOT_BOOK_COLLECTION_NOT_FOUND".equals(p.getCode())) {
+                    message = getMessage(R.string.action_error_user_root_book_collection);
+                }
+            } else if(500 == p.getStatusCode()) {
+                if("PROBLEM".equals(p.getCode())) {
+                    message = getMessage(R.string.action_error);
+                }
+            } else if(503 == p.getStatusCode()) {
+                if("PROBLEM_BOOK_SCANNER_STATUS_INVALID".equals(p.getCode())) {
+                    message = getMessage(R.string.action_error_book_scanner);
+                }
+            }
+        }
+
+        if(message == null) {
+            message = getMessage(R.string.action_error);
+        }
+
+        return message;
+    }
+
+    public String getMessage(int id) {
+        String message = getApplication().getResources().getString(id);
 
         return message;
     }

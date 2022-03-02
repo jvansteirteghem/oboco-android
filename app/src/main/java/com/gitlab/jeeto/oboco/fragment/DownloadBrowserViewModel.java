@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.room.Room;
 
+import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.client.BookCollectionDto;
 import com.gitlab.jeeto.oboco.client.BookDto;
 import com.gitlab.jeeto.oboco.client.BookMarkDto;
@@ -186,7 +187,9 @@ public class DownloadBrowserViewModel extends BaseViewModel {
 
             @Override
             public void onError(Throwable e) {
-                mMessageObservable.setValue(toMessage(e));
+                String message = getMessage(R.string.action_books_get_error);
+
+                mMessageObservable.setValue(message);
                 mShowMessageObservable.setValue(true);
             }
         });
@@ -293,7 +296,9 @@ public class DownloadBrowserViewModel extends BaseViewModel {
 
                     @Override
                     public void onError(Throwable e) {
-                        mMessageObservable.setValue(toMessage(e));
+                        String message = getMessage(R.string.action_book_delete_error);
+
+                        mMessageObservable.setValue(message);
                         mShowMessageObservable.setValue(true);
                     }
                 });
@@ -301,7 +306,9 @@ public class DownloadBrowserViewModel extends BaseViewModel {
 
             @Override
             public void onError(Throwable e) {
-                mMessageObservable.setValue(toMessage(e));
+                String message = getMessage(R.string.action_book_delete_error);
+
+                mMessageObservable.setValue(message);
                 mShowMessageObservable.setValue(true);
             }
         });
@@ -346,7 +353,9 @@ public class DownloadBrowserViewModel extends BaseViewModel {
 
                     @Override
                     public void onError(Throwable e) {
-                        mMessageObservable.setValue(toMessage(e));
+                        String message = getMessage(R.string.action_book_collection_delete_error);
+
+                        mMessageObservable.setValue(message);
                         mShowMessageObservable.setValue(true);
                     }
                 });
@@ -354,7 +363,9 @@ public class DownloadBrowserViewModel extends BaseViewModel {
 
             @Override
             public void onError(Throwable e) {
-                mMessageObservable.setValue(toMessage(e));
+                String message = getMessage(R.string.action_book_collection_delete_error);
+
+                mMessageObservable.setValue(message);
                 mShowMessageObservable.setValue(true);
             }
         });

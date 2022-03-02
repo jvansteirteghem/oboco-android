@@ -14,7 +14,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ContextThemeWrapper;
@@ -29,8 +28,7 @@ import androidx.work.WorkQuery;
 import androidx.work.WorkRequest;
 
 import com.gitlab.jeeto.oboco.R;
-import com.gitlab.jeeto.oboco.client.BookCollectionDto;
-import com.gitlab.jeeto.oboco.client.BookDto;
+import com.gitlab.jeeto.oboco.activity.MainActivity;
 import com.gitlab.jeeto.oboco.common.BaseViewModelProviderFactory;
 import com.gitlab.jeeto.oboco.manager.DownloadBookCollectionWorker;
 import com.gitlab.jeeto.oboco.manager.DownloadBookWorker;
@@ -209,8 +207,7 @@ public class DownloadManagerBrowserFragment extends Fragment {
                 if(showMessage) {
                     mViewModel.setShowMessage(false);
 
-                    Toast toast = Toast.makeText(getContext(), mViewModel.getMessage(), Toast.LENGTH_LONG);
-                    toast.show();
+                    ((MainActivity) getActivity()).showMessage(mViewModel.getMessage());
                 }
             }
         });

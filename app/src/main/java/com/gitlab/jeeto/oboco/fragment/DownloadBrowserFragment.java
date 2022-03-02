@@ -17,7 +17,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -33,6 +32,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.BookReaderActivity;
+import com.gitlab.jeeto.oboco.activity.MainActivity;
 import com.gitlab.jeeto.oboco.client.BookCollectionDto;
 import com.gitlab.jeeto.oboco.client.BookDto;
 import com.gitlab.jeeto.oboco.client.BookMarkDto;
@@ -230,8 +230,7 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
                 if(showMessage) {
                     mViewModel.setShowMessage(false);
 
-                    Toast toast = Toast.makeText(getContext(), mViewModel.getMessage(), Toast.LENGTH_LONG);
-                    toast.show();
+                    ((MainActivity) getActivity()).showMessage(mViewModel.getMessage());
                 }
             }
         });

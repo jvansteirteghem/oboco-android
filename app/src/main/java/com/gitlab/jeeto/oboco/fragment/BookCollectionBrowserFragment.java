@@ -20,7 +20,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ContextThemeWrapper;
@@ -387,8 +386,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                 if(showMessage) {
                     mViewModel.setShowMessage(false);
 
-                    Toast toast = Toast.makeText(getContext(), mViewModel.getMessage(), Toast.LENGTH_LONG);
-                    toast.show();
+                    ((MainActivity) getActivity()).showMessage(mViewModel.getMessage());
                 }
             }
         });
@@ -620,7 +618,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                 mBookCollectionImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        int i = getAdapterPosition();
+                        int i = getBindingAdapterPosition();
                         BookCollectionDto bookCollectionDto = mViewModel.getBookCollectionList().get(i);
 
                         BookBrowserFragment fragment = BookBrowserFragment.create(bookCollectionDto.getId(), "ALL");
@@ -642,7 +640,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                             mSelectedBookCollectionMenu.getMenuInflater().inflate(R.menu.book_collection_browser_book_collection, mSelectedBookCollectionMenu.getMenu());
                             mSelectedBookCollectionMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                                 public boolean onMenuItemClick(MenuItem menuItem) {
-                                    int i = getAdapterPosition();
+                                    int i = getBindingAdapterPosition();
                                     BookCollectionDto selectedBookCollectionDto = mViewModel.getBookCollectionList().get(i);
 
                                     mViewModel.setSelectedBookCollection(selectedBookCollectionDto);
@@ -678,7 +676,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        int i = getAdapterPosition();
+                        int i = getBindingAdapterPosition();
                         BookCollectionDto bookCollectionDto = mViewModel.getBookCollectionList().get(i);
 
                         BookCollectionBrowserFragment fragment = BookCollectionBrowserFragment.create(bookCollectionDto.getId(), "ROOT");

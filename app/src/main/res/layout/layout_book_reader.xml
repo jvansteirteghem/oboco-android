@@ -1,28 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/book_reader_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/book_reader_content_controls"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    <FrameLayout
-            android:id="@+id/content_frame_reader"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    <RelativeLayout
-            android:id="@+id/bars"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar_reader"
-            android:layout_width="match_parent"
-            android:layout_height="?android:attr/actionBarSize"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:background="@color/darkest_semitransparent"
-            app:theme="@style/MyDarkToolbarTheme"
-            app:popupTheme="@style/MyDarkPopupMenuTheme"/>
-        <LinearLayout
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/pageToolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?android:attr/actionBarSize"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:background="@color/darkest_semitransparent"
+                app:theme="@style/MyDarkToolbarTheme"
+                app:popupTheme="@style/MyDarkPopupMenuTheme"/>
+            <LinearLayout
                 android:id="@+id/pageNavLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -36,13 +39,13 @@
                 android:paddingTop="10dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp">
-            <TextView
+                <TextView
                     android:id="@+id/pageNavTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/card_text"/>
-            <SeekBar
-                    android:id="@+id/pageSeekBar"
+                <SeekBar
+                    android:id="@+id/pageNavSeekBar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingTop="10dp"
@@ -52,6 +55,7 @@
                     android:thumb="@drawable/reader_nav_thumb"
                     android:thumbOffset="6dp"
                     android:progressDrawable="@drawable/reader_nav_progress"/>
-        </LinearLayout>
-    </RelativeLayout>
+            </LinearLayout>
+        </RelativeLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </FrameLayout>

@@ -4,9 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BookReaderActivity extends AppCompatActivity {
+public class BookReaderActivity extends BaseActivity {
     private List<BookDto> mUpdatedBookListDto;
 
     @Override
@@ -30,7 +30,7 @@ public class BookReaderActivity extends AppCompatActivity {
 
         setContentView(R.layout.layout_book_reader);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_reader);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.pageToolbar);
         setSupportActionBar(toolbar);
 
         if (savedInstanceState == null) {
@@ -59,7 +59,7 @@ public class BookReaderActivity extends AppCompatActivity {
     public void setFragment(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.content_frame_reader, fragment)
+                .replace(R.id.book_reader_content, fragment)
                 .commit();
     }
 
@@ -107,5 +107,9 @@ public class BookReaderActivity extends AppCompatActivity {
         if(index == mUpdatedBookListDto.size()) {
             mUpdatedBookListDto.add(bookDto);
         }
+    }
+
+    public View getMessageView() {
+        return findViewById(R.id.book_reader_content_controls);
     }
 }

@@ -7,10 +7,10 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -28,7 +28,7 @@ import com.gitlab.jeeto.oboco.fragment.DownloadManagerBrowserFragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 
-public class MainActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener {
+public class MainActivity extends BaseActivity implements FragmentManager.OnBackStackChangedListener {
     private final static String STATE_CURRENT_MENU_ITEM = "STATE_CURRENT_MENU_ITEM";
 
     private DrawerLayout mDrawerLayout;
@@ -173,14 +173,14 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
 
         fragmentManager
                 .beginTransaction()
-                .replace(R.id.content_frame, fragment)
+                .replace(R.id.main_content, fragment)
                 .commit();
     }
 
     public void pushFragment(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.content_frame, fragment)
+                .replace(R.id.main_content, fragment)
                 .addToBackStack(null)
                 .commit();
     }
@@ -286,5 +286,9 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         menuItem.setChecked(true);
 
         mCurrentNavItem = menuItem.getItemId();
+    }
+
+    public View getMessageView() {
+        return findViewById(R.id.main_content);
     }
 }

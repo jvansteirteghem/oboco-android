@@ -24,7 +24,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
@@ -59,7 +58,7 @@ import java.util.HashMap;
 public class BookReaderFragment extends Fragment implements View.OnTouchListener {
     private BookViewPager mViewPager;
     private LinearLayout mPageNavLayout;
-    private SeekBar mPageSeekBar;
+    private SeekBar mPageNavSeekBar;
     private TextView mPageNavTextView;
     private SharedPreferences mPreferences;
     private GestureDetector mGestureDetector;
@@ -135,15 +134,22 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
 
     private void registerSystemBarsListener(View view) {
         ViewCompat.setOnApplyWindowInsetsListener(view, new OnApplyWindowInsetsListener() {
+            private void setMargin(View view, int top, int bottom) {
+                ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+                marginLayoutParams.topMargin = top;
+                marginLayoutParams.bottomMargin = bottom;
+                view.setLayoutParams(marginLayoutParams);
+            }
+
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View view, WindowInsetsCompat windowInsets) {
-                Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+                if(mViewModel.getIsFullscreen()) {
+                    setMargin(getActivity().findViewById(R.id.book_reader_content_controls), 0, 0);
+                } else {
+                    Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
 
-                View barsView = getActivity().findViewById(R.id.bars);
-                ViewGroup.MarginLayoutParams barsMarginLayoutParams = (ViewGroup.MarginLayoutParams) barsView.getLayoutParams();
-                barsMarginLayoutParams.topMargin = insets.top;
-                barsMarginLayoutParams.bottomMargin = insets.bottom;
-                barsView.setLayoutParams(barsMarginLayoutParams);
+                    setMargin(getActivity().findViewById(R.id.book_reader_content_controls), insets.top, insets.bottom);
+                }
 
                 return WindowInsetsCompat.CONSUMED;
             }
@@ -173,9 +179,9 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
         final View view = inflater.inflate(R.layout.fragment_book_reader, container, false);
 
         mPageNavLayout = (LinearLayout) getActivity().findViewById(R.id.pageNavLayout);
-        mPageSeekBar = (SeekBar) mPageNavLayout.findViewById(R.id.pageSeekBar);
-        mPageSeekBar.setMax(0);
-        mPageSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        mPageNavSeekBar = (SeekBar) mPageNavLayout.findViewById(R.id.pageNavSeekBar);
+        mPageNavSeekBar.setMax(0);
+        mPageNavSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
@@ -183,7 +189,7 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                     if (mIsLeftToRight) {
                         page = progress + 1;
                     } else {
-                        page = mPageSeekBar.getMax() - progress + 1;
+                        page = mPageNavSeekBar.getMax() - progress + 1;
                     }
 
                     if(page != getCurrentPage()) {
@@ -249,9 +255,9 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
 
                 getActivity().setTitle(bookDto.getName());
 
-                mPageSeekBar.setMax(bookDto.getNumberOfPages() - 1);
+                mPageNavSeekBar.setMax(bookDto.getNumberOfPages() - 1);
 
-                updatePageSeekBar();
+                updatePageNavSeekBar();
 
                 int page = mViewModel.getSelectedBookPage();
 
@@ -341,8 +347,7 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                 if(showMessage) {
                     mViewModel.setShowMessage(false);
 
-                    Toast toast = Toast.makeText(getContext(), mViewModel.getMessage(), Toast.LENGTH_LONG);
-                    toast.show();
+                    ((BookReaderActivity) getActivity()).showMessage(mViewModel.getMessage());
                 }
             }
         });
@@ -416,7 +421,7 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                 editor.apply();
                 setCurrentPage(page, false);
                 mViewPager.getAdapter().notifyDataSetChanged();
-                updatePageSeekBar();
+                updatePageNavSeekBar();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -433,10 +438,10 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
     private void setCurrentPage(int page, boolean animated) {
         if(mIsLeftToRight) {
             mViewPager.setCurrentItem(page - 1, animated);
-            mPageSeekBar.setProgress(page - 1);
+            mPageNavSeekBar.setProgress(page - 1);
         } else {
             mViewPager.setCurrentItem(mViewPager.getAdapter().getCount() - page, animated);
-            mPageSeekBar.setProgress(mViewPager.getAdapter().getCount() - page);
+            mPageNavSeekBar.setProgress(mViewPager.getAdapter().getCount() - page);
         }
 
         String navPage = new StringBuilder()
@@ -668,14 +673,14 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
         }
     }
 
-    private void updatePageSeekBar() {
+    private void updatePageNavSeekBar() {
         int seekRes = (mIsLeftToRight)
                 ? R.drawable.reader_nav_progress
                 : R.drawable.reader_nav_progress_inverse;
 
         Drawable d = ContextCompat.getDrawable(getActivity(), seekRes);
-        Rect bounds = mPageSeekBar.getProgressDrawable().getBounds();
-        mPageSeekBar.setProgressDrawable(d);
-        mPageSeekBar.getProgressDrawable().setBounds(bounds);
+        Rect bounds = mPageNavSeekBar.getProgressDrawable().getBounds();
+        mPageNavSeekBar.setProgressDrawable(d);
+        mPageNavSeekBar.getProgressDrawable().setBounds(bounds);
     }
 }

@@ -11,20 +11,17 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
 
-    <string name="account_login_base_url_hint">Base URL: http://address:port</string>
+    <string name="account_login_base_url_hint">Base URL: http(s)://address:port</string>
     <string name="account_login_name_hint">Name</string>
     <string name="account_login_password_hint">Password</string>
     <string name="account_login_show_password">Show password</string>
     <string name="account_login_log_in">Log in</string>
-    <string name="account_login_logged_in">Logged in.</string>
 
     <string name="account_logout_log_out">Log out</string>
-    <string name="account_logout_logged_out">Logged out.</string>
     <string name="account_logout_password_hint">Password</string>
     <string name="account_logout_update_password_hint">Update password</string>
     <string name="account_logout_show_password">Show password</string>
     <string name="account_logout_update_password">Update password</string>
-    <string name="account_logout_updated_password">Password is updated.</string>
 
     <string name="book_reader_menu_view_mode">View mode</string>
     <string name="book_reader_menu_view_mode_aspect_fill">Aspect fill</string>
@@ -110,4 +107,34 @@
 
     <string name="download_book_worker_download">Download book</string>
     <string name="download_book_worker_download_stop">Stop</string>
+
+    <string name="action_user_log_in_name_password">You are logged in.</string>
+    <string name="action_user_log_in_name_password_error_base_url">Set base URL: http(s)://address:port.</string>
+    <string name="action_user_log_in_name_password_error_name">Set name.</string>
+    <string name="action_user_log_in_name_password_error_password">Set password.</string>
+    <string name="action_user_log_in_name_password_error">We can not log in. Are the name and the password correct?</string>
+    <string name="action_user_log_in_token_error">You are logged out.</string>
+    <string name="action_user_log_out">You are logged out.</string>
+    <string name="action_user_update_password">The password is updated.</string>
+    <string name="action_user_update_password_error_password">Set password.</string>
+    <string name="action_user_update_password_error_update_password">Set update password.</string>
+    <string name="action_user_update_password_error">We can not update the password. Is the password correct?</string>
+    <string name="action_book_collections_get_error">We can not get the book collections.</string>
+    <string name="action_book_collection_get_error">We can not get the book collection.</string>
+    <string name="action_book_collection_delete_error">We can not delete the books.</string>
+    <string name="action_books_get_error">We can not get the books.</string>
+    <string name="action_book_get_error">We can not get the book.</string>
+    <string name="action_book_delete_error">We can not delete the book.</string>
+    <string name="action_book_page_get_error">We can not get the book page.</string>
+    <string name="action_book_mark_create_update_error">We can not create/update the book mark.</string>
+    <string name="action_book_mark_delete_error">We can not delete the book mark.</string>
+    <string name="action_book_marks_create_update_error">We can not create/update the book marks.</string>
+    <string name="action_book_marks_delete_error">We can not delete the book marks.</string>
+    <string name="action_error_user_not_authenticated">You can not do that. You are logged out.</string>
+    <string name="action_error_user_not_authorized">You can not do that.</string>
+    <string name="action_error_user_root_book_collection">You can not do that. You do not have a root book collection.</string>
+    <string name="action_error_book_scanner">We can not do that when the book scanner is started. Can you try again later?</string>
+    <string name="action_error">We can not do that now. Can you try again later?</string>
+
+    <string name="snackbar_action">Ok</string>
 </resources>

@@ -4,13 +4,17 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.TextUtils;
 
 import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.client.ApplicationService;
 import com.gitlab.jeeto.oboco.client.AuthenticationManager;
+import com.gitlab.jeeto.oboco.client.ProblemDto;
 import com.gitlab.jeeto.oboco.client.UserDto;
 import com.gitlab.jeeto.oboco.client.UserPasswordDto;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
@@ -43,9 +47,22 @@ public class RemoteAccountLogoutViewModel extends AccountLogoutViewModel {
         mAuthenticationManagerDisposable = observable.subscribe(new Consumer<Throwable>() {
             @Override
             public void accept(Throwable e) throws Exception {
-                Log.v(TAG, "Error.", e);
+                String message = null;
 
-                mMessageObservable.setValue(toMessage(e));
+                ProblemDto p = getProblem(e);
+                if(p != null) {
+                    if(400 == p.getStatusCode()) {
+                        if("PROBLEM_USER_TOKEN_INVALID".equals(p.getCode())) {
+                            message = getMessage(R.string.action_user_log_in_token_error);
+                        }
+                    }
+                }
+
+                if(message == null) {
+                    message = getMessage(e);
+                }
+
+                mMessageObservable.setValue(message);
                 mShowMessageObservable.setValue(true);
             }
         });
@@ -86,7 +103,7 @@ public class RemoteAccountLogoutViewModel extends AccountLogoutViewModel {
 
             @Override
             public void onComplete() {
-                mMessageObservable.setValue(getApplication().getResources().getString(R.string.account_logout_logged_out));
+                mMessageObservable.setValue(getMessage(R.string.action_user_log_out));
                 mShowMessageObservable.setValue(true);
 
                 mIsEnabledObservable.setValue(true);
@@ -96,9 +113,7 @@ public class RemoteAccountLogoutViewModel extends AccountLogoutViewModel {
 
             @Override
             public void onError(Throwable e) {
-                Log.v(TAG, "Error.", e);
-
-                mMessageObservable.setValue(toMessage(e));
+                mMessageObservable.setValue(getMessage(e));
                 mShowMessageObservable.setValue(true);
 
                 mIsEnabledObservable.setValue(true);
@@ -110,9 +125,34 @@ public class RemoteAccountLogoutViewModel extends AccountLogoutViewModel {
     public void updatePassword() {
         mIsEnabledObservable.setValue(false);
 
+        List<String> messageList = new ArrayList<String>();
+
+        String password = mPasswordObservable.getValue();
+
+        if(password == null || password.equals("")) {
+            messageList.add(getMessage(R.string.action_user_update_password_error_password));
+        }
+
+        String updatePassword = mUpdatePasswordObservable.getValue();
+
+        if(updatePassword == null || updatePassword.equals("")) {
+            messageList.add(getMessage(R.string.action_user_update_password_error_update_password));
+        }
+
+        if(messageList.size() != 0) {
+            String message = TextUtils.join("\n", messageList);
+
+            mMessageObservable.setValue(message);
+            mShowMessageObservable.setValue(true);
+
+            mIsEnabledObservable.setValue(true);
+
+            return;
+        }
+
         UserPasswordDto userPasswordDto = new UserPasswordDto();
-        userPasswordDto.setPassword(mPasswordObservable.getValue());
-        userPasswordDto.setUpdatePassword(mUpdatePasswordObservable.getValue());
+        userPasswordDto.setPassword(password);
+        userPasswordDto.setUpdatePassword(updatePassword);
 
         Single<UserDto> single = mApplicationService.updateAuthenticatedUserPassword(userPasswordDto);
         single = single.observeOn(AndroidSchedulers.mainThread());
@@ -125,7 +165,7 @@ public class RemoteAccountLogoutViewModel extends AccountLogoutViewModel {
 
             @Override
             public void onSuccess(UserDto userDto) {
-                mMessageObservable.setValue(getApplication().getResources().getString(R.string.account_logout_updated_password));
+                mMessageObservable.setValue(getMessage(R.string.action_user_update_password));
                 mShowMessageObservable.setValue(true);
 
                 mPasswordObservable.setValue("");
@@ -141,9 +181,22 @@ public class RemoteAccountLogoutViewModel extends AccountLogoutViewModel {
 
             @Override
             public void onError(Throwable e) {
-                Log.v(TAG, "Error.", e);
+                String message = null;
 
-                mMessageObservable.setValue(toMessage(e));
+                ProblemDto p = getProblem(e);
+                if(p != null) {
+                    if(400 == p.getStatusCode()) {
+                        if("PROBLEM_USER_PASSWORD_INVALID".equals(p.getCode())) {
+                            message = getMessage(R.string.action_user_update_password_error);
+                        }
+                    }
+                }
+
+                if(message == null) {
+                    message = getMessage(e);
+                }
+
+                mMessageObservable.setValue(message);
                 mShowMessageObservable.setValue(true);
 
                 mIsEnabledObservable.setValue(true);

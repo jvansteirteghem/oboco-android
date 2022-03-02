@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -37,6 +36,7 @@ import androidx.work.WorkRequest;
 import com.gitlab.jeeto.oboco.Constants;
 import com.gitlab.jeeto.oboco.R;
 import com.gitlab.jeeto.oboco.activity.BookReaderActivity;
+import com.gitlab.jeeto.oboco.activity.MainActivity;
 import com.gitlab.jeeto.oboco.client.BookDto;
 import com.gitlab.jeeto.oboco.client.BookMarkDto;
 import com.gitlab.jeeto.oboco.common.BaseViewModelProviderFactory;
@@ -306,8 +306,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                 if(showMessage) {
                     mViewModel.setShowMessage(false);
 
-                    Toast toast = Toast.makeText(getContext(), mViewModel.getMessage(), Toast.LENGTH_LONG);
-                    toast.show();
+                    ((MainActivity) getActivity()).showMessage(mViewModel.getMessage());
                 }
             }
         });
@@ -519,7 +518,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
             mBookImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    int i = getAdapterPosition();
+                    int i = getBindingAdapterPosition();
                     BookDto bookDto = getBookAtPosition(i);
                     openBook(bookDto);
                 }
@@ -539,7 +538,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                         mSelectedBookMenu.getMenuInflater().inflate(R.menu.book_browser_book, mSelectedBookMenu.getMenu());
                         mSelectedBookMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                             public boolean onMenuItemClick(MenuItem menuItem) {
-                                int i = getAdapterPosition();
+                                int i = getBindingAdapterPosition();
                                 BookDto selectedBookDto = getBookAtPosition(i);
 
                                 mViewModel.setSelectedBook(selectedBookDto);
