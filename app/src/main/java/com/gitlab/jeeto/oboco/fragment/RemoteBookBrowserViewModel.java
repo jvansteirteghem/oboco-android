@@ -197,7 +197,7 @@ public class RemoteBookBrowserViewModel extends BookBrowserViewModel {
                         if("PROBLEM_GRAPH_INVALID".equals(p.getCode())) {
                             message = getMessage(R.string.action_book_collection_get_error);
                         }
-                    } else if(400 == p.getStatusCode()) {
+                    } else if(404 == p.getStatusCode()) {
                         if("PROBLEM_BOOK_COLLECTION_NOT_FOUND".equals(p.getCode())) {
                             message = getMessage(R.string.action_book_collection_get_error);
                         }
