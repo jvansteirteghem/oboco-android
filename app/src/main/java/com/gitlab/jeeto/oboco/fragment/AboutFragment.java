@@ -15,32 +15,41 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.gitlab.jeeto.oboco.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AboutFragment extends Fragment implements View.OnClickListener {
     private class LibraryDescription {
         public final String name;
         public final String description;
         public final String license;
         public final String owner;
-        public final String link;
+        public final String url;
 
-        LibraryDescription(String name, String description, String license, String owner, String link) {
+        LibraryDescription(String name, String description, String license, String owner, String url) {
             this.name = name;
             this.description = description;
             this.license = license;
             this.owner = owner;
-            this.link = link;
+            this.url = url;
         }
     }
 
-    private LibraryDescription[] mDescriptions = new LibraryDescription[]{
-        new LibraryDescription(
-                "Bubble",
-                "The base of Oboco.",
-                "MIT license",
-                "nkanaev",
-                "https://github.com/nkanaev/bubble"
-        )
-    };
+    private List<LibraryDescription> mLibraryDescriptionList;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mLibraryDescriptionList = new ArrayList<LibraryDescription>();
+        mLibraryDescriptionList.add(new LibraryDescription(
+            getResources().getString(R.string.about_bubble_name),
+            getResources().getString(R.string.about_bubble_description),
+            getResources().getString(R.string.about_bubble_license),
+            getResources().getString(R.string.about_bubble_owner),
+            getResources().getString(R.string.about_bubble_url)
+        ));
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -52,15 +61,15 @@ public class AboutFragment extends Fragment implements View.OnClickListener {
 
         ((TextView) view.findViewById(R.id.aboutVersion)).setText(getVersionString());
 
-        for (int i = 0; i < mDescriptions.length; i++) {
+        for (LibraryDescription libraryDescription: mLibraryDescriptionList) {
             View cardView = inflater.inflate(R.layout.card_deps, libsLayout, false);
 
-            ((TextView) cardView.findViewById(R.id.libraryName)).setText(mDescriptions[i].name);
-            ((TextView) cardView.findViewById(R.id.libraryCreator)).setText(mDescriptions[i].owner);
-            ((TextView) cardView.findViewById(R.id.libraryDescription)).setText(mDescriptions[i].description);
-            ((TextView) cardView.findViewById(R.id.libraryLicense)).setText(mDescriptions[i].license);
+            ((TextView) cardView.findViewById(R.id.libraryName)).setText(libraryDescription.name);
+            ((TextView) cardView.findViewById(R.id.libraryOwner)).setText(libraryDescription.owner);
+            ((TextView) cardView.findViewById(R.id.libraryDescription)).setText(libraryDescription.description);
+            ((TextView) cardView.findViewById(R.id.libraryLicense)).setText(libraryDescription.license);
 
-            cardView.setTag(mDescriptions[i].link);
+            cardView.setTag(libraryDescription.url);
             cardView.setOnClickListener(this);
             libsLayout.addView(cardView);
         }
@@ -73,7 +82,7 @@ public class AboutFragment extends Fragment implements View.OnClickListener {
             PackageInfo pi = getActivity()
                     .getPackageManager()
                     .getPackageInfo(getActivity().getPackageName(), 0);
-            return "Version " + pi.versionName + " (" + PackageInfoCompat.getLongVersionCode(pi) + ")";
+            return getResources().getString(R.string.about_version) + " " + pi.versionName + " (" + PackageInfoCompat.getLongVersionCode(pi) + ")";
         }
         catch (PackageManager.NameNotFoundException e) {
             return "";

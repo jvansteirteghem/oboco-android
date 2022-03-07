@@ -19,7 +19,7 @@
 
     <string name="account_logout_log_out">Log out</string>
     <string name="account_logout_password_hint">Password</string>
-    <string name="account_logout_update_password_hint">Update password</string>
+    <string name="account_logout_update_password_hint">New password</string>
     <string name="account_logout_show_password">Show password</string>
     <string name="account_logout_update_password">Update password</string>
 
@@ -78,9 +78,9 @@
     <string name="book_collection_browser_dialog_download">Download books?</string>
     <string name="book_collection_browser_dialog_download_positive">Yes</string>
     <string name="book_collection_browser_dialog_download_negative">No</string>
-    <string name="book_collection_browser_empty">No book collections.</string>
-    <string name="book_collection_browser_dialog_search">Search?</string>
-    <string name="book_collection_browser_dialog_search_hint">Search</string>
+    <string name="book_collection_browser_empty">No books.</string>
+    <string name="book_collection_browser_dialog_search">Search books?</string>
+    <string name="book_collection_browser_dialog_search_hint">Name</string>
     <string name="book_collection_browser_dialog_search_positive">Yes</string>
     <string name="book_collection_browser_dialog_search_negative">No</string>
 
@@ -137,4 +137,11 @@
     <string name="action_error">We can not do that now. Can you try again later?</string>
 
     <string name="snackbar_action">Ok</string>
+    
+    <string name="about_version">Version</string>
+    <string name="about_bubble_name">Bubble</string>
+    <string name="about_bubble_description">The base of Oboco.</string>
+    <string name="about_bubble_license">MIT license</string>
+    <string name="about_bubble_owner">nkanaev</string>
+    <string name="about_bubble_url">https://github.com/nkanaev/bubble</string>
 </resources>

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Oboco</string>
+    <string name="app_description">Een client voor Oboco.</string>
+
+    <string name="drawer_menu_account">Account</string>
+    <string name="drawer_menu_book_collection_browser">Bladeren</string>
+    <string name="drawer_menu_download_browser">Downloads</string>
+    <string name="drawer_menu_download_manager_browser">Downloads beheerder</string>
+    <string name="drawer_menu_about">Over</string>
+    <string name="drawer_open">Open navigatie lade</string>
+    <string name="drawer_close">Sluit navigatie lade</string>
+
+    <string name="account_login_base_url_hint">Basis URL: http(s)://adres:poort</string>
+    <string name="account_login_name_hint">Naam</string>
+    <string name="account_login_password_hint">Wachtwoord</string>
+    <string name="account_login_show_password">Toon wachtwoord</string>
+    <string name="account_login_log_in">Log in</string>
+
+    <string name="account_logout_log_out">Log uit</string>
+    <string name="account_logout_password_hint">Wachtwoord</string>
+    <string name="account_logout_update_password_hint">Nieuw wachtwoord</string>
+    <string name="account_logout_show_password">Toon wachtwoord</string>
+    <string name="account_logout_update_password">Wijzig wachtwoord</string>
+
+    <string name="book_reader_menu_view_mode">Weergavemodus</string>
+    <string name="book_reader_menu_view_mode_aspect_fill">Aspect opvullend</string>
+    <string name="book_reader_menu_view_mode_aspect_fit">Aspect passend</string>
+    <string name="book_reader_menu_view_mode_fit_width">Breedte passend</string>
+    <string name="book_reader_menu_reading_mode">Leesmodus</string>
+    <string name="book_reader_menu_reading_mode_left_to_right">Links naar rechts</string>
+    <string name="book_reader_menu_reading_mode_right_to_left">Rechts naar links</string>
+    <string name="book_reader_dialog_open">Open boek?</string>
+    <string name="book_reader_dialog_open_positive">Ja</string>
+    <string name="book_reader_dialog_open_negative">Nee</string>
+
+    <string name="book_browser_menu_filter">Filter</string>
+    <string name="book_browser_menu_filter_type_all">Alles</string>
+    <string name="book_browser_menu_filter_type_new">Nieuw</string>
+    <string name="book_browser_menu_filter_type_to_read">Te lezen</string>
+    <string name="book_browser_menu_filter_type_latest_read">Laatst gelezen</string>
+    <string name="book_browser_menu_filter_type_read">Gelezen</string>
+    <string name="book_browser_menu_filter_type_reading">Aan het lezen</string>
+    <string name="book_browser_menu_filter_type_unread">Ongelezen</string>
+    <string name="book_browser_menu_book_mark">Markeren</string>
+    <string name="book_browser_menu_book_download">Downloaden</string>
+    <string name="book_browser_dialog_mark">Markeer boek?</string>
+    <string-array name="book_browser_dialog_mark_as_array">
+        <item>Te lezen</item>
+        <item>Gelezen</item>
+        <item>Ongelezen</item>
+    </string-array>
+    <string name="book_browser_dialog_mark_negative">Nee</string>
+    <string name="book_browser_dialog_download">Download boek?</string>
+    <string name="book_browser_dialog_download_positive">Ja</string>
+    <string name="book_browser_dialog_download_negative">Nee</string>
+    <string name="book_browser_empty">Geen boeken.</string>
+
+    <string name="book_collection_browser_menu_search">Zoeken</string>
+    <string name="book_collection_browser_menu_filter">Filter</string>
+    <string name="book_collection_browser_menu_filter_type_root">Wortel</string>
+    <string name="book_collection_browser_menu_filter_type_all">Alles</string>
+    <string name="book_collection_browser_menu_filter_type_new">Nieuw</string>
+    <string name="book_collection_browser_menu_filter_type_to_read">Te lezen</string>
+    <string name="book_collection_browser_menu_filter_type_latest_read">Laatst gelezen</string>
+    <string name="book_collection_browser_menu_filter_type_read">Gelezen</string>
+    <string name="book_collection_browser_menu_filter_type_reading">Aan het lezen</string>
+    <string name="book_collection_browser_menu_filter_type_unread">Ongelezen</string>
+    <string name="book_collection_browser_menu_book_collection_mark">Markeren</string>
+    <string name="book_collection_browser_menu_book_collection_download">Downloaden</string>
+    <string name="book_collection_browser_dialog_mark">Markeer boeken?</string>
+    <string-array name="book_collection_browser_dialog_mark_as_array">
+        <item>Te lezen</item>
+        <item>Gelezen</item>
+        <item>Ongelezen</item>
+    </string-array>
+    <string name="book_collection_browser_dialog_mark_negative">Nee</string>
+    <string name="book_collection_browser_dialog_download">Download boeken?</string>
+    <string name="book_collection_browser_dialog_download_positive">Ja</string>
+    <string name="book_collection_browser_dialog_download_negative">Nee</string>
+    <string name="book_collection_browser_empty">Geen boeken.</string>
+    <string name="book_collection_browser_dialog_search">Zoek boeken?</string>
+    <string name="book_collection_browser_dialog_search_hint">Naam</string>
+    <string name="book_collection_browser_dialog_search_positive">Ja</string>
+    <string name="book_collection_browser_dialog_search_negative">Nee</string>
+
+    <string name="download_browser_dialog_delete_book_collection">Verwijder boeken?</string>
+    <string name="download_browser_dialog_delete_book">Verwijder boek?</string>
+    <string name="download_browser_dialog_delete_positive">Ja</string>
+    <string name="download_browser_dialog_delete_negative">Nee</string>
+    <string name="download_browser_menu_book_delete">Verijderen</string>
+    <string name="download_browser_menu_book_collection_delete">Verwijderen</string>
+
+    <plurals name="download_manager_browser_number_of_downloads">
+        <item quantity="one">%d download</item>
+        <item quantity="other">%d downloads</item>
+    </plurals>
+    <string name="download_manager_browser_dialog_download_start">Start download?</string>
+    <string name="download_manager_browser_dialog_download_stop">Stop download?</string>
+    <string name="download_manager_browser_dialog_download_positive">Ja</string>
+    <string name="download_manager_browser_dialog_download_negative">Nee</string>
+    <string name="download_manager_browser_menu_download_start">Starten</string>
+    <string name="download_manager_browser_menu_download_stop">Stoppen</string>
+
+    <string name="download_book_collection_worker_download">Download boeken</string>
+    <string name="download_book_collection_worker_download_stop">Stoppen</string>
+
+    <string name="download_book_worker_download">Download boek</string>
+    <string name="download_book_worker_download_stop">Stoppen</string>
+
+    <string name="action_user_log_in_name_password">Je bent uitgelogd.</string>
+    <string name="action_user_log_in_name_password_error_base_url">Zet basis URL: http(s)://adres:poort.</string>
+    <string name="action_user_log_in_name_password_error_name">Zet naam.</string>
+    <string name="action_user_log_in_name_password_error_password">Zet wachtwoord.</string>
+    <string name="action_user_log_in_name_password_error">We kunnen niet inloggen. Zijn de naam en het wachtwoord correct?</string>
+    <string name="action_user_log_in_token_error">Je bent uitgelogd.</string>
+    <string name="action_user_log_out">Je bent uitgelogd.</string>
+    <string name="action_user_update_password">Het wachtwoord is gewijzigd.</string>
+    <string name="action_user_update_password_error_password">Zet wachtwoord.</string>
+    <string name="action_user_update_password_error_update_password">Zet nieuw wachtwoord.</string>
+    <string name="action_user_update_password_error">We kunnen het wachtwoord niet wijzigen. Is het wachtwoord correct?</string>
+    <string name="action_book_collections_get_error">We kunnen de boek verzamelingen niet opvragen.</string>
+    <string name="action_book_collection_get_error">We kunnen de boek verzameling niet opvragen.</string>
+    <string name="action_book_collection_delete_error">We kunnen de boeken niet verwijderen.</string>
+    <string name="action_books_get_error">We kunnen de boeken niet opvragen.</string>
+    <string name="action_book_get_error">We kunnen het boek niet opvragen.</string>
+    <string name="action_book_delete_error">We kunnen het boek niet verwijderen.</string>
+    <string name="action_book_page_get_error">We kunnen de boek pagina niet opvragen.</string>
+    <string name="action_book_mark_create_update_error">We kunnen de boek markering niet maken/wijzigen.</string>
+    <string name="action_book_mark_delete_error">We kunnen de boek markering niet verwijderen.</string>
+    <string name="action_book_marks_create_update_error">We kunnen de boek markeringen niet maken/wijzigen.</string>
+    <string name="action_book_marks_delete_error">We kunnen de boek markeringen niet verwijderen.</string>
+    <string name="action_error_user_not_authenticated">Je kan dat niet doen. Je bent uitgelogd.</string>
+    <string name="action_error_user_not_authorized">Je kan dat niet doen.</string>
+    <string name="action_error_user_root_book_collection">Je kan dat niet doen. Je hebt geen wortel boek verzameling.</string>
+    <string name="action_error_book_scanner">We kunnen dat niet doen wanneer de boek scanner gestart is. Kan je later opnieuw proberen?</string>
+    <string name="action_error">We kunnen dat nu niet doen. Kan je later opnieuw proberen?</string>
+
+    <string name="snackbar_action">Ok</string>
+    
+    <string name="about_version">Versie</string>
+    <string name="about_bubble_name">Bubble</string>
+    <string name="about_bubble_description">De basis van Oboco.</string>
+    <string name="about_bubble_license">MIT licentie</string>
+    <string name="about_bubble_owner">nkanaev</string>
+    <string name="about_bubble_url">https://github.com/nkanaev/bubble</string>
+</resources>
