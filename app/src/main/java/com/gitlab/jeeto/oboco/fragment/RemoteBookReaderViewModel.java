@@ -163,10 +163,6 @@ public class RemoteBookReaderViewModel extends BookReaderViewModel {
                                 if("PROBLEM_GRAPH_INVALID".equals(p.getCode())) {
                                     message = getMessage(R.string.action_book_get_error);
                                 }
-                            } else if(400 == p.getStatusCode()) {
-                                if("PROBLEM_BOOK_NOT_FOUND".equals(p.getCode())) {
-                                    message = getMessage(R.string.action_book_get_error);
-                                }
                             }
                         }
 
