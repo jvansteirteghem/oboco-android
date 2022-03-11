@@ -11,12 +11,12 @@
         android:layout_height="?attr/actionBarSize"
         android:gravity="center_vertical"
         android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
-        android:textColor="@color/lightest"/>
+        android:textColor="@color/reader_lightest"/>
     <TextView
         android:id="@+id/browser_breadcrumb_subtitle_textview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="18sp"
         android:paddingBottom="16dp"
-        android:textColor="@color/lightest"/>
+        android:textColor="@color/reader_lightest"/>
 </LinearLayout>

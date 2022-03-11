@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#333333</color>
+    <color name="primaryDark">#222222</color>
+    <color name="accent">#ffffff</color>
+
+    <color name="darkest">#ffffff</color>
+    <color name="darkest_semitransparent">#ceffffff</color>
+    <color name="darker">#dddddd</color>
+    <color name="dark">@color/ripple_material_dark</color>
+
+    <color name="lightest">#333333</color>
+	<color name="lightest_semitransparent">#ce333333</color>
+    <color name="lighter">#222222</color>
+</resources>

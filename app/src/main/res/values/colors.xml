@@ -2,14 +2,27 @@
 <resources>
     <color name="primary">#DB5162</color>
     <color name="primaryDark">#B35159</color>
-    <color name="accent">#ff466e87</color>
+    <color name="accent">#222222</color>
 
     <color name="darkest">#222222</color>
     <color name="darkest_semitransparent">#ce222222</color>
     <color name="darker">#333333</color>
+    <color name="dark">@color/ripple_material_light</color>
 
     <color name="lightest">#ffffff</color>
+    <color name="lightest_semitransparent">#ceffffff</color>
     <color name="lighter">#dddddd</color>
+
+    <color name="reader_accent">#ffffff</color>
+
+    <color name="reader_darkest">#222222</color>
+    <color name="reader_darkest_semitransparent">#ce222222</color>
+    <color name="reader_darker">#333333</color>
+
+    <color name="reader_lightest">#ffffff</color>
+    <color name="reader_lightest_semitransparent">#ceffffff</color>
+    <color name="reader_lighter">#dddddd</color>
+    <color name="reader_light">@color/ripple_material_dark</color>
 
     <color name="circle_grey">#9d9d9d</color>
     <color name="circle_red">#F44336</color>

@@ -139,9 +139,4 @@
     <string name="snackbar_action">Ok</string>
     
     <string name="about_version">Version</string>
-    <string name="about_bubble_name">Bubble</string>
-    <string name="about_bubble_description">The base of Oboco.</string>
-    <string name="about_bubble_license">MIT license</string>
-    <string name="about_bubble_owner">nkanaev</string>
-    <string name="about_bubble_url">https://github.com/nkanaev/bubble</string>
 </resources>

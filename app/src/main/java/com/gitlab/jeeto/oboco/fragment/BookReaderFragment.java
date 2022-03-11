@@ -277,7 +277,7 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                     if(mOpenBookDialog == null) {
                         mViewModel.setIsFullscreen(false);
 
-                        mOpenBookDialog = new AlertDialog.Builder(getActivity(), R.style.MyDarkAlertDialogStyle)
+                        mOpenBookDialog = new AlertDialog.Builder(getActivity())
                                 .setTitle(R.string.book_reader_dialog_open)
                                 .setMessage(mViewModel.getSelectedBook().getName())
                                 .setPositiveButton(R.string.book_reader_dialog_open_positive, new DialogInterface.OnClickListener() {

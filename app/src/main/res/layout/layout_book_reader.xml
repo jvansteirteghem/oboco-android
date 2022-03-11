@@ -22,9 +22,9 @@
                 android:layout_height="?android:attr/actionBarSize"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:background="@color/darkest_semitransparent"
-                android:theme="@style/MyDarkToolbarTheme"
-                app:popupTheme="@style/MyDarkPopupMenuTheme"/>
+                android:background="@color/reader_darkest_semitransparent"
+                android:theme="@style/ReaderDarkToolbarTheme"
+                app:popupTheme="@style/ReaderDarkPopupMenuTheme"/>
             <LinearLayout
                 android:id="@+id/pageNavLayout"
                 android:layout_width="match_parent"

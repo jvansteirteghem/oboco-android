@@ -165,7 +165,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         });
 
         mRefreshView = view.findViewById(R.id.bookBrowserRefresh);
-        mRefreshView.setColorSchemeResources(R.color.darker);
+        mRefreshView.setColorSchemeResources(R.color.reader_darker);
         mRefreshView.setOnRefreshListener(this);
         mRefreshView.setEnabled(true);
 
@@ -210,7 +210,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
             public void onChanged(Boolean showMarkSelectedBookDialog) {
                 if(showMarkSelectedBookDialog) {
                     if (mMarkSelectedBookDialog == null) {
-                        mMarkSelectedBookDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
+                        mMarkSelectedBookDialog = new AlertDialog.Builder(getActivity())
                                 .setTitle(R.string.book_browser_dialog_mark)
                                 .setItems(R.array.book_browser_dialog_mark_as_array, new DialogInterface.OnClickListener() {
                                     @Override
@@ -261,7 +261,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
             public void onChanged(Boolean showDownloadSelectedBookDialog) {
                 if(showDownloadSelectedBookDialog) {
                     if (mDownloadSelectedBookDialog == null) {
-                        mDownloadSelectedBookDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
+                        mDownloadSelectedBookDialog = new AlertDialog.Builder(getActivity())
                                 .setTitle(R.string.book_browser_dialog_download)
                                 .setMessage(mViewModel.getSelectedBook().getName())
                                 .setPositiveButton(R.string.book_browser_dialog_download_positive, new DialogInterface.OnClickListener() {
@@ -533,8 +533,8 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                 @Override
                 public void onClick(View view) {
                     if(mSelectedBookMenu == null) {
-                        Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.MyPopupMenuTheme);
-                        mSelectedBookMenu = new PopupMenu(contextThemeWrapper, mBookMenuImageView, Gravity.NO_GRAVITY, 0, R.style.MyPopupMenuOverflowTheme);
+                        Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.AppPopupMenuTheme);
+                        mSelectedBookMenu = new PopupMenu(contextThemeWrapper, mBookMenuImageView, Gravity.NO_GRAVITY, 0, R.style.AppPopupMenuOverflowTheme);
                         mSelectedBookMenu.getMenuInflater().inflate(R.menu.book_browser_book, mSelectedBookMenu.getMenu());
                         mSelectedBookMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                             public boolean onMenuItemClick(MenuItem menuItem) {

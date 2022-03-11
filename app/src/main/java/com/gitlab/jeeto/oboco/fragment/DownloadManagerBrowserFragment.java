@@ -119,7 +119,7 @@ public class DownloadManagerBrowserFragment extends Fragment {
             @Override
             public void onChanged(Boolean showStartSelectedDownloadWorkDialog) {
                 if(mStartSelectedDownloadWorkDialog == null) {
-                    mStartSelectedDownloadWorkDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
+                    mStartSelectedDownloadWorkDialog = new AlertDialog.Builder(getActivity())
                             .setTitle(R.string.download_manager_browser_dialog_download_start)
                             .setMessage(mViewModel.getSelectedDownloadWork().getDownloadName())
                             .setPositiveButton(R.string.download_manager_browser_dialog_download_positive, new DialogInterface.OnClickListener() {
@@ -167,7 +167,7 @@ public class DownloadManagerBrowserFragment extends Fragment {
             @Override
             public void onChanged(Boolean showStopSelectedDownloadWorkDialog) {
                 if(mStopSelectedDownloadWorkDialog == null) {
-                    mStopSelectedDownloadWorkDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
+                    mStopSelectedDownloadWorkDialog = new AlertDialog.Builder(getActivity())
                             .setTitle(R.string.download_manager_browser_dialog_download_stop)
                             .setMessage(mViewModel.getSelectedDownloadWork().getDownloadName())
                             .setPositiveButton(R.string.download_manager_browser_dialog_download_positive, new DialogInterface.OnClickListener() {
@@ -302,8 +302,8 @@ public class DownloadManagerBrowserFragment extends Fragment {
                         if(mSelectedDownloadWorkMenu == null) {
                             DownloadWork downloadWork = mDownloadWorkList.get(position);
 
-                            Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.MyPopupMenuTheme);
-                            mSelectedDownloadWorkMenu = new PopupMenu(contextThemeWrapper, imageView, Gravity.NO_GRAVITY, 0, R.style.MyPopupMenuOverflowTheme);
+                            Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.AppPopupMenuTheme);
+                            mSelectedDownloadWorkMenu = new PopupMenu(contextThemeWrapper, imageView, Gravity.NO_GRAVITY, 0, R.style.AppPopupMenuOverflowTheme);
                             if(downloadWork.getState().equals(WorkInfo.State.FAILED) || downloadWork.getState().equals(WorkInfo.State.CANCELLED)) {
                                 mSelectedDownloadWorkMenu.getMenu().add(Menu.NONE, R.id.menu_download_manager_browser_download_start, 1, R.string.download_manager_browser_menu_download_start);
                             } else {

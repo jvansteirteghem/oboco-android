@@ -15,8 +15,8 @@
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
             android:minHeight="?attr/actionBarSize"
-            android:theme="@style/MyToolbarTheme"
-            app:popupTheme="@style/MyPopupMenuTheme"
+            android:theme="@style/AppToolbarTheme"
+            app:popupTheme="@style/AppPopupMenuTheme"
             app:contentInsetLeft="@dimen/toolbar_inset"
             app:contentInsetStart="@dimen/toolbar_inset"/>
             <androidx.coordinatorlayout.widget.CoordinatorLayout

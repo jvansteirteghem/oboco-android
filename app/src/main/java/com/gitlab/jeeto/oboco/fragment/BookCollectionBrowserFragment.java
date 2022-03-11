@@ -146,7 +146,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         });
 
         mRefreshView = view.findViewById(R.id.bookCollectionBrowserRefresh);
-        mRefreshView.setColorSchemeResources(R.color.darker);
+        mRefreshView.setColorSchemeResources(R.color.reader_darker);
         mRefreshView.setOnRefreshListener(this);
         mRefreshView.setEnabled(true);
 
@@ -218,7 +218,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
 
                         searchDialogLinearLayout.addView(searchDialogSearchEditText);
 
-                        mSearchDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
+                        mSearchDialog = new AlertDialog.Builder(getActivity())
                                 .setTitle(R.string.book_collection_browser_dialog_search)
                                 .setView(searchDialogLinearLayout)
                                 .setPositiveButton(R.string.book_collection_browser_dialog_search_positive, new DialogInterface.OnClickListener() {
@@ -290,7 +290,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
             public void onChanged(Boolean showMarkSelectedBookCollectionDialog) {
                 if(showMarkSelectedBookCollectionDialog) {
                     if(mMarkSelectedBookCollectionDialog == null) {
-                        mMarkSelectedBookCollectionDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
+                        mMarkSelectedBookCollectionDialog = new AlertDialog.Builder(getActivity())
                                 .setTitle(R.string.book_collection_browser_dialog_mark)
                                 .setItems(R.array.book_collection_browser_dialog_mark_as_array, new DialogInterface.OnClickListener() {
                                     @Override
@@ -341,7 +341,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
             public void onChanged(Boolean showDownloadSelectedBookCollectionDialog) {
                 if(showDownloadSelectedBookCollectionDialog) {
                     if(mDownloadSelectedBookCollectionDialog == null) {
-                        mDownloadSelectedBookCollectionDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
+                        mDownloadSelectedBookCollectionDialog = new AlertDialog.Builder(getActivity())
                                 .setTitle(R.string.book_collection_browser_dialog_download)
                                 .setMessage(mViewModel.getSelectedBookCollection().getName())
                                 .setPositiveButton(R.string.book_collection_browser_dialog_download_positive, new DialogInterface.OnClickListener() {
@@ -635,8 +635,8 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                     @Override
                     public void onClick(View view) {
                         if(mSelectedBookCollectionMenu == null) {
-                            Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.MyPopupMenuTheme);
-                            mSelectedBookCollectionMenu = new PopupMenu(contextThemeWrapper, mBookCollectionMenuImageView, Gravity.NO_GRAVITY, 0, R.style.MyPopupMenuOverflowTheme);
+                            Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.AppPopupMenuTheme);
+                            mSelectedBookCollectionMenu = new PopupMenu(contextThemeWrapper, mBookCollectionMenuImageView, Gravity.NO_GRAVITY, 0, R.style.AppPopupMenuOverflowTheme);
                             mSelectedBookCollectionMenu.getMenuInflater().inflate(R.menu.book_collection_browser_book_collection, mSelectedBookCollectionMenu.getMenu());
                             mSelectedBookCollectionMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                                 public boolean onMenuItemClick(MenuItem menuItem) {

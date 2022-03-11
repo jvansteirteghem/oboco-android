@@ -43,15 +43,7 @@
                         android:layout_margin="4dp"
                         android:gravity="center"
                         android:textSize="@dimen/textSizeSmall_openSource"
-                        android:textColor="#666"
                         android:text=""/>
-
-                <View
-                        android:id="@+id/aboutDivider"
-                        android:layout_width="match_parent"
-                        android:layout_height="1px"
-                        android:layout_marginTop="4dp"
-                        android:background="#CCC"/>
 
                 <TextView
                         android:id="@+id/aboutDescription"
@@ -62,15 +54,7 @@
                         android:padding="8dp"
                         android:textSize="@dimen/textSizeSmall_openSource"
                         android:textStyle="normal"
-                        android:textColor="#666"
                         android:text="@string/app_description"/>
-            </LinearLayout>
-
-            <LinearLayout
-                    android:id="@+id/about_libraries"
-                    android:layout_width="match_parent"
-                    android:layout_height="fill_parent"
-                    android:orientation="vertical">
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

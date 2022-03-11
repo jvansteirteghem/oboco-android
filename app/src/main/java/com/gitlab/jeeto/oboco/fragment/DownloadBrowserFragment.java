@@ -150,7 +150,7 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
             public void onChanged(Boolean showDeleteSelectedBookCollectionDialog) {
                 if(showDeleteSelectedBookCollectionDialog) {
                     if (mDeleteSelectedBookCollectionDialog == null) {
-                        mDeleteSelectedBookCollectionDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
+                        mDeleteSelectedBookCollectionDialog = new AlertDialog.Builder(getActivity())
                                 .setTitle(R.string.download_browser_dialog_delete_book_collection)
                                 .setMessage(mViewModel.getSelectedBookCollection().getName())
                                 .setPositiveButton(R.string.download_browser_dialog_delete_positive, new DialogInterface.OnClickListener() {
@@ -189,7 +189,7 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
             public void onChanged(Boolean showDeleteSelectedBookDialog) {
                 if(showDeleteSelectedBookDialog) {
                     if(mDeleteSelectedBookCollectionDialog == null) {
-                        mDeleteSelectedBookDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_Light_Dialog_Alert)
+                        mDeleteSelectedBookDialog = new AlertDialog.Builder(getActivity())
                                 .setTitle(R.string.download_browser_dialog_delete_book)
                                 .setMessage(mViewModel.getSelectedBook().getName())
                                 .setPositiveButton(R.string.download_browser_dialog_delete_positive, new DialogInterface.OnClickListener() {
@@ -352,8 +352,8 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
                         if(mSelectedMenu == null) {
                             Object object = mObjectList.get(position);
 
-                            Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.MyPopupMenuTheme);
-                            mSelectedMenu = new PopupMenu(contextThemeWrapper, imageView, Gravity.NO_GRAVITY, 0, R.style.MyPopupMenuOverflowTheme);
+                            Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.AppPopupMenuTheme);
+                            mSelectedMenu = new PopupMenu(contextThemeWrapper, imageView, Gravity.NO_GRAVITY, 0, R.style.AppPopupMenuOverflowTheme);
                             if(object instanceof BookCollectionDto) {
                                 mSelectedMenu.getMenu().add(Menu.NONE, R.id.menu_download_browser_book_collection_delete, 1, R.string.download_browser_menu_book_collection_delete);
                             } else {

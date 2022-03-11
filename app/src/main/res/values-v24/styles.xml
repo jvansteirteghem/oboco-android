@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="MyCommonAppTheme">
-        <item name="android:contextPopupMenuStyle">@style/MyPopupMenuTheme</item>
-        <item name="actionOverflowMenuStyle">@style/MyPopupMenuOverflowTheme</item>
+    <style name="AppTheme" parent="CommonAppTheme">
+        <item name="android:contextPopupMenuStyle">@style/AppPopupMenuTheme</item>
+        <item name="actionOverflowMenuStyle">@style/AppPopupMenuOverflowTheme</item>
     </style>
 
-    <style name="MyToolbarTheme" parent="MyCommonToolbarTheme">
-        <item name="android:contextPopupMenuStyle">@style/MyPopupMenuTheme</item>
-        <item name="actionOverflowMenuStyle">@style/MyPopupMenuOverflowTheme</item>
+    <style name="AppToolbarTheme" parent="CommonAppToolbarTheme">
+        <item name="android:contextPopupMenuStyle">@style/AppPopupMenuTheme</item>
+        <item name="actionOverflowMenuStyle">@style/AppPopupMenuOverflowTheme</item>
     </style>
 
-    <style name="MyPopupMenuTheme" parent="MyCommonPopupMenuTheme">
+    <style name="AppPopupMenuTheme" parent="CommonAppPopupMenuTheme">
         <item name="android:popupEnterTransition">@null</item>
         <item name="android:popupExitTransition">@null</item>
     </style>
 
-    <style name="MyPopupMenuOverflowTheme" parent="Widget.AppCompat.PopupMenu.Overflow">
+    <style name="AppPopupMenuOverflowTheme" parent="Widget.AppCompat.PopupMenu.Overflow">
         <item name="android:popupEnterTransition">@null</item>
         <item name="android:popupExitTransition">@null</item>
     </style>
