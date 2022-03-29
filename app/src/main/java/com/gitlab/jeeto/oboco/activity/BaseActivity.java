@@ -31,16 +31,16 @@ public abstract class BaseActivity extends AppCompatActivity {
         });
 
         View view = snackbar.getView();
-        view.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.reader_darker));
+        view.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.darker));
 
         TextView textView = view.findViewById(R.id.snackbar_text);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-        textView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.reader_lightest));
+        textView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.lightest));
         textView.setMaxLines(5);
 
         textView = view.findViewById(R.id.snackbar_action);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-        textView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.reader_lightest));
+        textView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.lightest));
 
         snackbar.show();
     }

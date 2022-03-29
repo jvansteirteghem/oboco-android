@@ -352,8 +352,8 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
                         if(mSelectedMenu == null) {
                             Object object = mObjectList.get(position);
 
-                            Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.AppPopupMenuTheme);
-                            mSelectedMenu = new PopupMenu(contextThemeWrapper, imageView, Gravity.NO_GRAVITY, 0, R.style.AppPopupMenuOverflowTheme);
+                            Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.AppThemePopupMenu);
+                            mSelectedMenu = new PopupMenu(contextThemeWrapper, imageView, Gravity.NO_GRAVITY, 0, R.style.AppThemePopupMenuOverflow);
                             if(object instanceof BookCollectionDto) {
                                 mSelectedMenu.getMenu().add(Menu.NONE, R.id.menu_download_browser_book_collection_delete, 1, R.string.download_browser_menu_book_collection_delete);
                             } else {

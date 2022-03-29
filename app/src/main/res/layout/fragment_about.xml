@@ -44,17 +44,6 @@
                         android:gravity="center"
                         android:textSize="@dimen/textSizeSmall_openSource"
                         android:text=""/>
-
-                <TextView
-                        android:id="@+id/aboutDescription"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:clickable="true"
-                        android:gravity="center"
-                        android:padding="8dp"
-                        android:textSize="@dimen/textSizeSmall_openSource"
-                        android:textStyle="normal"
-                        android:text="@string/app_description"/>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

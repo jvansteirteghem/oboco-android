@@ -6,12 +6,12 @@
         android:layout_height="wrap_content"
         app:cardCornerRadius="2dp"
         app:cardElevation="2dp"
-        app:cardBackgroundColor="@color/lightest">
+        app:cardBackgroundColor="@color/lightest_variant">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="@color/lightest">
+        android:background="@color/lightest_variant">
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -30,7 +30,7 @@
                 android:padding="@dimen/card_padding"
                 android:singleLine="true"
                 android:textSize="@dimen/card_text"
-                android:background="@color/lightest"/>
+                android:background="@color/lightest_variant"/>
         </RelativeLayout>
         <TextView
             android:id="@+id/bookCollectionNameTextView"
@@ -68,7 +68,7 @@
                     android:padding="@dimen/card_padding"
                     android:src="@drawable/ic_dots_vertical_grey600_24dp"
                     android:foreground="?android:attr/selectableItemBackground"
-                    app:tint="@color/darker"/>
+                    app:tint="@color/darkest_variant"/>
             </LinearLayout>
         </RelativeLayout>
     </LinearLayout>

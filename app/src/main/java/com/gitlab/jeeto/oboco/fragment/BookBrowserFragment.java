@@ -165,7 +165,8 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         });
 
         mRefreshView = view.findViewById(R.id.bookBrowserRefresh);
-        mRefreshView.setColorSchemeResources(R.color.reader_darker);
+        mRefreshView.setColorSchemeResources(R.color.darkest_variant);
+        mRefreshView.setProgressBackgroundColorSchemeResource(R.color.lightest_variant);
         mRefreshView.setOnRefreshListener(this);
         mRefreshView.setEnabled(true);
 
@@ -533,8 +534,8 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                 @Override
                 public void onClick(View view) {
                     if(mSelectedBookMenu == null) {
-                        Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.AppPopupMenuTheme);
-                        mSelectedBookMenu = new PopupMenu(contextThemeWrapper, mBookMenuImageView, Gravity.NO_GRAVITY, 0, R.style.AppPopupMenuOverflowTheme);
+                        Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.AppThemePopupMenu);
+                        mSelectedBookMenu = new PopupMenu(contextThemeWrapper, mBookMenuImageView, Gravity.NO_GRAVITY, 0, R.style.AppThemePopupMenuOverflow);
                         mSelectedBookMenu.getMenuInflater().inflate(R.menu.book_browser_book, mSelectedBookMenu.getMenu());
                         mSelectedBookMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                             public boolean onMenuItemClick(MenuItem menuItem) {

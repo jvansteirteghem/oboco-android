@@ -1,57 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="ReaderTheme" parent="CommonReaderTheme">
+    <style name="ReaderTheme" parent="BaseReaderTheme">
     </style>
 
-    <style name="ReaderDarkToolbarTheme" parent="CommonReaderDarkToolbarTheme">
+    <style name="ReaderThemeActionBar" parent="BaseReaderThemeActionBar">
     </style>
 
-    <style name="ReaderDarkPopupMenuTheme" parent="CommonReaderDarkPopupMenuTheme">
+    <style name="ReaderThemePopupMenu" parent="BaseReaderThemePopupMenu">
     </style>
 
-    <style name="ReaderDarkAlertDialogStyle" parent="Theme.AppCompat.Dialog.Alert">
-        <item name="colorAccent">@color/reader_accent</item>
-        <item name="colorControlNormal">@color/reader_lighter</item>
-        <item name="colorControlHighlight">@color/reader_light</item>
-        <item name="android:textColorPrimary">@color/reader_lightest</item>
-        <item name="android:textColor">@color/reader_lightest</item>
-        <item name="android:textColorHint">@color/reader_lightest</item>
-        <item name="android:colorBackground">@color/reader_darker</item>
+    <style name="ReaderThemeAlertDialog" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="colorAccent">@color/lightest</item>
+        <item name="colorControlNormal">@color/lightest</item>
+        <item name="colorControlHighlight">@color/light_highlight</item>
+        <item name="android:textColorPrimary">@color/lightest</item>
+        <item name="android:textColor">@color/lightest</item>
+        <item name="android:textColorHint">@color/lightest</item>
+        <item name="android:colorBackground">@color/darker</item>
     </style>
 
-    <style name="CommonReaderTheme" parent="AppTheme">
-        <item name="colorPrimary">@color/reader_darkest</item>
-        <item name="colorPrimaryDark">@color/reader_darkest_semitransparent</item>
-        <item name="colorAccent">@color/reader_accent</item>
-        <item name="colorControlNormal">@color/reader_lighter</item>
-        <item name="colorControlHighlight">@color/reader_light</item>
-        <item name="android:textColorPrimary">@color/reader_lightest</item>
-        <item name="android:textColor">@color/reader_lightest</item>
-        <item name="android:textColorHint">@color/reader_lightest</item>
+    <style name="BaseReaderTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/darker</item>
+        <item name="colorPrimaryDark">@color/darkest</item>
+        <item name="colorAccent">@color/lightest</item>
+        <item name="colorControlNormal">@color/lightest</item>
+        <item name="colorControlHighlight">@color/light_highlight</item>
+        <item name="android:textColorPrimary">@color/lightest</item>
+        <item name="android:textColor">@color/lightest</item>
+        <item name="android:textColorHint">@color/lightest</item>
         <item name="android:background">@android:color/transparent</item>
-        <item name="android:windowBackground">@color/reader_darkest</item>
-        <item name="android:alertDialogTheme">@style/ReaderDarkAlertDialogStyle</item>
-        <item name="alertDialogTheme">@style/ReaderDarkAlertDialogStyle</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:windowBackground">@color/darkest</item>
+        <item name="android:statusBarColor">@color/darkest_semitransparent</item>
+        <item name="android:alertDialogTheme">@style/ReaderThemeAlertDialog</item>
+        <item name="alertDialogTheme">@style/ReaderThemeAlertDialog</item>
     </style>
 
-    <style name="CommonReaderDarkToolbarTheme" parent="Widget.AppCompat.ActionBar">
-        <item name="colorAccent">@color/reader_accent</item>
-        <item name="colorControlNormal">@color/reader_lightest</item>
-        <item name="colorControlHighlight">@color/reader_lightest</item>
-        <item name="android:textColorPrimary">@color/reader_lightest</item>
-        <item name="android:textColor">@color/reader_lightest</item>
-        <item name="android:colorBackground">@color/reader_darkest</item>
+    <style name="BaseReaderThemeActionBar" parent="Widget.AppCompat.ActionBar">
+        <item name="colorAccent">@color/lightest</item>
+        <item name="colorControlNormal">@color/lightest</item>
+        <item name="colorControlHighlight">@color/lightest</item>
+        <item name="android:textColorPrimary">@color/lightest</item>
+        <item name="android:textColor">@color/lightest</item>
+        <item name="android:textColorHint">@color/lightest</item>
+        <item name="android:colorBackground">@color/darker</item>
     </style>
 
-    <style name="CommonReaderDarkPopupMenuTheme" parent="Widget.AppCompat.PopupMenu">
-        <item name="colorAccent">@color/reader_accent</item>
-        <item name="colorControlNormal">@color/reader_lighter</item>
-        <item name="colorControlHighlight">@color/reader_light</item>
-        <item name="android:textColorPrimary">@color/reader_lightest</item>
-        <item name="android:textColor">@color/reader_lightest</item>
-        <item name="android:textColorHint">@color/reader_lightest</item>
-        <item name="android:backgroundTint">@color/reader_darker</item>
+    <style name="BaseReaderThemePopupMenu" parent="Widget.AppCompat.PopupMenu">
+        <item name="colorAccent">@color/lightest</item>
+        <item name="colorControlNormal">@color/lightest</item>
+        <item name="colorControlHighlight">@color/light_highlight</item>
+        <item name="android:textColorPrimary">@color/lightest</item>
+        <item name="android:textColor">@color/lightest</item>
+        <item name="android:textColorHint">@color/lightest</item>
+        <item name="android:backgroundTint">@color/darker</item>
     </style>
 </resources>

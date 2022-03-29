@@ -32,7 +32,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
@@ -63,8 +62,8 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
     private SharedPreferences mPreferences;
     private GestureDetector mGestureDetector;
 
-    private final static HashMap<Integer, Constants.PageViewMode> RESOURCE_VIEW_MODE;
-    private Constants.PageViewMode mPageViewMode;
+    private final static HashMap<Integer, Constants.ViewMode> RESOURCE_VIEW_MODE;
+    private Constants.ViewMode mViewMode;
     private boolean mIsLeftToRight;
 
     private SparseArray<BookReaderTarget> mTargets = new SparseArray<>();
@@ -76,10 +75,10 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
     private BookReaderViewModel mViewModel;
 
     static {
-        RESOURCE_VIEW_MODE = new HashMap<Integer, Constants.PageViewMode>();
-        RESOURCE_VIEW_MODE.put(R.id.view_mode_aspect_fill, Constants.PageViewMode.ASPECT_FILL);
-        RESOURCE_VIEW_MODE.put(R.id.view_mode_aspect_fit, Constants.PageViewMode.ASPECT_FIT);
-        RESOURCE_VIEW_MODE.put(R.id.view_mode_fit_width, Constants.PageViewMode.FIT_WIDTH);
+        RESOURCE_VIEW_MODE = new HashMap<Integer, Constants.ViewMode>();
+        RESOURCE_VIEW_MODE.put(R.id.view_mode_aspect_fill, Constants.ViewMode.ASPECT_FILL);
+        RESOURCE_VIEW_MODE.put(R.id.view_mode_aspect_fit, Constants.ViewMode.ASPECT_FIT);
+        RESOURCE_VIEW_MODE.put(R.id.view_mode_fit_width, Constants.ViewMode.FIT_WIDTH);
     }
 
     public static BookReaderFragment create(Long bookId) {
@@ -119,36 +118,36 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
 
     private void hideSystemBars() {
         Window window = getActivity().getWindow();
-        WindowCompat.setDecorFitsSystemWindows(window, false);
         WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(window, window.getDecorView());
         controller.hide(WindowInsetsCompat.Type.systemBars());
-        controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
     }
 
     private void showSystemBars() {
         Window window = getActivity().getWindow();
-        WindowCompat.setDecorFitsSystemWindows(window, true);
         WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(window, window.getDecorView());
         controller.show(WindowInsetsCompat.Type.systemBars());
     }
 
     private void registerSystemBarsListener(View view) {
         ViewCompat.setOnApplyWindowInsetsListener(view, new OnApplyWindowInsetsListener() {
-            private void setMargin(View view, int top, int bottom) {
-                ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
-                marginLayoutParams.topMargin = top;
-                marginLayoutParams.bottomMargin = bottom;
-                view.setLayoutParams(marginLayoutParams);
-            }
-
             @Override
             public WindowInsetsCompat onApplyWindowInsets(View view, WindowInsetsCompat windowInsets) {
-                if(mViewModel.getIsFullscreen()) {
-                    setMargin(getActivity().findViewById(R.id.book_reader_content_controls), 0, 0);
+                if (mViewModel.getIsFullscreen()) {
+                    ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+                    marginLayoutParams.topMargin = 0;
+                    marginLayoutParams.bottomMargin = 0;
+                    marginLayoutParams.leftMargin = 0;
+                    marginLayoutParams.rightMargin = 0;
+                    view.setLayoutParams(marginLayoutParams);
                 } else {
                     Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
 
-                    setMargin(getActivity().findViewById(R.id.book_reader_content_controls), insets.top, insets.bottom);
+                    ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+                    marginLayoutParams.topMargin = insets.top;
+                    marginLayoutParams.bottomMargin = insets.bottom;
+                    marginLayoutParams.leftMargin = insets.left;
+                    marginLayoutParams.rightMargin = insets.right;
+                    view.setLayoutParams(marginLayoutParams);
                 }
 
                 return WindowInsetsCompat.CONSUMED;
@@ -169,10 +168,10 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
 
         mPreferences = getActivity().getSharedPreferences(Constants.SETTINGS_NAME, 0);
         int viewModeInt = mPreferences.getInt(
-                Constants.SETTINGS_PAGE_VIEW_MODE,
-                Constants.PageViewMode.ASPECT_FIT.native_int);
-        mPageViewMode = Constants.PageViewMode.values()[viewModeInt];
-        mIsLeftToRight = mPreferences.getBoolean(Constants.SETTINGS_READING_LEFT_TO_RIGHT, true);
+                Constants.SETTINGS_VIEW_MODE,
+                Constants.ViewMode.ASPECT_FIT.native_int);
+        mViewMode = Constants.ViewMode.values()[viewModeInt];
+        mIsLeftToRight = mPreferences.getBoolean(Constants.SETTINGS_DIRECTION_IS_LEFT_TO_RIGHT, true);
 
         setHasOptionsMenu(true);
 
@@ -317,6 +316,16 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                 }
             }
         });
+        mViewModel.getShowMessageObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean showMessage) {
+                if(showMessage) {
+                    mViewModel.setShowMessage(false);
+
+                    ((BookReaderActivity) getActivity()).showMessage(mViewModel.getMessage());
+                }
+            }
+        });
         mViewModel.getIsFullscreenObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean isFullscreen) {
@@ -341,18 +350,8 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                 }
             }
         });
-        mViewModel.getShowMessageObservable().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean showMessage) {
-                if(showMessage) {
-                    mViewModel.setShowMessage(false);
 
-                    ((BookReaderActivity) getActivity()).showMessage(mViewModel.getMessage());
-                }
-            }
-        });
-
-        registerSystemBarsListener(view);
+        registerSystemBarsListener(getActivity().findViewById(R.id.book_reader_content2));
 
         return view;
     }
@@ -361,7 +360,7 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.book_reader, menu);
 
-        switch (mPageViewMode) {
+        switch (mViewMode) {
             case ASPECT_FILL:
                 menu.findItem(R.id.view_mode_aspect_fill).setChecked(true);
                 break;
@@ -374,9 +373,9 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
         }
 
         if (mIsLeftToRight) {
-            menu.findItem(R.id.reading_left_to_right).setChecked(true);
+            menu.findItem(R.id.direction_left_to_right).setChecked(true);
         } else {
-            menu.findItem(R.id.reading_right_to_left).setChecked(true);
+            menu.findItem(R.id.direction_right_to_left).setChecked(true);
         }
     }
 
@@ -407,17 +406,17 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
             case R.id.view_mode_aspect_fit:
             case R.id.view_mode_fit_width:
                 item.setChecked(true);
-                mPageViewMode = RESOURCE_VIEW_MODE.get(item.getItemId());
-                editor.putInt(Constants.SETTINGS_PAGE_VIEW_MODE, mPageViewMode.native_int);
+                mViewMode = RESOURCE_VIEW_MODE.get(item.getItemId());
+                editor.putInt(Constants.SETTINGS_VIEW_MODE, mViewMode.native_int);
                 editor.apply();
                 updatePageViews(mViewPager);
                 break;
-            case R.id.reading_left_to_right:
-            case R.id.reading_right_to_left:
+            case R.id.direction_left_to_right:
+            case R.id.direction_right_to_left:
                 item.setChecked(true);
                 int page = getCurrentPage();
-                mIsLeftToRight = (item.getItemId() == R.id.reading_left_to_right);
-                editor.putBoolean(Constants.SETTINGS_READING_LEFT_TO_RIGHT, mIsLeftToRight);
+                mIsLeftToRight = (item.getItemId() == R.id.direction_left_to_right);
+                editor.putBoolean(Constants.SETTINGS_DIRECTION_IS_LEFT_TO_RIGHT, mIsLeftToRight);
                 editor.apply();
                 setCurrentPage(page, false);
                 mViewPager.getAdapter().notifyDataSetChanged();
@@ -482,10 +481,10 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
             View layout = inflater.inflate(R.layout.fragment_book_reader_page, container, false);
 
             PageImageView pageImageView = (PageImageView) layout.findViewById(R.id.pageImageView);
-            if (mPageViewMode == Constants.PageViewMode.ASPECT_FILL) {
+            if (mViewMode == Constants.ViewMode.ASPECT_FILL) {
                 pageImageView.setTranslateToRightEdge(!mIsLeftToRight);
             }
-            pageImageView.setViewMode(mPageViewMode);
+            pageImageView.setViewMode(mViewMode);
             pageImageView.setOnTouchListener(BookReaderFragment.this);
 
             container.addView(layout);
@@ -639,10 +638,10 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
                 updatePageViews((ViewGroup)child);
             } else if (child instanceof PageImageView) {
                 PageImageView view = (PageImageView) child;
-                if (mPageViewMode == Constants.PageViewMode.ASPECT_FILL) {
+                if (mViewMode == Constants.ViewMode.ASPECT_FILL) {
                     view.setTranslateToRightEdge(!mIsLeftToRight);
                 }
-                view.setViewMode(mPageViewMode);
+                view.setViewMode(mViewMode);
             }
         }
     }

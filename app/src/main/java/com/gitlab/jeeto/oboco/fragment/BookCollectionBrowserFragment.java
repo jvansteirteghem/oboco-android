@@ -146,7 +146,8 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         });
 
         mRefreshView = view.findViewById(R.id.bookCollectionBrowserRefresh);
-        mRefreshView.setColorSchemeResources(R.color.reader_darker);
+        mRefreshView.setColorSchemeResources(R.color.darkest_variant);
+        mRefreshView.setProgressBackgroundColorSchemeResource(R.color.lightest_variant);
         mRefreshView.setOnRefreshListener(this);
         mRefreshView.setEnabled(true);
 
@@ -635,8 +636,8 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                     @Override
                     public void onClick(View view) {
                         if(mSelectedBookCollectionMenu == null) {
-                            Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.AppPopupMenuTheme);
-                            mSelectedBookCollectionMenu = new PopupMenu(contextThemeWrapper, mBookCollectionMenuImageView, Gravity.NO_GRAVITY, 0, R.style.AppPopupMenuOverflowTheme);
+                            Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.AppThemePopupMenu);
+                            mSelectedBookCollectionMenu = new PopupMenu(contextThemeWrapper, mBookCollectionMenuImageView, Gravity.NO_GRAVITY, 0, R.style.AppThemePopupMenuOverflow);
                             mSelectedBookCollectionMenu.getMenuInflater().inflate(R.menu.book_collection_browser_book_collection, mSelectedBookCollectionMenu.getMenu());
                             mSelectedBookCollectionMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                                 public boolean onMenuItemClick(MenuItem menuItem) {

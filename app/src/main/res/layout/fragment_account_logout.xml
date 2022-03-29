@@ -18,7 +18,7 @@
             android:layout_marginRight="20dp"
             android:layout_marginTop="15dp"
             android:text="@string/account_logout_log_out"
-            android:theme="@style/AppButtonTheme"/>
+            android:theme="@style/AppThemeButton"/>
 
         <EditText
             android:id="@+id/account_logout_et_password"
@@ -69,7 +69,7 @@
             android:layout_marginRight="20dp"
             android:layout_marginTop="15dp"
             android:text="@string/account_logout_update_password"
-            android:theme="@style/AppButtonTheme"/>
+            android:theme="@style/AppThemeButton"/>
 
     </RelativeLayout>
 

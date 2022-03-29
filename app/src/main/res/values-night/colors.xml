@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#333333</color>
-    <color name="primaryDark">#222222</color>
-    <color name="accent">#ffffff</color>
+    <color name="primary_variant">@color/darker</color>
+    <color name="primary_dark_variant">@color/darkest</color>
 
-    <color name="darkest">#ffffff</color>
-    <color name="darkest_semitransparent">#ceffffff</color>
-    <color name="darker">#dddddd</color>
-    <color name="dark">@color/ripple_material_dark</color>
+    <color name="darkest_variant">@color/lightest</color>
+    <color name="darkest_semitransparent_variant">@color/lightest_semitransparent</color>
+    <color name="darker_variant">@color/lighter</color>
+    <color name="darker_semitransparent_variant">@color/lighter_semitransparent</color>
+    <color name="dark_highlight_variant">@color/light_highlight</color>
 
-    <color name="lightest">#333333</color>
-	<color name="lightest_semitransparent">#ce333333</color>
-    <color name="lighter">#222222</color>
+    <color name="lightest_variant">@color/darker</color>
+    <color name="lightest_semitransparent_variant">@color/darker_semitransparent</color>
+    <color name="lighter_variant">@color/darkest</color>
+    <color name="lighter_semitransparent_variant">@color/darkest_semitransparent</color>
+    <color name="light_highlight_variant">@color/dark_highlight</color>
 </resources>

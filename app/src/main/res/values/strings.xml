@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Oboco</string>
-    <string name="app_description">A client for Oboco.</string>
 
     <string name="drawer_menu_account">Account</string>
     <string name="drawer_menu_book_collection_browser">Browse</string>
@@ -24,12 +23,12 @@
     <string name="account_logout_update_password">Update password</string>
 
     <string name="book_reader_menu_view_mode">View mode</string>
-    <string name="book_reader_menu_view_mode_aspect_fill">Aspect fill</string>
-    <string name="book_reader_menu_view_mode_aspect_fit">Aspect fit</string>
+    <string name="book_reader_menu_view_mode_aspect_fill">Fill</string>
+    <string name="book_reader_menu_view_mode_aspect_fit">Fit</string>
     <string name="book_reader_menu_view_mode_fit_width">Fit width</string>
-    <string name="book_reader_menu_reading_mode">Reading mode</string>
-    <string name="book_reader_menu_reading_mode_left_to_right">Left to right</string>
-    <string name="book_reader_menu_reading_mode_right_to_left">Right to left</string>
+    <string name="book_reader_menu_direction">Direction</string>
+    <string name="book_reader_menu_direction_left_to_right">LTR</string>
+    <string name="book_reader_menu_direction_right_to_left">RTL</string>
     <string name="book_reader_dialog_open">Open book?</string>
     <string name="book_reader_dialog_open_positive">Yes</string>
     <string name="book_reader_dialog_open_negative">No</string>

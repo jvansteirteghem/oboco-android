@@ -302,8 +302,8 @@ public class DownloadManagerBrowserFragment extends Fragment {
                         if(mSelectedDownloadWorkMenu == null) {
                             DownloadWork downloadWork = mDownloadWorkList.get(position);
 
-                            Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.AppPopupMenuTheme);
-                            mSelectedDownloadWorkMenu = new PopupMenu(contextThemeWrapper, imageView, Gravity.NO_GRAVITY, 0, R.style.AppPopupMenuOverflowTheme);
+                            Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.AppThemePopupMenu);
+                            mSelectedDownloadWorkMenu = new PopupMenu(contextThemeWrapper, imageView, Gravity.NO_GRAVITY, 0, R.style.AppThemePopupMenuOverflow);
                             if(downloadWork.getState().equals(WorkInfo.State.FAILED) || downloadWork.getState().equals(WorkInfo.State.CANCELLED)) {
                                 mSelectedDownloadWorkMenu.getMenu().add(Menu.NONE, R.id.menu_download_manager_browser_download_start, 1, R.string.download_manager_browser_menu_download_start);
                             } else {

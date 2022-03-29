@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Oboco</string>
-    <string name="app_description">Een client voor Oboco.</string>
 
     <string name="drawer_menu_account">Account</string>
     <string name="drawer_menu_book_collection_browser">Bladeren</string>
@@ -23,13 +22,13 @@
     <string name="account_logout_show_password">Toon wachtwoord</string>
     <string name="account_logout_update_password">Wijzig wachtwoord</string>
 
-    <string name="book_reader_menu_view_mode">Weergavemodus</string>
-    <string name="book_reader_menu_view_mode_aspect_fill">Aspect opvullend</string>
-    <string name="book_reader_menu_view_mode_aspect_fit">Aspect passend</string>
-    <string name="book_reader_menu_view_mode_fit_width">Breedte passend</string>
-    <string name="book_reader_menu_reading_mode">Leesmodus</string>
-    <string name="book_reader_menu_reading_mode_left_to_right">Links naar rechts</string>
-    <string name="book_reader_menu_reading_mode_right_to_left">Rechts naar links</string>
+    <string name="book_reader_menu_view_mode">Weergave modus</string>
+    <string name="book_reader_menu_view_mode_aspect_fill">Vul</string>
+    <string name="book_reader_menu_view_mode_aspect_fit">Pas</string>
+    <string name="book_reader_menu_view_mode_fit_width">Pas breedte</string>
+    <string name="book_reader_menu_direction">Richting</string>
+    <string name="book_reader_menu_direction_left_to_right">LTR</string>
+    <string name="book_reader_menu_direction_right_to_left">RTL</string>
     <string name="book_reader_dialog_open">Open boek?</string>
     <string name="book_reader_dialog_open_positive">Ja</string>
     <string name="book_reader_dialog_open_negative">Nee</string>

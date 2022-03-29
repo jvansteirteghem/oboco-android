@@ -17,7 +17,7 @@ import android.widget.OverScroller;
 import com.gitlab.jeeto.oboco.Constants;
 
 public class PageImageView extends AppCompatImageView {
-    private Constants.PageViewMode mViewMode;
+    private Constants.ViewMode mViewMode;
     private boolean mHaveFrame = false;
     private boolean mSkipScaling = false;
     private boolean mTranslateRightEdge = false;
@@ -40,7 +40,7 @@ public class PageImageView extends AppCompatImageView {
         init();
     }
 
-    public void setViewMode(Constants.PageViewMode viewMode) {
+    public void setViewMode(Constants.ViewMode viewMode) {
         mViewMode = viewMode;
         mSkipScaling = false;
         requestLayout();
@@ -81,7 +81,7 @@ public class PageImageView extends AppCompatImageView {
 
         mScroller = new OverScroller(getContext());
         mScroller.setFriction(ViewConfiguration.getScrollFriction() * 2);
-        mViewMode = Constants.PageViewMode.ASPECT_FIT;
+        mViewMode = Constants.ViewMode.ASPECT_FIT;
     }
 
     @Override
@@ -103,7 +103,7 @@ public class PageImageView extends AppCompatImageView {
         int vwidth = getWidth();
         int vheight = getHeight();
 
-        if (mViewMode == Constants.PageViewMode.ASPECT_FILL) {
+        if (mViewMode == Constants.ViewMode.ASPECT_FILL) {
             float scale;
             float dx = 0;
 
@@ -118,13 +118,13 @@ public class PageImageView extends AppCompatImageView {
             mMatrix.setScale(scale, scale);
             mMatrix.postTranslate((int) (dx + 0.5f), 0);
         }
-        else if (mViewMode == Constants.PageViewMode.ASPECT_FIT) {
+        else if (mViewMode == Constants.ViewMode.ASPECT_FIT) {
             RectF mTempSrc = new RectF(0, 0, dwidth, dheight);
             RectF mTempDst = new RectF(0, 0, vwidth, vheight);
 
             mMatrix.setRectToRect(mTempSrc, mTempDst, Matrix.ScaleToFit.CENTER);
         }
-        else if (mViewMode == Constants.PageViewMode.FIT_WIDTH) {
+        else if (mViewMode == Constants.ViewMode.FIT_WIDTH) {
             float widthScale = (float)getWidth()/drawable.getIntrinsicWidth();
             mMatrix.setScale(widthScale, widthScale);
             mMatrix.postTranslate(0, 0);

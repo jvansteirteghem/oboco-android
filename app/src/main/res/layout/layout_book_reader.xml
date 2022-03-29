@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
     <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/book_reader_content_controls"
+        android:id="@+id/book_reader_content2"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <RelativeLayout
@@ -22,9 +22,9 @@
                 android:layout_height="?android:attr/actionBarSize"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:background="@color/reader_darkest_semitransparent"
-                android:theme="@style/ReaderDarkToolbarTheme"
-                app:popupTheme="@style/ReaderDarkPopupMenuTheme"/>
+                android:background="@color/darker_semitransparent"
+                android:theme="@style/ReaderThemeActionBar"
+                app:popupTheme="@style/ReaderThemePopupMenu"/>
             <LinearLayout
                 android:id="@+id/pageNavLayout"
                 android:layout_width="match_parent"
@@ -58,4 +58,4 @@
             </LinearLayout>
         </RelativeLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-</FrameLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
