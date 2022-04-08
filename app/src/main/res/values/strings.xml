@@ -116,7 +116,7 @@
     <string name="action_user_log_out">You are logged out.</string>
     <string name="action_user_update_password">The password is updated.</string>
     <string name="action_user_update_password_error_password">Set password.</string>
-    <string name="action_user_update_password_error_update_password">Set update password.</string>
+    <string name="action_user_update_password_error_update_password">Set new password.</string>
     <string name="action_user_update_password_error">We can not update the password. Is the password correct?</string>
     <string name="action_book_collections_get_error">We can not get the book collections.</string>
     <string name="action_book_collection_get_error">We can not get the book collection.</string>

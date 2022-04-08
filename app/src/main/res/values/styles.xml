@@ -41,6 +41,7 @@
         <item name="android:background">@android:color/transparent</item>
         <item name="android:windowBackground">@color/lighter_variant</item>
         <item name="android:statusBarColor">@color/primary_dark_variant</item>
+        <item name="android:navigationBarColor">@color/darkest</item>
         <item name="android:alertDialogTheme">@style/AppThemeAlertDialog</item>
         <item name="alertDialogTheme">@style/AppThemeAlertDialog</item>
     </style>

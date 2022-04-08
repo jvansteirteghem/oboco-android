@@ -33,7 +33,7 @@ oboco for android started as a fork of [bubble](https://github.com/nkanaev/bubbl
 
 ## configuration
 
-### application ssl client
+### ssl client
 
 - add the ssl certificate authority (server-ca.pem) to the trust store
 	- copy server-ca.pem to the device storage
