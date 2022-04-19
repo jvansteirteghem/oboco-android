@@ -87,7 +87,7 @@
     <string name="download_browser_dialog_delete_book">Verwijder boek?</string>
     <string name="download_browser_dialog_delete_positive">Ja</string>
     <string name="download_browser_dialog_delete_negative">Nee</string>
-    <string name="download_browser_menu_book_delete">Verijderen</string>
+    <string name="download_browser_menu_book_delete">Verwijderen</string>
     <string name="download_browser_menu_book_collection_delete">Verwijderen</string>
 
     <plurals name="download_manager_browser_number_of_downloads">
@@ -107,7 +107,7 @@
     <string name="download_book_worker_download">Download boek</string>
     <string name="download_book_worker_download_stop">Stoppen</string>
 
-    <string name="action_user_log_in_name_password">Je bent uitgelogd.</string>
+    <string name="action_user_log_in_name_password">Je bent ingelogd.</string>
     <string name="action_user_log_in_name_password_error_base_url">Zet basis URL: http(s)://adres:poort.</string>
     <string name="action_user_log_in_name_password_error_name">Zet naam.</string>
     <string name="action_user_log_in_name_password_error_password">Zet wachtwoord.</string>
