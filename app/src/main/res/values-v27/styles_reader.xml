@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ReaderTheme" parent="BaseReaderTheme">
+        <item name="android:contextPopupMenuStyle">@style/ReaderThemePopupMenu</item>
+        <item name="actionOverflowMenuStyle">@style/ReaderThemePopupMenuOverflow</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+    </style>
+
+    <style name="ReaderThemeActionBar" parent="BaseReaderThemeActionBar">
+        <item name="android:contextPopupMenuStyle">@style/ReaderThemePopupMenu</item>
+        <item name="actionOverflowMenuStyle">@style/ReaderThemePopupMenuOverflow</item>
+    </style>
+
+    <style name="ReaderThemePopupMenu" parent="BaseReaderThemePopupMenu">
+        <item name="android:popupEnterTransition">@null</item>
+        <item name="android:popupExitTransition">@null</item>
+    </style>
+
+    <style name="ReaderThemePopupMenuOverflow" parent="Widget.AppCompat.PopupMenu.Overflow">
+        <item name="android:popupEnterTransition">@null</item>
+        <item name="android:popupExitTransition">@null</item>
+    </style>
+</resources>
