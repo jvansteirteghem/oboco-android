@@ -1,27 +1,24 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.gitlab.jeeto.oboco.fragment.AccountLoginFragment">
-
-    <RelativeLayout
+    android:background="@color/lightest_darkest">
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".AccountLoginFragment">
-
+        android:layout_height="match_parent">
         <EditText
             android:id="@+id/account_login_et_baseUrl"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:hint="@string/account_login_base_url_hint"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:padding="15dp"
+            android:layout_marginTop="10dp"
+            android:hint="@string/account_login_base_url_hint"
             android:inputType="text"
-            android:layout_above="@id/account_login_et_name"
+            android:padding="15dp"
             android:text=""
-            android:textSize="16sp"/>
-
+            android:textSize="16sp" />
         <EditText
             android:id="@+id/account_login_et_name"
             android:layout_width="match_parent"
@@ -29,12 +26,11 @@
             android:hint="@string/account_login_name_hint"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
+            android:layout_marginTop="10dp"
             android:padding="15dp"
             android:inputType="text"
-            android:layout_above="@id/account_login_et_password"
             android:text=""
             android:textSize="16sp"/>
-
         <EditText
             android:id="@+id/account_login_et_password"
             android:layout_width="match_parent"
@@ -45,33 +41,26 @@
             android:layout_marginTop="10dp"
             android:padding="15dp"
             android:inputType="textPassword"
-            android:layout_centerInParent="true"
             android:text=""
             android:textSize="16sp"/>
-
         <CheckBox
             android:id="@+id/account_login_cb_show_password"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/account_login_et_password"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginTop="10dp"
             android:padding="15dp"
             android:text="@string/account_login_show_password"
             android:textSize="16sp"/>
-
         <Button
             android:id="@+id/account_login_btn_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/account_login_cb_show_password"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="20dp"
             android:text="@string/account_login_log_in"
             android:theme="@style/AppThemeButton"/>
-
-    </RelativeLayout>
-
+    </LinearLayout>
 </FrameLayout>

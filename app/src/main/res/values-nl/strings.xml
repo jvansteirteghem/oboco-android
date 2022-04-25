@@ -20,7 +20,7 @@
     <string name="account_logout_password_hint">Wachtwoord</string>
     <string name="account_logout_update_password_hint">Nieuw wachtwoord</string>
     <string name="account_logout_show_password">Toon wachtwoord</string>
-    <string name="account_logout_update_password">Wijzig wachtwoord</string>
+    <string name="account_logout_update_password">Wijzig</string>
 
     <string name="book_reader_menu_view_mode">Weergave modus</string>
     <string name="book_reader_menu_view_mode_aspect_fill">Vul</string>

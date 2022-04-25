@@ -10,13 +10,13 @@
     </style>
 
     <style name="AppThemeAlertDialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
-        <item name="colorAccent">@color/dark_highlight_variant</item>
-        <item name="colorControlNormal">@color/darkest_variant</item>
-        <item name="colorControlHighlight">@color/dark_highlight_variant</item>
-        <item name="android:textColorPrimary">@color/darkest_variant</item>
-        <item name="android:textColor">@color/darkest_variant</item>
-        <item name="android:textColorHint">@color/darkest_variant</item>
-        <item name="android:colorBackground">@color/lightest_variant</item>
+        <item name="colorAccent">@color/darkest_lightest</item>
+        <item name="colorControlNormal">@color/darkest_lightest</item>
+        <item name="colorControlHighlight">@color/highlight_light_dark</item>
+        <item name="android:textColorPrimary">@color/darkest_lightest</item>
+        <item name="android:textColor">@color/darkest_lightest</item>
+        <item name="android:textColorHint">@color/darkest_lightest</item>
+        <item name="android:colorBackground">@color/lightest_darker</item>
     </style>
 
     <style name="AppThemeButton">
@@ -25,22 +25,22 @@
         <item name="android:textColorHint">@color/lightest</item>
         <item name="colorAccent">@color/lightest</item>
         <item name="colorControlNormal">@color/lightest</item>
-        <item name="colorControlHighlight">@color/light_highlight</item>
+        <item name="colorControlHighlight">@color/highlight_dark</item>
         <item name="android:backgroundTint">@color/darker</item>
     </style>
 
     <style name="BaseAppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/primary_variant</item>
-        <item name="colorPrimaryDark">@color/primary_dark_variant</item>
-        <item name="colorAccent">@color/darkest_variant</item>
-        <item name="colorControlNormal">@color/darkest_variant</item>
-        <item name="colorControlHighlight">@color/dark_highlight_variant</item>
-        <item name="android:textColorPrimary">@color/darkest_variant</item>
-        <item name="android:textColor">@color/darkest_variant</item>
-        <item name="android:textColorHint">@color/darkest_variant</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/darkest_lightest</item>
+        <item name="colorControlNormal">@color/darkest_lightest</item>
+        <item name="colorControlHighlight">@color/highlight_light_dark</item>
+        <item name="android:textColorPrimary">@color/darkest_lightest</item>
+        <item name="android:textColor">@color/darkest_lightest</item>
+        <item name="android:textColorHint">@color/darkest_lightest</item>
         <item name="android:background">@android:color/transparent</item>
-        <item name="android:windowBackground">@color/lighter_variant</item>
-        <item name="android:statusBarColor">@color/primary_dark_variant</item>
+        <item name="android:windowBackground">@color/lightest_darkest</item>
+        <item name="android:statusBarColor">@color/primary_dark</item>
         <item name="android:navigationBarColor">@color/darkest</item>
         <item name="android:alertDialogTheme">@style/AppThemeAlertDialog</item>
         <item name="alertDialogTheme">@style/AppThemeAlertDialog</item>
@@ -49,20 +49,20 @@
     <style name="BaseAppThemeActionBar" parent="Widget.AppCompat.ActionBar">
         <item name="colorAccent">@color/lightest</item>
         <item name="colorControlNormal">@color/lightest</item>
-        <item name="colorControlHighlight">@color/light_highlight</item>
+        <item name="colorControlHighlight">@color/highlight_dark</item>
         <item name="android:textColorPrimary">@color/lightest</item>
         <item name="android:textColor">@color/lightest</item>
         <item name="android:textColorHint">@color/lightest</item>
-        <item name="android:colorBackground">@color/primary_variant</item>
+        <item name="android:colorBackground">@color/primary</item>
     </style>
 
     <style name="BaseAppThemePopupMenu" parent="Widget.AppCompat.PopupMenu">
-        <item name="colorAccent">@color/darkest_variant</item>
-        <item name="colorControlNormal">@color/darkest_variant</item>
-        <item name="colorControlHighlight">@color/dark_highlight_variant</item>
-        <item name="android:textColorPrimary">@color/darkest_variant</item>
-        <item name="android:textColor">@color/darkest_variant</item>
-        <item name="android:textColorHint">@color/darkest_variant</item>
-        <item name="android:backgroundTint">@color/lightest_variant</item>
+        <item name="colorAccent">@color/darkest_lightest</item>
+        <item name="colorControlNormal">@color/darkest_lightest</item>
+        <item name="colorControlHighlight">@color/highlight_light_dark</item>
+        <item name="android:textColorPrimary">@color/darkest_lightest</item>
+        <item name="android:textColor">@color/darkest_lightest</item>
+        <item name="android:textColorHint">@color/darkest_lightest</item>
+        <item name="android:backgroundTint">@color/lightest_darker</item>
     </style>
 </resources>

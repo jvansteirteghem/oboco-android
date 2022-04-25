@@ -165,8 +165,8 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         });
 
         mRefreshView = view.findViewById(R.id.bookBrowserRefresh);
-        mRefreshView.setColorSchemeResources(R.color.darkest_variant);
-        mRefreshView.setProgressBackgroundColorSchemeResource(R.color.lightest_variant);
+        mRefreshView.setColorSchemeResources(R.color.darkest_lightest);
+        mRefreshView.setProgressBackgroundColorSchemeResource(R.color.lightest_darker);
         mRefreshView.setOnRefreshListener(this);
         mRefreshView.setEnabled(true);
 

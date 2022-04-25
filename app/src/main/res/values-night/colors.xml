@@ -1,17 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary_variant">@color/darker</color>
-    <color name="primary_dark_variant">@color/darkest</color>
+    <color name="primary">@color/darker</color>
+    <color name="primary_dark">@color/darkest</color>
 
-    <color name="darkest_variant">@color/lightest</color>
-    <color name="darkest_semitransparent_variant">@color/lightest_semitransparent</color>
-    <color name="darker_variant">@color/lighter</color>
-    <color name="darker_semitransparent_variant">@color/lighter_semitransparent</color>
-    <color name="dark_highlight_variant">@color/light_highlight</color>
+    <color name="highlight_light_dark">@color/highlight_dark</color>
+    <color name="highlight_dark_light">@color/highlight_light</color>
 
-    <color name="lightest_variant">@color/darker</color>
-    <color name="lightest_semitransparent_variant">@color/darker_semitransparent</color>
-    <color name="lighter_variant">@color/darkest</color>
-    <color name="lighter_semitransparent_variant">@color/darkest_semitransparent</color>
-    <color name="light_highlight_variant">@color/dark_highlight</color>
+    <color name="lightest_darkest">@color/darkest</color>
+    <color name="lightest_darker">@color/darker</color>
+    <color name="lightest_darkest_semitransparent">@color/darkest_semitransparent</color>
+    <color name="lightest_darker_semitransparent">@color/darker_semitransparent</color>
+    <color name="lighter_darkest">@color/darkest</color>
+    <color name="lighter_darker">@color/darker</color>
+    <color name="lighter_darkest_semitransparent">@color/darkest_semitransparent</color>
+    <color name="lighter_darker_semitransparent">@color/darker_semitransparent</color>
+
+    <color name="darkest_lightest">@color/lightest</color>
+    <color name="darkest_lighter">@color/lighter</color>
+    <color name="darkest_lightest_semitransparent">@color/lightest_semitransparent</color>
+    <color name="darkest_lighter_semitransparent">@color/lighter_semitransparent</color>
+    <color name="darker_lightest">@color/lightest</color>
+    <color name="darker_lighter">@color/lighter</color>
+    <color name="darker_lightest_semitransparent">@color/lightest_semitransparent</color>
+    <color name="darker_lighter_semitransparent">@color/lighter_semitransparent</color>
 </resources>

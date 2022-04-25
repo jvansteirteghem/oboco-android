@@ -2,9 +2,11 @@ package com.gitlab.jeeto.oboco.activity;
 
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 
 import com.gitlab.jeeto.oboco.R;
@@ -41,6 +43,10 @@ public abstract class BaseActivity extends AppCompatActivity {
         textView = view.findViewById(R.id.snackbar_action);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
         textView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.lightest));
+
+        CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) view.getLayoutParams();
+        layoutParams.width = FrameLayout.LayoutParams.MATCH_PARENT;
+        view.setLayoutParams(layoutParams);
 
         snackbar.show();
     }

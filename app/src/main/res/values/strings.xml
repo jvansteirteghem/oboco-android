@@ -20,7 +20,7 @@
     <string name="account_logout_password_hint">Password</string>
     <string name="account_logout_update_password_hint">New password</string>
     <string name="account_logout_show_password">Show password</string>
-    <string name="account_logout_update_password">Update password</string>
+    <string name="account_logout_update_password">Update</string>
 
     <string name="book_reader_menu_view_mode">View mode</string>
     <string name="book_reader_menu_view_mode_aspect_fill">Fill</string>

@@ -1,31 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#db5062</color>
-    <color name="primary_variant">#db5062</color>
-    <color name="primary_dark">#b35159</color>
-    <color name="primary_dark_variant">#b35159</color>
-
-    <color name="darkest">#222222</color>
-    <color name="darkest_variant">#222222</color>
-    <color name="darkest_semitransparent">#ce222222</color>
-    <color name="darkest_semitransparent_variant">#ce222222</color>
-    <color name="darker">#333333</color>
-    <color name="darker_variant">#333333</color>
-    <color name="darker_semitransparent">#ce333333</color>
-    <color name="darker_semitransparent_variant">#ce333333</color>
-    <color name="dark_highlight">@color/ripple_material_light</color>
-    <color name="dark_highlight_variant">@color/ripple_material_light</color>
-
-    <color name="lightest">#ffffff</color>
-    <color name="lightest_variant">#ffffff</color>
-    <color name="lightest_semitransparent">#ceffffff</color>
-    <color name="lightest_semitransparent_variant">#ceffffff</color>
-    <color name="lighter">#dddddd</color>
-    <color name="lighter_variant">#dddddd</color>
-    <color name="lighter_semitransparent">#cedddddd</color>
-    <color name="lighter_semitransparent_variant">#cedddddd</color>
-    <color name="light_highlight">@color/ripple_material_dark</color>
-    <color name="light_highlight_variant">@color/ripple_material_dark</color>
+    <color name="red">#db5062</color>
+    <color name="dark_red">#b35159</color>
 
     <color name="circle_grey">#9D9D9D</color>
     <color name="circle_red">#F44336</color>
@@ -33,4 +9,38 @@
     <color name="circle_blue">#2196F3</color>
     <color name="circle_yellow">#FFC107</color>
     <color name="circle_purple">#9C27B0</color>
+
+    <color name="primary">@color/red</color>
+    <color name="primary_dark">@color/dark_red</color>
+
+    <color name="highlight_light">#1f000000</color>
+    <color name="highlight_light_dark">@color/highlight_light</color>
+    <color name="highlight_dark">#33ffffff</color>
+    <color name="highlight_dark_light">@color/highlight_dark</color>
+
+    <color name="lightest">#ffffff</color>
+    <color name="lightest_darkest">@color/lightest</color>
+    <color name="lightest_darker">@color/lightest</color>
+    <color name="lightest_semitransparent">#ceffffff</color>
+    <color name="lightest_darkest_semitransparent">@color/lightest_semitransparent</color>
+    <color name="lightest_darker_semitransparent">@color/lightest_semitransparent</color>
+    <color name="lighter">#dddddd</color>
+    <color name="lighter_darkest">@color/lighter</color>
+    <color name="lighter_darker">@color/lighter</color>
+    <color name="lighter_semitransparent">#cedddddd</color>
+    <color name="lighter_darkest_semitransparent">@color/lighter_semitransparent</color>
+    <color name="lighter_darker_semitransparent">@color/lighter_semitransparent</color>
+
+    <color name="darkest">#222222</color>
+    <color name="darkest_lightest">@color/darkest</color>
+    <color name="darkest_lighter">@color/darkest</color>
+    <color name="darkest_semitransparent">#ce222222</color>
+    <color name="darkest_lightest_semitransparent">@color/darkest_semitransparent</color>
+    <color name="darkest_lighter_semitransparent">@color/darkest_semitransparent</color>
+    <color name="darker">#333333</color>
+    <color name="darker_lightest">@color/darker</color>
+    <color name="darker_lighter">@color/darker</color>
+    <color name="darker_semitransparent">#ce333333</color>
+    <color name="darker_lightest_semitransparent">@color/darker_semitransparent</color>
+    <color name="darker_lighter_semitransparent">@color/darker_semitransparent</color>
 </resources>

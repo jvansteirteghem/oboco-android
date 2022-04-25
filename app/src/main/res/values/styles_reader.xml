@@ -12,7 +12,7 @@
     <style name="ReaderThemeAlertDialog" parent="Theme.AppCompat.Dialog.Alert">
         <item name="colorAccent">@color/lightest</item>
         <item name="colorControlNormal">@color/lightest</item>
-        <item name="colorControlHighlight">@color/light_highlight</item>
+        <item name="colorControlHighlight">@color/highlight_dark</item>
         <item name="android:textColorPrimary">@color/lightest</item>
         <item name="android:textColor">@color/lightest</item>
         <item name="android:textColorHint">@color/lightest</item>
@@ -24,7 +24,7 @@
         <item name="colorPrimaryDark">@color/darkest</item>
         <item name="colorAccent">@color/lightest</item>
         <item name="colorControlNormal">@color/lightest</item>
-        <item name="colorControlHighlight">@color/light_highlight</item>
+        <item name="colorControlHighlight">@color/highlight_dark</item>
         <item name="android:textColorPrimary">@color/lightest</item>
         <item name="android:textColor">@color/lightest</item>
         <item name="android:textColorHint">@color/lightest</item>
@@ -39,7 +39,7 @@
     <style name="BaseReaderThemeActionBar" parent="Widget.AppCompat.ActionBar">
         <item name="colorAccent">@color/lightest</item>
         <item name="colorControlNormal">@color/lightest</item>
-        <item name="colorControlHighlight">@color/lightest</item>
+        <item name="colorControlHighlight">@color/highlight_dark</item>
         <item name="android:textColorPrimary">@color/lightest</item>
         <item name="android:textColor">@color/lightest</item>
         <item name="android:textColorHint">@color/lightest</item>
@@ -49,7 +49,7 @@
     <style name="BaseReaderThemePopupMenu" parent="Widget.AppCompat.PopupMenu">
         <item name="colorAccent">@color/lightest</item>
         <item name="colorControlNormal">@color/lightest</item>
-        <item name="colorControlHighlight">@color/light_highlight</item>
+        <item name="colorControlHighlight">@color/highlight_dark</item>
         <item name="android:textColorPrimary">@color/lightest</item>
         <item name="android:textColor">@color/lightest</item>
         <item name="android:textColorHint">@color/lightest</item>

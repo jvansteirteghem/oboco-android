@@ -4,8 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/lighter_variant">
+    android:layout_height="match_parent">
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -21,8 +20,7 @@
             <androidx.coordinatorlayout.widget.CoordinatorLayout
                 android:id="@+id/main_content"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/lighter_variant"/>
+                android:layout_height="match_parent"/>
     </com.google.android.material.appbar.AppBarLayout>
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigation_view"
@@ -30,7 +28,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
-        android:background="@color/lightest_variant"
+        android:background="@color/lightest_darker"
         app:headerLayout="@layout/layout_header"
         app:menu="@menu/drawer"
         app:itemTextColor="@drawable/nav_item"

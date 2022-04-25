@@ -38,6 +38,6 @@
         android:padding="@dimen/card_padding"
         android:src="@drawable/ic_dots_vertical_grey600_24dp"
         android:foreground="?android:attr/selectableItemBackground"
-        app:tint="@color/darkest_variant" />
+        app:tint="@color/darkest_lightest" />
 
 </RelativeLayout>

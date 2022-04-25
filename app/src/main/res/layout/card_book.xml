@@ -6,13 +6,12 @@
     android:layout_height="wrap_content"
     app:cardCornerRadius="2dp"
     app:cardElevation="2dp"
-    app:cardBackgroundColor="@color/lightest_variant">
+    app:cardBackgroundColor="@color/lightest_darkest">
     <LinearLayout
-        android:id="@+id/bookLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="@color/lightest_variant">
+        android:background="@color/lightest_darker">
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -25,13 +24,13 @@
                 android:id="@+id/bookMarkTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
                 android:layout_margin="@dimen/card_padding"
                 android:padding="@dimen/card_padding"
                 android:singleLine="true"
                 android:textSize="@dimen/card_text"
-                android:background="@color/lightest_variant"/>
+                android:background="@color/lightest_darker"/>
         </RelativeLayout>
         <TextView
             android:id="@+id/bookNameTextView"
@@ -69,7 +68,7 @@
                     android:padding="@dimen/card_padding"
                     android:src="@drawable/ic_dots_vertical_grey600_24dp"
                     android:foreground="?android:attr/selectableItemBackground"
-                    app:tint="@color/darkest_variant"/>
+                    app:tint="@color/darkest_lightest"/>
             </LinearLayout>
         </RelativeLayout>
     </LinearLayout>
