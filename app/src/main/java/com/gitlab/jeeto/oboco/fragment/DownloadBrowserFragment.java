@@ -291,9 +291,9 @@ public class DownloadBrowserFragment extends Fragment implements AdapterView.OnI
             BookMarkDto bookMarkDto = bookDto.getBookMark();
 
             if(bookMarkDto != null) {
-                if(bookMarkDto.getPage() > 1 && bookMarkDto.getPage() < bookDto.getNumberOfPages()) {
+                if(bookMarkDto.getPage().compareTo(1) > 0 && bookMarkDto.getPage().compareTo(bookDto.getNumberOfPages()) < 0) {
                     colorRes = R.color.circle_blue;
-                } else if(bookMarkDto.getPage() == bookDto.getNumberOfPages()) {
+                } else if(bookMarkDto.getPage().compareTo(bookDto.getNumberOfPages()) == 0) {
                     colorRes = R.color.circle_green;
                 }
             }
