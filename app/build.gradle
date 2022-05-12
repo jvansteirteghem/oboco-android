@@ -24,7 +24,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 31
 
-        versionName "1.12.4-SNAPSHOT"
+        versionName "1.12.4"
         versionCode 11204
     }
 
