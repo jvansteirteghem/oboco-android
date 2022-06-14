@@ -518,7 +518,7 @@ public class BookReaderFragment extends Fragment implements View.OnTouchListener
         Uri uri = mViewModel.getBookPageUri(page);
         mViewModel.getPicasso().load(uri)
                 .tag(getActivity())
-                .resize(Constants.MAX_PAGE_WIDTH, Constants.MAX_PAGE_HEIGHT)
+                .resize(Constants.MAX_BOOK_PAGE_WIDTH, Constants.MAX_BOOK_PAGE_HEIGHT)
                 .centerInside()
                 .onlyScaleDown()
                 .into(t);

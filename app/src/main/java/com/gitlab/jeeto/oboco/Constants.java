@@ -1,11 +1,14 @@
 package com.gitlab.jeeto.oboco;
 
 public class Constants {
-    public static final int COVER_THUMBNAIL_HEIGHT = 300;
-    public static final int COVER_THUMBNAIL_WIDTH = 200;
+    public static final int BOOK_COLLECTION_PAGE_WIDTH = 300;
+    public static final int BOOK_COLLECTION_PAGE_HEIGHT = 200;
 
-    public static final int MAX_PAGE_HEIGHT = 1600;
-    public static final int MAX_PAGE_WIDTH = 2000;
+    public static final int BOOK_PAGE_WIDTH = 200;
+    public static final int BOOK_PAGE_HEIGHT = 300;
+
+    public static final int MAX_BOOK_PAGE_WIDTH = 2000;
+    public static final int MAX_BOOK_PAGE_HEIGHT = 1600;
 
     public static final String SETTINGS_NAME = "BOOK_READER";
 

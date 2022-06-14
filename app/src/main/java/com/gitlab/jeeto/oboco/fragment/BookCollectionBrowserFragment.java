@@ -110,17 +110,31 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
 
         final View view = inflater.inflate(R.layout.fragment_book_collection_browser, container, false);
 
-        final int numColumns = calculateNumColumns();
-        int spacing = (int) getResources().getDimension(R.dimen.grid_margin);
+        int margin = (int) getResources().getDimension(R.dimen.grid_margin);
 
-        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), numColumns);
+        int deviceWidth = Utils.getDeviceWidth(getActivity());
+
+        int columnWidth = getResources().getInteger(R.integer.grid_book_collection_column_width);
+
+        int numberOfColumns = Math.round((float) deviceWidth / columnWidth);
+
+        int bookPageWidth = Constants.BOOK_COLLECTION_PAGE_WIDTH;
+        int bookPageHeight = Constants.BOOK_COLLECTION_PAGE_HEIGHT;
+
+        int width = (int) Math.ceil((float) (deviceWidth - (margin * (numberOfColumns + 1))) / numberOfColumns);
+        if(width > bookPageWidth) {
+            bookPageWidth = bookPageWidth + (Constants.BOOK_COLLECTION_PAGE_WIDTH / 2);
+            bookPageHeight = bookPageHeight + (Constants.BOOK_COLLECTION_PAGE_HEIGHT / 2);
+        }
+
+        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), numberOfColumns);
         layoutManager.setSpanSizeLookup(createSpanSizeLookup());
 
         mBookCollectionListView = (RecyclerView) view.findViewById(R.id.bookCollectionBrowserGrid);
         mBookCollectionListView.setHasFixedSize(true);
         mBookCollectionListView.setLayoutManager(layoutManager);
-        mBookCollectionListView.setAdapter(new BookCollectionGridAdapter());
-        mBookCollectionListView.addItemDecoration(new GridSpacingItemDecoration(numColumns, spacing));
+        mBookCollectionListView.setAdapter(new BookCollectionGridAdapter(bookPageWidth, bookPageHeight));
+        mBookCollectionListView.addItemDecoration(new GridMarginItemDecoration(numberOfColumns, margin));
         mBookCollectionListView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -532,13 +546,6 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         return super.onOptionsItemSelected(menuItem);
     }
 
-    private int calculateNumColumns() {
-        int deviceWidth = Utils.getDeviceWidth(getActivity());
-        int columnWidth = getActivity().getResources().getInteger(R.integer.grid_group_column_width);
-
-        return Math.round((float) deviceWidth / columnWidth);
-    }
-
     private GridLayoutManager.SpanSizeLookup createSpanSizeLookup() {
         return new GridLayoutManager.SpanSizeLookup() {
             @Override
@@ -548,32 +555,40 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
         };
     }
 
-    private final class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
-        private int mSpanCount;
-        private int mSpacing;
+    private final class GridMarginItemDecoration extends RecyclerView.ItemDecoration {
+        private int mNumberOfColumns;
+        private int mMargin;
 
-        public GridSpacingItemDecoration(int spanCount, int spacing) {
-            mSpanCount = spanCount;
-            mSpacing = spacing;
+        public GridMarginItemDecoration(int numberOfColumns, int margin) {
+            mNumberOfColumns = numberOfColumns;
+            mMargin = margin;
         }
 
         @Override
         public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
             int position = parent.getChildAdapterPosition(view);
 
-            int column = position % mSpanCount;
+            int column = position % mNumberOfColumns;
 
-            outRect.left = mSpacing - column * mSpacing / mSpanCount;
-            outRect.right = (column + 1) * mSpacing / mSpanCount;
+            outRect.left = mMargin - column * mMargin / mNumberOfColumns;
+            outRect.right = (column + 1) * mMargin / mNumberOfColumns;
 
-            if (position < mSpanCount) {
-                outRect.top = mSpacing;
+            if (position < mNumberOfColumns) {
+                outRect.top = mMargin;
             }
-            outRect.bottom = mSpacing;
+            outRect.bottom = mMargin;
         }
     }
 
     private final class BookCollectionGridAdapter extends RecyclerView.Adapter {
+        private int mBookPageWidth;
+        private int mBookPageHeight;
+
+        public BookCollectionGridAdapter(int bookPageWidth, int bookPageHeight) {
+            mBookPageWidth = bookPageWidth;
+            mBookPageHeight = bookPageHeight;
+        }
+
         @Override
         public int getItemCount() {
             return mViewModel.getBookCollectionList().size();
@@ -590,7 +605,7 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
 
             View view = LayoutInflater.from(ctx)
                     .inflate(R.layout.card_book_collection, viewGroup, false);
-            return new BookCollectionViewHolder(view);
+            return new BookCollectionViewHolder(view, mBookPageWidth, mBookPageHeight);
         }
 
         @Override
@@ -604,14 +619,20 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
     }
 
     private class BookCollectionViewHolder extends RecyclerView.ViewHolder {
+        private int mBookPageWidth;
+        private int mBookPageHeight;
         private TextView mBookCollectionMarkTextView;
         private ImageView mBookCollectionImageView;
         private TextView mBookCollectionNameTextView;
         private TextView mBookCollectionNumberOfTextView;
         private ImageView mBookCollectionMenuImageView;
 
-        public BookCollectionViewHolder(View itemView) {
+        public BookCollectionViewHolder(View itemView, int bookPageWidth, int bookPageHeight) {
             super(itemView);
+
+            mBookPageWidth = bookPageWidth;
+            mBookPageHeight = bookPageHeight;
+
             if(mViewModel.getBookCollectionList().size() > 0) {
                 mBookCollectionMarkTextView = (TextView) itemView.findViewById(R.id.bookCollectionMarkTextView);
 
@@ -697,10 +718,10 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
 
                 mBookCollectionImageView.setImageResource(android.R.color.transparent);
 
-                Uri uri = mViewModel.getBookCollectionPageUri(bookCollectionDto, "DEFAULT", Constants.COVER_THUMBNAIL_HEIGHT, Constants.COVER_THUMBNAIL_WIDTH);
+                Uri uri = mViewModel.getBookCollectionPageUri(bookCollectionDto, "DEFAULT", mBookPageWidth, mBookPageHeight);
                 mViewModel.getPicasso().load(uri)
                         .tag(getActivity())
-                        .resize(Constants.COVER_THUMBNAIL_HEIGHT, Constants.COVER_THUMBNAIL_WIDTH)
+                        .fit()
                         .centerCrop(Gravity.TOP)
                         .into(mBookCollectionImageView);
 

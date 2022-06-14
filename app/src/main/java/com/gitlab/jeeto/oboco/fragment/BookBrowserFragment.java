@@ -129,17 +129,31 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
 
         final View view = inflater.inflate(R.layout.fragment_book_browser, container, false);
 
-        final int numColumns = calculateNumColumns();
-        int spacing = (int) getResources().getDimension(R.dimen.grid_margin);
+        int margin = (int) getResources().getDimension(R.dimen.grid_margin);
 
-        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), numColumns);
+        int deviceWidth = Utils.getDeviceWidth(getActivity());
+
+        int columnWidth = getResources().getInteger(R.integer.grid_book_column_width);
+
+        int numberOfColumns = Math.round((float) deviceWidth / columnWidth);
+
+        int bookPageWidth = Constants.BOOK_PAGE_WIDTH;
+        int bookPageHeight = Constants.BOOK_PAGE_HEIGHT;
+
+        int width = (int) Math.ceil((float) (deviceWidth - (margin * (numberOfColumns + 1))) / numberOfColumns);
+        if(width > bookPageWidth) {
+            bookPageWidth = bookPageWidth + (Constants.BOOK_PAGE_WIDTH / 2);
+            bookPageHeight = bookPageHeight + (Constants.BOOK_PAGE_HEIGHT / 2);
+        }
+
+        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), numberOfColumns);
         layoutManager.setSpanSizeLookup(createSpanSizeLookup());
 
         mBookListView = (RecyclerView) view.findViewById(R.id.bookBrowserGrid);
         mBookListView.setHasFixedSize(true);
         mBookListView.setLayoutManager(layoutManager);
-        mBookListView.setAdapter(new BookGridAdapter());
-        mBookListView.addItemDecoration(new GridSpacingItemDecoration(numColumns, spacing));
+        mBookListView.setAdapter(new BookGridAdapter(bookPageWidth, bookPageHeight));
+        mBookListView.addItemDecoration(new GridMarginItemDecoration(numberOfColumns, margin));
         mBookListView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -420,61 +434,49 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         mBookReaderActivityResultLauncher.launch(intent);
     }
 
-    private BookDto getBookAtPosition(int position) {
-        BookDto bookDto = mViewModel.getBookList().get(position);
-        return bookDto;
-    }
-
-    private int getItemViewTypeAtPosition(int position) {
-        return ITEM_VIEW_TYPE_BOOK;
-    }
-
-    private int calculateNumColumns() {
-        int deviceWidth = Utils.getDeviceWidth(getActivity());
-        int columnWidth = getActivity().getResources().getInteger(R.integer.grid_comic_column_width);
-
-        return Math.round((float) deviceWidth / columnWidth);
-    }
-
     private GridLayoutManager.SpanSizeLookup createSpanSizeLookup() {
-        final int numColumns = calculateNumColumns();
-
         return new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                if (getItemViewTypeAtPosition(position) == ITEM_VIEW_TYPE_BOOK)
-                    return 1;
-                return numColumns;
+                return 1;
             }
         };
     }
 
-    private final class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
-        private int mSpanCount;
-        private int mSpacing;
+    private final class GridMarginItemDecoration extends RecyclerView.ItemDecoration {
+        private int mNumberOfColumns;
+        private int mMargin;
 
-        public GridSpacingItemDecoration(int spanCount, int spacing) {
-            mSpanCount = spanCount;
-            mSpacing = spacing;
+        public GridMarginItemDecoration(int numberOfColumns, int margin) {
+            mNumberOfColumns = numberOfColumns;
+            mMargin = margin;
         }
 
         @Override
         public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
             int position = parent.getChildAdapterPosition(view);
 
-            int column = position % mSpanCount;
+            int column = position % mNumberOfColumns;
 
-            outRect.left = mSpacing - column * mSpacing / mSpanCount;
-            outRect.right = (column + 1) * mSpacing / mSpanCount;
+            outRect.left = mMargin - column * mMargin / mNumberOfColumns;
+            outRect.right = (column + 1) * mMargin / mNumberOfColumns;
 
-            if (position < mSpanCount) {
-                outRect.top = mSpacing;
+            if (position < mNumberOfColumns) {
+                outRect.top = mMargin;
             }
-            outRect.bottom = mSpacing;
+            outRect.bottom = mMargin;
         }
     }
 
     private final class BookGridAdapter extends RecyclerView.Adapter {
+        private int mBookPageWidth;
+        private int mBookPageHeight;
+
+        public BookGridAdapter(int bookPageWidth, int bookPageHeight) {
+            mBookPageWidth = bookPageWidth;
+            mBookPageHeight = bookPageHeight;
+        }
+
         @Override
         public int getItemCount() {
             return mViewModel.getBookList().size();
@@ -482,7 +484,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
 
         @Override
         public int getItemViewType(int position) {
-            return getItemViewTypeAtPosition(position);
+            return ITEM_VIEW_TYPE_BOOK;
         }
 
         @Override
@@ -491,13 +493,13 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
 
             View view = LayoutInflater.from(ctx)
                     .inflate(R.layout.card_book, viewGroup, false);
-            return new BookViewHolder(view);
+            return new BookViewHolder(view, mBookPageWidth, mBookPageHeight);
         }
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
             if (viewHolder.getItemViewType() == ITEM_VIEW_TYPE_BOOK) {
-                BookDto bookDto = getBookAtPosition(i);
+                BookDto bookDto = mViewModel.getBookList().get(i);
                 BookViewHolder holder = (BookViewHolder) viewHolder;
                 holder.setupBook(bookDto);
             }
@@ -505,14 +507,20 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
     }
 
     private class BookViewHolder extends RecyclerView.ViewHolder {
+        private int mBookPageWidth;
+        private int mBookPageHeight;
         private TextView mBookMarkTextView;
         private ImageView mBookImageView;
         private TextView mBookNameTextView;
         private TextView mBookNumberOfTextView;
         private ImageView mBookMenuImageView;
 
-        public BookViewHolder(View itemView) {
+        public BookViewHolder(View itemView, int bookPageWidth, int bookPageHeight) {
             super(itemView);
+
+            mBookPageWidth = bookPageWidth;
+            mBookPageHeight = bookPageHeight;
+
             mBookMarkTextView = (TextView) itemView.findViewById(R.id.bookMarkTextView);
 
             mBookImageView = (ImageView) itemView.findViewById(R.id.bookImageView);
@@ -520,7 +528,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                 @Override
                 public void onClick(View view) {
                     int i = getBindingAdapterPosition();
-                    BookDto bookDto = getBookAtPosition(i);
+                    BookDto bookDto = mViewModel.getBookList().get(i);
                     openBook(bookDto);
                 }
             });
@@ -540,7 +548,7 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                         mSelectedBookMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                             public boolean onMenuItemClick(MenuItem menuItem) {
                                 int i = getBindingAdapterPosition();
-                                BookDto selectedBookDto = getBookAtPosition(i);
+                                BookDto selectedBookDto = mViewModel.getBookList().get(i);
 
                                 mViewModel.setSelectedBook(selectedBookDto);
 
@@ -582,10 +590,10 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
 
             mBookImageView.setImageResource(android.R.color.transparent);
 
-            Uri uri = mViewModel.getBookPageUri(bookDto, "DEFAULT", Constants.COVER_THUMBNAIL_WIDTH, Constants.COVER_THUMBNAIL_HEIGHT);
+            Uri uri = mViewModel.getBookPageUri(bookDto, "DEFAULT", mBookPageWidth, mBookPageHeight);
             mViewModel.getPicasso().load(uri)
                     .tag(getActivity())
-                    .resize(Constants.COVER_THUMBNAIL_WIDTH, Constants.COVER_THUMBNAIL_HEIGHT)
+                    .fit()
                     .centerCrop(Gravity.CENTER)
                     .into(mBookImageView);
         }
