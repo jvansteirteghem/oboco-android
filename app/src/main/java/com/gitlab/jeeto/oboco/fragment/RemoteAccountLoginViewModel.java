@@ -97,7 +97,11 @@ public class RemoteAccountLoginViewModel extends AccountLoginViewModel {
             messageList.add(getMessage(R.string.action_user_log_in_name_password_error_base_url));
         } else {
             try {
-                HttpUrl.get(baseUrl);
+                HttpUrl httpUrl = HttpUrl.get(baseUrl);
+
+                if(httpUrl.isHttps() == false) {
+                    messageList.add(getMessage(R.string.action_user_log_in_name_password_error_base_url));
+                }
             } catch (Exception e) {
                 messageList.add(getMessage(R.string.action_user_log_in_name_password_error_base_url));
             }

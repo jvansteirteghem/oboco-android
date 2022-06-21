@@ -10,7 +10,7 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
 
-    <string name="account_login_base_url_hint">Base URL: http(s)://address:port</string>
+    <string name="account_login_base_url_hint">Base URL: https://address:port</string>
     <string name="account_login_name_hint">Name</string>
     <string name="account_login_password_hint">Password</string>
     <string name="account_login_show_password">Show password</string>
@@ -108,7 +108,7 @@
     <string name="download_book_worker_download_stop">Stop</string>
 
     <string name="action_user_log_in_name_password">You are logged in.</string>
-    <string name="action_user_log_in_name_password_error_base_url">Set base URL: http(s)://address:port.</string>
+    <string name="action_user_log_in_name_password_error_base_url">Set base URL: https://address:port.</string>
     <string name="action_user_log_in_name_password_error_name">Set name.</string>
     <string name="action_user_log_in_name_password_error_password">Set password.</string>
     <string name="action_user_log_in_name_password_error">We can not log in. Are the name and the password correct?</string>

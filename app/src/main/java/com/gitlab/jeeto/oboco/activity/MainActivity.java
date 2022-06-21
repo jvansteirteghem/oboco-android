@@ -1,10 +1,8 @@
 package com.gitlab.jeeto.oboco.activity;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -67,77 +65,27 @@ public class MainActivity extends BaseActivity implements FragmentManager.OnBack
         SharedPreferences preferences = getSharedPreferences("application", Context.MODE_PRIVATE);
 
         if (savedInstanceState == null) {
-            Intent intent = getIntent();
-            Uri data = intent.getData();
-            if (data != null) {
-                String baseUrl = "";
-                if(data.getScheme() != null) {
-                    if(data.getScheme().equals("oboco")) {
-                        baseUrl = "http://";
-                    } else if(data.getScheme().equals("obocos")) {
-                        baseUrl = "https://";
-                    }
-                }
-                if(data.getHost() != null) {
-                    baseUrl = baseUrl + data.getHost();
-                }
-                if(data.getPort() != -1) {
-                    baseUrl = baseUrl + ":" + data.getPort();
-                }
-                if(data.getPathSegments() != null) {
-                    for(String pathSegment : data.getPathSegments()) {
-                        baseUrl = baseUrl + "/" + pathSegment;
-                    }
-                }
-                String name = "";
-                String password = "";
-                String userInfo = data.getUserInfo();
-                if(userInfo != null) {
-                    String[] userNamePassword = userInfo.split(":");
-                    if(userNamePassword.length == 2) {
-                        name = userNamePassword[0];
-                        password = userNamePassword[1];
-                    }
-                }
+            String accessToken = preferences.getString("accessToken", "");
 
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putString("baseUrl", baseUrl);
-                editor.putString("name", name);
-                editor.putString("password", password);
-                editor.putString("accessToken", "");
-                editor.putString("refreshToken", "");
-                editor.commit();
-
+            if(accessToken.equals("")) {
                 navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser).setVisible(false);
 
                 setFragment(new AccountLoginFragment());
 
                 mCurrentNavItem = R.id.drawer_menu_account;
             } else {
-                String accessToken = preferences.getString("accessToken", "");
+                navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser).setVisible(true);
 
-                if(accessToken.equals("")) {
-                    navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser).setVisible(false);
+                setFragment(BookCollectionBrowserFragment.create(-1L, "ROOT"));
 
-                    setFragment(new AccountLoginFragment());
-
-                    mCurrentNavItem = R.id.drawer_menu_account;
-                } else {
-                    navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser).setVisible(true);
-
-                    setFragment(BookCollectionBrowserFragment.create(-1L, "ROOT"));
-
-                    mCurrentNavItem = R.id.drawer_menu_book_collection_browser;
-                }
+                mCurrentNavItem = R.id.drawer_menu_book_collection_browser;
             }
-
-            navigationView.getMenu().findItem(mCurrentNavItem).setChecked(true);
-        }
-        else {
+        } else {
             onBackStackChanged();  // force-call method to ensure indicator is shown properly
             mCurrentNavItem = savedInstanceState.getInt(STATE_CURRENT_MENU_ITEM);
-            navigationView.getMenu().findItem(mCurrentNavItem).setChecked(true);
         }
+
+        navigationView.getMenu().findItem(mCurrentNavItem).setChecked(true);
     }
 
     @Override

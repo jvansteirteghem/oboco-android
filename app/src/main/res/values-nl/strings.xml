@@ -10,7 +10,7 @@
     <string name="drawer_open">Open navigatie lade</string>
     <string name="drawer_close">Sluit navigatie lade</string>
 
-    <string name="account_login_base_url_hint">Basis URL: http(s)://adres:poort</string>
+    <string name="account_login_base_url_hint">Basis URL: https://adres:poort</string>
     <string name="account_login_name_hint">Naam</string>
     <string name="account_login_password_hint">Wachtwoord</string>
     <string name="account_login_show_password">Toon wachtwoord</string>
@@ -108,7 +108,7 @@
     <string name="download_book_worker_download_stop">Stoppen</string>
 
     <string name="action_user_log_in_name_password">Je bent ingelogd.</string>
-    <string name="action_user_log_in_name_password_error_base_url">Zet basis URL: http(s)://adres:poort.</string>
+    <string name="action_user_log_in_name_password_error_base_url">Zet basis URL: https://adres:poort.</string>
     <string name="action_user_log_in_name_password_error_name">Zet naam.</string>
     <string name="action_user_log_in_name_password_error_password">Zet wachtwoord.</string>
     <string name="action_user_log_in_name_password_error">We kunnen niet inloggen. Zijn de naam en het wachtwoord correct?</string>

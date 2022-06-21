@@ -45,7 +45,7 @@ oboco for android started as a fork of [bubble](https://github.com/nkanaev/bubbl
 ## usage
 
 - log in
-	- baseUrl: the base url of the oboco server (http://SERVER_ADDRESS:SERVER_PORT or https://SERVER_ADDRESS:SERVER_SSL_PORT)
+	- baseUrl: the base url of the oboco server (https://SERVER_ADDRESS:SERVER_SSL_PORT)
 	- name: the user name
 	- password: the user password
 - browse
