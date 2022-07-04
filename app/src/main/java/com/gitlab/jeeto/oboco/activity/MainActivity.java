@@ -76,7 +76,7 @@ public class MainActivity extends BaseActivity implements FragmentManager.OnBack
             } else {
                 navigationView.getMenu().findItem(R.id.drawer_menu_book_collection_browser).setVisible(true);
 
-                setFragment(BookCollectionBrowserFragment.create(-1L, "ROOT"));
+                setFragment(BookCollectionBrowserFragment.create(-1L, "LATEST_READ"));
 
                 mCurrentNavItem = R.id.drawer_menu_book_collection_browser;
             }
