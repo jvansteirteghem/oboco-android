@@ -465,10 +465,12 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                         menuItemId = R.id.menu_book_collection_browser_filter_type_all;
                     } else if ("NEW".equals(filterType)) {
                         menuItemId = R.id.menu_book_collection_browser_filter_type_new;
-                    } else if ("TO_READ".equals(filterType)) {
-                        menuItemId = R.id.menu_book_collection_browser_filter_type_to_read;
+                    } else if ("LATEST".equals(filterType)) {
+                        menuItemId = R.id.menu_book_collection_browser_filter_type_latest;
                     } else if ("LATEST_READ".equals(filterType)) {
                         menuItemId = R.id.menu_book_collection_browser_filter_type_latest_read;
+                    } else if ("TO_READ".equals(filterType)) {
+                        menuItemId = R.id.menu_book_collection_browser_filter_type_to_read;
                     } else if ("READ".equals(filterType)) {
                         menuItemId = R.id.menu_book_collection_browser_filter_type_read;
                     } else if ("READING".equals(filterType)) {
@@ -495,8 +497,9 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
             case R.id.menu_book_collection_browser_filter_type_root:
             case R.id.menu_book_collection_browser_filter_type_all:
             case R.id.menu_book_collection_browser_filter_type_new:
-            case R.id.menu_book_collection_browser_filter_type_to_read:
+			case R.id.menu_book_collection_browser_filter_type_latest:
             case R.id.menu_book_collection_browser_filter_type_latest_read:
+            case R.id.menu_book_collection_browser_filter_type_to_read:
             case R.id.menu_book_collection_browser_filter_type_read:
             case R.id.menu_book_collection_browser_filter_type_reading:
             case R.id.menu_book_collection_browser_filter_type_unread:
@@ -509,10 +512,12 @@ public class BookCollectionBrowserFragment extends Fragment implements SwipeRefr
                     filterType = "ALL";
                 } else if (menuItemId == R.id.menu_book_collection_browser_filter_type_new) {
                     filterType = "NEW";
-                } else if (menuItemId == R.id.menu_book_collection_browser_filter_type_to_read) {
-                    filterType = "TO_READ";
+                } else if (menuItemId == R.id.menu_book_collection_browser_filter_type_latest) {
+                    filterType = "LATEST";
                 } else if (menuItemId == R.id.menu_book_collection_browser_filter_type_latest_read) {
                     filterType = "LATEST_READ";
+                } else if (menuItemId == R.id.menu_book_collection_browser_filter_type_to_read) {
+                    filterType = "TO_READ";
                 } else if (menuItemId == R.id.menu_book_collection_browser_filter_type_read) {
                     filterType = "READ";
                 } else if (menuItemId == R.id.menu_book_collection_browser_filter_type_reading) {

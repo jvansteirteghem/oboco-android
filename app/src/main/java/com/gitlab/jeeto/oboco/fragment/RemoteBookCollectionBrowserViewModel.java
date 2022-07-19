@@ -147,10 +147,12 @@ public class RemoteBookCollectionBrowserViewModel extends BookCollectionBrowserV
                     title = title + ": " + getApplication().getResources().getString(R.string.book_collection_browser_menu_filter_type_all);
                 } else if("NEW".equals(filterType)) {
                     title = title + ": " + getApplication().getResources().getString(R.string.book_collection_browser_menu_filter_type_new);
-                } else if("TO_READ".equals(filterType)) {
-                    title = title + ": " + getApplication().getResources().getString(R.string.book_collection_browser_menu_filter_type_to_read);
+                } else if("LATEST".equals(filterType)) {
+                    title = title + ": " + getApplication().getResources().getString(R.string.book_collection_browser_menu_filter_type_latest);
                 } else if("LATEST_READ".equals(filterType)) {
                     title = title + ": " + getApplication().getResources().getString(R.string.book_collection_browser_menu_filter_type_latest_read);
+                } else if("TO_READ".equals(filterType)) {
+                    title = title + ": " + getApplication().getResources().getString(R.string.book_collection_browser_menu_filter_type_to_read);
                 } else if("READ".equals(filterType)) {
                     title = title + ": " + getApplication().getResources().getString(R.string.book_collection_browser_menu_filter_type_read);
                 } else if("READING".equals(filterType)) {
