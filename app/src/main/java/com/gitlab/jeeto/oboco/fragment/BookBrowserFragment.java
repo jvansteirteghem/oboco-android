@@ -362,10 +362,12 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                         menuItemId = R.id.menu_book_browser_filter_type_all;
                     } else if ("NEW".equals(filterType)) {
                         menuItemId = R.id.menu_book_browser_filter_type_new;
-                    } else if ("TO_READ".equals(filterType)) {
-                        menuItemId = R.id.menu_book_browser_filter_type_to_read;
+                    } else if ("LATEST".equals(filterType)) {
+                        menuItemId = R.id.menu_book_browser_filter_type_latest;
                     } else if ("LATEST_READ".equals(filterType)) {
                         menuItemId = R.id.menu_book_browser_filter_type_latest_read;
+                    } else if ("TO_READ".equals(filterType)) {
+                        menuItemId = R.id.menu_book_browser_filter_type_to_read;
                     } else if ("READ".equals(filterType)) {
                         menuItemId = R.id.menu_book_browser_filter_type_read;
                     } else if ("READING".equals(filterType)) {
@@ -391,8 +393,9 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
         switch (menuItemId) {
             case R.id.menu_book_browser_filter_type_all:
             case R.id.menu_book_browser_filter_type_new:
-            case R.id.menu_book_browser_filter_type_to_read:
+			case R.id.menu_book_browser_filter_type_latest:
             case R.id.menu_book_browser_filter_type_latest_read:
+            case R.id.menu_book_browser_filter_type_to_read:
             case R.id.menu_book_browser_filter_type_read:
             case R.id.menu_book_browser_filter_type_reading:
             case R.id.menu_book_browser_filter_type_unread:
@@ -402,10 +405,12 @@ public class BookBrowserFragment extends Fragment implements SwipeRefreshLayout.
                     mFilterType = "ALL";
                 } else if (menuItemId == R.id.menu_book_browser_filter_type_new) {
                     mFilterType = "NEW";
-                } else if (menuItemId == R.id.menu_book_browser_filter_type_to_read) {
-                    mFilterType = "TO_READ";
+                } else if (menuItemId == R.id.menu_book_browser_filter_type_latest) {
+                    mFilterType = "LATEST";
                 } else if (menuItemId == R.id.menu_book_browser_filter_type_latest_read) {
                     mFilterType = "LATEST_READ";
+                } else if (menuItemId == R.id.menu_book_browser_filter_type_to_read) {
+                    mFilterType = "TO_READ";
                 } else if (menuItemId == R.id.menu_book_browser_filter_type_read) {
                     mFilterType = "READ";
                 } else if (menuItemId == R.id.menu_book_browser_filter_type_reading) {

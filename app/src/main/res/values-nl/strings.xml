@@ -34,10 +34,11 @@
     <string name="book_reader_dialog_open_negative">Nee</string>
 
     <string name="book_browser_menu_filter">Filter</string>
-    <string name="book_browser_menu_filter_type_all">Alles</string>
-    <string name="book_browser_menu_filter_type_new">Nieuw</string>
+    <string name="book_browser_menu_filter_type_all">Alle</string>
+    <string name="book_browser_menu_filter_type_new">Nieuwe</string>
+	<string name="book_browser_menu_filter_type_latest">Laatste</string>
+    <string name="book_browser_menu_filter_type_latest_read">Laatste gelezen</string>
     <string name="book_browser_menu_filter_type_to_read">Te lezen</string>
-    <string name="book_browser_menu_filter_type_latest_read">Laatst gelezen</string>
     <string name="book_browser_menu_filter_type_read">Gelezen</string>
     <string name="book_browser_menu_filter_type_reading">Aan het lezen</string>
     <string name="book_browser_menu_filter_type_unread">Ongelezen</string>
@@ -58,10 +59,11 @@
     <string name="book_collection_browser_menu_search">Zoeken</string>
     <string name="book_collection_browser_menu_filter">Filter</string>
     <string name="book_collection_browser_menu_filter_type_root">Wortel</string>
-    <string name="book_collection_browser_menu_filter_type_all">Alles</string>
-    <string name="book_collection_browser_menu_filter_type_new">Nieuw</string>
+    <string name="book_collection_browser_menu_filter_type_all">Alle</string>
+    <string name="book_collection_browser_menu_filter_type_new">Nieuwe</string>
+	<string name="book_collection_browser_menu_filter_type_latest">Laatste</string>
+    <string name="book_collection_browser_menu_filter_type_latest_read">Laatste gelezen</string>
     <string name="book_collection_browser_menu_filter_type_to_read">Te lezen</string>
-    <string name="book_collection_browser_menu_filter_type_latest_read">Laatst gelezen</string>
     <string name="book_collection_browser_menu_filter_type_read">Gelezen</string>
     <string name="book_collection_browser_menu_filter_type_reading">Aan het lezen</string>
     <string name="book_collection_browser_menu_filter_type_unread">Ongelezen</string>
